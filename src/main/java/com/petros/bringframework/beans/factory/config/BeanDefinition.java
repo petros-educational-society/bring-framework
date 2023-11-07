@@ -1,8 +1,8 @@
-package com.petros.bringframework.beans.config;
+package com.petros.bringframework.beans.factory.config;
 
 import javax.annotation.Nullable;
 
-public interface FakeBeanDefinition {
+public interface BeanDefinition {
     void setBeanClassName(@Nullable String beanClassName);
 
     @Nullable
@@ -12,4 +12,9 @@ public interface FakeBeanDefinition {
 
     @Nullable
     String getScope();
+
+    void setFactoryBeanName(@Nullable String factoryBeanName);
+
+    @Nullable
+    String getFactoryBeanName();
 }
