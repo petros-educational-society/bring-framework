@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.petros</groupId>
-    <artifactId>picture-extractor-socket</artifactId>
+    <artifactId>bringframework</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -12,6 +12,8 @@
         <mave.compiler.source>17</mave.compiler.source>
         <mave.compiler.target>17</mave.compiler.target>
     </properties>
+
+    <name>Petros team handmade DI container and WEB framework</name>
 
     <dependencies>
         <dependency>
