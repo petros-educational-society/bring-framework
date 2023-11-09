@@ -1,9 +1,6 @@
 package com.petros.bringframework.beans.factory.config;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author "Maksym Oliinyk"
@@ -15,12 +12,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
      *
      * @return the annotation type names
      */
-    default Set<String> getAnnotationTypes() {
-        return getAnnotations().stream()
-                .filter(MergedAnnotation::isDirectlyPresent)
-                .map(annotation -> annotation.getType().getName())
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
+    Set<String> getAnnotationTypes();
 
     /**
      * Get the fully qualified class names of all meta-annotation types that
@@ -30,15 +22,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
      *                       type to look for
      * @return the meta-annotation type names, or an empty set if none found
      */
-    default Set<String> getMetaAnnotationTypes(String annotationName) {
-        MergedAnnotation<?> annotation = getAnnotations().get(annotationName, MergedAnnotation::isDirectlyPresent);
-        if (!annotation.isPresent()) {
-            return Collections.emptySet();
-        }
-        return MergedAnnotations.from(annotation.getType(), SearchStrategy.INHERITED_ANNOTATIONS).stream()
-                .map(mergedAnnotation -> mergedAnnotation.getType().getName())
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
+    Set<String> getMetaAnnotationTypes(String annotationName);
 
     /**
      * Determine whether an annotation of the given type is <em>present</em> on
@@ -48,9 +32,7 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
      *                       type to look for
      * @return {@code true} if a matching annotation is present
      */
-    default boolean hasAnnotation(String annotationName) {
-        return getAnnotations().isDirectlyPresent(annotationName);
-    }
+    boolean hasAnnotation(String annotationName);
 
     /**
      * Determine whether the underlying class has an annotation that is itself
