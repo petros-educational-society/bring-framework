@@ -12,74 +12,81 @@ import java.util.Arrays;
  */
 public class ReflectionClassMetadata implements ClassMetadata {
 
-    private final Class<?> clazz;
+    protected final Class<?> introspectedClass;
 
-    public ReflectionClassMetadata(@Nonnull Class<?> clazz) {
-        AssertUtils.notNull(clazz, "Class must not be null");
-        this.clazz = clazz;
+    public ReflectionClassMetadata(@Nonnull Class<?> introspectedClass) {
+        AssertUtils.notNull(introspectedClass, "Class must not be null");
+        this.introspectedClass = introspectedClass;
+    }
+
+    /**
+     * Return the underlying Class.
+     */
+    public final Class<?> getIntrospectedClass() {
+        return this.introspectedClass;
     }
 
     @Override
     public String getClassName() {
-        return clazz.getName();
+        return introspectedClass.getName();
     }
 
     @Override
     public boolean isInterface() {
-        return clazz.isInterface();
+        return introspectedClass.isInterface();
     }
 
     @Override
     public boolean isAnnotation() {
-        return clazz.isAnnotation();
+        return introspectedClass.isAnnotation();
     }
 
     @Override
     public boolean isAbstract() {
-        final int modifiers = clazz.getModifiers();
+        final int modifiers = introspectedClass.getModifiers();
         return Modifier.isAbstract(modifiers);
     }
 
     @Override
     public boolean isFinal() {
-        final int modifiers = clazz.getModifiers();
+        final int modifiers = introspectedClass.getModifiers();
         return Modifier.isFinal(modifiers);
     }
 
     @Override
     public boolean isIndependent() {
-        if (clazz.isMemberClass()) {
+        if (introspectedClass.isMemberClass()) {
             // Check if the class is static, meaning it is a static nested class
-            return Modifier.isStatic(clazz.getModifiers());
+            return Modifier.isStatic(introspectedClass.getModifiers());
         } else {
-            return !clazz.isLocalClass() && !clazz.isAnonymousClass();
+            return !introspectedClass.isLocalClass() && !introspectedClass.isAnonymousClass();
         }
     }
 
     @Nullable
     @Override
     public String getEnclosingClassName() {
-        final Class<?> enclosingClass = clazz.getEnclosingClass();
+        final Class<?> enclosingClass = introspectedClass.getEnclosingClass();
         return enclosingClass != null ? enclosingClass.getName() : null;
     }
 
     @Nullable
     @Override
     public String getSuperClassName() {
-        final Class<?> superclass = clazz.getSuperclass();
+        final Class<?> superclass = introspectedClass.getSuperclass();
         return superclass != null ? superclass.getName() : null;
     }
 
     @Override
     public String[] getInterfaceNames() {
-        return Arrays.stream(clazz.getInterfaces())
+        return Arrays.stream(introspectedClass.getInterfaces())
                 .map(Class::getName)
                 .toArray(String[]::new);
     }
 
     @Override
     public String[] getMemberClassNames() {
-        return Arrays.stream(clazz.getDeclaredClasses())
+        return Arrays.stream(introspectedClass.getDeclaredClasses())
                 .map(Class::getName)
                 .toArray(String[]::new);
     }

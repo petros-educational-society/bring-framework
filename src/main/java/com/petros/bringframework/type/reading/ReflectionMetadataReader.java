@@ -2,6 +2,8 @@ package com.petros.bringframework.type.reading;
 
 import com.petros.bringframework.beans.factory.config.AnnotationMetadata;
 import com.petros.bringframework.beans.factory.config.ClassMetadata;
+import com.petros.bringframework.beans.factory.config.ReflectionAnnotationMetadata;
+import com.petros.bringframework.beans.factory.config.ReflectionClassMetadata;
 
 /**
  * @author "Maksym Oliinyk"
@@ -12,10 +14,10 @@ public class ReflectionMetadataReader implements MetadataReader {
     private final ClassMetadata classMetadata;
     private final AnnotationMetadata annotationMetadata;
 
-    public ReflectionMetadataReader(Class<?> clazz, ClassMetadata classMetadata, AnnotationMetadata annotationMetadata) {
+    public ReflectionMetadataReader(Class<?> clazz) {
         this.clazz = clazz;
-        this.classMetadata = classMetadata;
-        this.annotationMetadata = annotationMetadata;
+        this.classMetadata = new ReflectionClassMetadata(clazz);
+        this.annotationMetadata = new ReflectionAnnotationMetadata(clazz);
     }
 
     @Override

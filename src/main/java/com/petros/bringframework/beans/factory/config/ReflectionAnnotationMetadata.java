@@ -11,15 +11,14 @@ import java.util.stream.Collectors;
 /**
  * @author "Maksym Oliinyk"
  */
-public class ReflectionAnnotationMetadata implements AnnotationMetadata {
-
-    private final Class<?> clazz;
+public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implements AnnotationMetadata {
+    //todo finish this class
     private final Set<Annotation> annotations;
 
-    public ReflectionAnnotationMetadata(@Nonnull Class<?> clazz) {
-        AssertUtils.notNull(clazz, "Class must not be null");
-        this.clazz = clazz;
-        annotations = Arrays.stream(clazz.getAnnotations()).collect(Collectors.toSet());
+    public ReflectionAnnotationMetadata(@Nonnull Class<?> introspectedClass) {
+        super(introspectedClass);
+        AssertUtils.notNull(introspectedClass, "Class must not be null");
+        annotations = Arrays.stream(introspectedClass.getAnnotations()).collect(Collectors.toSet());
     }
 
     @Override
@@ -44,17 +43,6 @@ public class ReflectionAnnotationMetadata implements AnnotationMetadata {
     }
 
     @Override
-    public Set<Annotation> getAnnotations() {
-        return annotations;
-    }
-
-    @Nullable
-    @Override
-    public Map<String, Object> getAnnotationAttributes(String annotationName) {
-        return null;
-    }
-
-    @Override
     public boolean hasMetaAnnotation(String metaAnnotationName) {
         return false;
     }
@@ -75,54 +63,15 @@ public class ReflectionAnnotationMetadata implements AnnotationMetadata {
     }
 
     @Override
-    public String getClassName() {
-        return null;
-    }
-
-    @Override
-    public boolean isInterface() {
-        return false;
-    }
-
-    @Override
-    public boolean isAnnotation() {
-        return false;
-    }
-
-    @Override
-    public boolean isAbstract() {
-        return false;
-    }
-
-    @Override
-    public boolean isFinal() {
-        return false;
-    }
-
-    @Override
-    public boolean isIndependent() {
-        return false;
+    public Set<Annotation> getAnnotations() {
+        return annotations;
     }
 
     @Nullable
     @Override
-    public String getEnclosingClassName() {
+    public Map<String, Object> getAnnotationAttributes(String annotationName) {
         return null;
     }
 
-    @Nullable
-    @Override
-    public String getSuperClassName() {
-        return null;
-    }
 
-    @Override
-    public String[] getInterfaceNames() {
-        return new String[0];
-    }
-
-    @Override
-    public String[] getMemberClassNames() {
-        return new String[0];
-    }
 }
