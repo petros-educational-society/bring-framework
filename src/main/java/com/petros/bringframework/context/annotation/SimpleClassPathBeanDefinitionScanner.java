@@ -1,9 +1,10 @@
 package com.petros.bringframework.context.annotation;
 
-import com.petros.bringframework.beans.factory.BeanDefinitionRegistry;
-import com.petros.bringframework.beans.factory.BeanNameGenerator;
+
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
+import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
+import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
 import com.petros.bringframework.core.AssertUtils;
 import org.reflections.Reflections;
 
