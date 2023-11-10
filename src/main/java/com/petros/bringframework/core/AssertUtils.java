@@ -1,6 +1,9 @@
 package com.petros.bringframework.core;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author "Maksym Oliinyk"
@@ -49,5 +52,45 @@ public abstract class AssertUtils {
         if (!expression) {
             throw new IllegalArgumentException(message);
         }
+    }
+
+    public static void notBlank(String str, String msg) {
+        if (!notBlank(str)) {
+            throw new NullPointerException(msg);
+        }
+    }
+
+    public static boolean notBlank(String str) {
+        return nonNull(str) && !str.isBlank();
+    }
+
+    public static String uncapitalizeAsProperty(String str) {
+        if (!notBlank(str) || (str.length() > 1 && Character.isUpperCase(str.charAt(0)) &&
+                Character.isUpperCase(str.charAt(1)))) {
+            return str;
+        }
+        return changeFirstCharacterCase(str, false);
+    }
+
+    private static String changeFirstCharacterCase(String str, boolean capitalize) {
+        if (!notBlank(str)) {
+            return str;
+        }
+
+        char baseChar = str.charAt(0);
+        char updatedChar;
+        if (capitalize) {
+            updatedChar = Character.toUpperCase(baseChar);
+        }
+        else {
+            updatedChar = Character.toLowerCase(baseChar);
+        }
+        if (baseChar == updatedChar) {
+            return str;
+        }
+
+        char[] chars = str.toCharArray();
+        chars[0] = updatedChar;
+        return new String(chars);
     }
 }

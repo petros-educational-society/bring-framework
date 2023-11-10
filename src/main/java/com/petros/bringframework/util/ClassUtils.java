@@ -1,11 +1,16 @@
 package com.petros.bringframework.util;
 
-import com.petros.bringframework.core.AssertUtils;
-
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import static com.petros.bringframework.core.AssertUtils.notBlank;
+import static com.petros.bringframework.core.AssertUtils.notNull;
+
 public abstract class ClassUtils {
+
+    private static final char PACKAGE_SEPARATOR = '.';
+    public static final String CGLIB_CLASS_SEPARATOR = "$$";
+    private static final char NESTED_CLASS_SEPARATOR = '$';
 
     /**
      * Map with primitive wrapper type as key and corresponding primitive
@@ -35,8 +40,8 @@ public abstract class ClassUtils {
     }
 
     public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
-        AssertUtils.notNull(lhsType, "Left-hand side type must not be null");
-        AssertUtils.notNull(rhsType, "Right-hand side type must not be null");
+        notNull(lhsType, "Left-hand side type must not be null");
+        notNull(rhsType, "Right-hand side type must not be null");
         if (lhsType.isAssignableFrom(rhsType)) {
             return true;
         }
@@ -47,5 +52,19 @@ public abstract class ClassUtils {
             Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
             return (resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper));
         }
+    }
+
+    public static String getShortName(String className) {
+        notBlank(className, "Class name must not be empty");
+
+        int lastDotIndex = className.lastIndexOf(PACKAGE_SEPARATOR);
+        int nameEndIndex = className.indexOf(CGLIB_CLASS_SEPARATOR);
+        if (nameEndIndex == -1) {
+            nameEndIndex = className.length();
+        }
+
+        var shortName = className.substring(lastDotIndex + 1, nameEndIndex);
+        shortName = shortName.replace(NESTED_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
+        return shortName;
     }
 }

@@ -4,7 +4,7 @@ import com.petros.bringframework.beans.BeanException;
 
 import javax.annotation.Nullable;
 
-//todo: find if needed more details about type of bean
+//todo: find if needed more details about this bean type
 public class NoSuchBeanDefinitionException extends BeanException {
     @Nullable
     private final String beanName;
