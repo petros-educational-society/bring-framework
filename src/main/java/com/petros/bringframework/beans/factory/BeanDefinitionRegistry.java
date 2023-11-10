@@ -18,4 +18,5 @@ public interface BeanDefinitionRegistry {
 
     boolean isBeanNameInUse(String beanName);
 
+    void registerAlias(String beanName, String alias);
 }

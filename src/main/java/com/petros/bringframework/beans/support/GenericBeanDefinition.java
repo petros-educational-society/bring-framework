@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 /**
  * @author "Maksym Oliinyk"
  */
-public class GenericBeanDefinition extends AbstractBeanDefinition {
+public abstract class GenericBeanDefinition extends AbstractBeanDefinition {
 
     @Nullable
     private String parentName;

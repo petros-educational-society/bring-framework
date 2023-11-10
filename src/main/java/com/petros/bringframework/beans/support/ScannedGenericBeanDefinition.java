@@ -4,6 +4,7 @@ import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.AnnotationMetadata;
 import com.petros.bringframework.beans.factory.config.MethodMetadata;
 import com.petros.bringframework.core.AssertUtils;
+import com.petros.bringframework.type.reading.MetadataReader;
 
 import javax.annotation.Nullable;
 

@@ -1,8 +1,9 @@
 package com.petros.bringframework.context.annotation;
 
+import com.petros.bringframework.beans.factory.BeanDefinitionRegistry;
+import com.petros.bringframework.beans.factory.BeanNameGenerator;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
-import com.petros.bringframework.beans.support.BeanDefinitionRegistry;
 import com.petros.bringframework.core.AssertUtils;
 import org.reflections.Reflections;
 
@@ -12,9 +13,10 @@ import java.util.Set;
 public class SimpleClassPathBeanDefinitionScanner {
 
     private BeanDefinitionRegistry registry;
-//    private BeanNameGenerator nameGenerator;
+    private BeanNameGenerator nameGenerator;
 
-    public SimpleClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
+    public SimpleClassPathBeanDefinitionScanner(BeanNameGenerator nameGenerator, BeanDefinitionRegistry registry) {
+        this.nameGenerator = nameGenerator;
         this.registry = registry;
     }
 
@@ -29,7 +31,7 @@ public class SimpleClassPathBeanDefinitionScanner {
         for (String basePackage : basePackages) {
             Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
             for (BeanDefinition beanDef : candidates) {
-                final String beanName = "beanName"; //todo nameGenerator.generateBeanName(beanDef, registry);
+                final String beanName = nameGenerator.generateBeanName(beanDef, registry);
                 BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
                 beanDefinitions.add(definitionHolder);
                 registerBeanDefinition(definitionHolder);
