@@ -16,7 +16,9 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
     private final Map<String, Set<String>> metaAnnotationTypesCache;
 
-    public AnnotationBeanNameGenerator() {
+    public static final AnnotationBeanNameGenerator INSTANCE = new AnnotationBeanNameGenerator();
+
+    private AnnotationBeanNameGenerator() {
         metaAnnotationTypesCache = new ConcurrentHashMap<>();
     }
 
