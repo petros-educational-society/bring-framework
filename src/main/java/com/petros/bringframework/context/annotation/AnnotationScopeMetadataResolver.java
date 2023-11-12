@@ -3,7 +3,6 @@ package com.petros.bringframework.context.annotation;
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.AnnotationMetadata;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
-import com.petros.bringframework.beans.main.Scope;
 import com.petros.bringframework.core.AssertUtils;
 
 import java.util.Map;

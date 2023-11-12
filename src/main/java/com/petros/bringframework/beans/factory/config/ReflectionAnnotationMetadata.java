@@ -33,7 +33,7 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
 
     @Override
     public Set<String> getMetaAnnotationTypes(String annotationName) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return Collections.emptySet(); //todo implement
     }
 
     @Override

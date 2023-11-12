@@ -9,7 +9,6 @@ import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
 import com.petros.bringframework.beans.support.ReflectionScannedGenericBeanDefinition;
 import com.petros.bringframework.core.AssertUtils;
-import com.petros.bringframework.type.reading.MetadataReader;
 import com.petros.bringframework.type.reading.ReflectionMetadataReader;
 import org.reflections.Reflections;
 
@@ -19,7 +18,7 @@ import java.util.Set;
 public class SimpleClassPathBeanDefinitionScanner {
 
     private BeanDefinitionRegistry registry;
-    private BeanNameGenerator nameGenerator = new AnnotationBeanNameGenerator(); //.INSTANCE; todo: implement singelton AnnotationBeanNameGenerator
+    private BeanNameGenerator nameGenerator = AnnotationBeanNameGenerator.INSTANCE;
     private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
     public SimpleClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
@@ -38,7 +37,6 @@ public class SimpleClassPathBeanDefinitionScanner {
             Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
             for (BeanDefinition beanDef : candidates) {
                 final String beanName = nameGenerator.generateBeanName(beanDef, registry);
-                //todo: implement scope and scope resolver. The ScopeMetadataResolver plays a key role in processing @Scope annotations to determine the appropriate scope for each bean, if the scope is not settled, should be used to default: SINGELTON_SCOPE
                 ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
                 beanDef.setScope(scopeMetadata.scopeName());
                 if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
@@ -53,7 +51,6 @@ public class SimpleClassPathBeanDefinitionScanner {
 
     }
 
-    //todo: verify method,  finish implementation
     protected Set<BeanDefinition> findCandidateComponents(String... basePackages) {
         final Set<BeanDefinition> candidates = new LinkedHashSet<>();
         for (String basePackage : basePackages) {

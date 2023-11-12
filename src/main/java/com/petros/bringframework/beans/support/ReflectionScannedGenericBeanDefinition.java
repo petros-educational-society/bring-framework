@@ -1,5 +1,6 @@
 package com.petros.bringframework.beans.support;
 
+import com.petros.bringframework.beans.factory.annotation.InjectPlease;
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.AnnotationMetadata;
 import com.petros.bringframework.beans.factory.config.MethodMetadata;
@@ -55,7 +56,7 @@ public class ReflectionScannedGenericBeanDefinition extends GenericBeanDefinitio
             addConstructorParameters(constructor.getParameters(), constructor.getParameterCount(), argumentValues);
         } else {
             Arrays.stream(declaredConstructors)
-//                    .filter(constructor -> constructor.isAnnotationPresent(Inject.class)) //todo implement @Inject annotation
+                    .filter(constructor -> constructor.isAnnotationPresent(InjectPlease.class))
                     .findFirst()
                     .ifPresentOrElse(constructor -> {
                         addConstructorParameters(constructor.getParameters(), constructor.getParameterCount(), argumentValues);
