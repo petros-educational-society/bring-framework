@@ -5,42 +5,17 @@ import com.petros.bringframework.beans.exception.BeansException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
-import org.reflections.ReflectionUtils;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry, Serializable {
 
-
-    /**
-     * Map from serialized id to factory instance.
-     */
-    private static final Map<String, Reference<DefaultListableBeanFactory>> serializableFactories =
-            new ConcurrentHashMap<>(8);
-
-    /**
-     * Whether to allow re-registration of a different definition with the same name.
-     */
-    private boolean allowBeanDefinitionOverriding = true;
-
-    /**
-     * Whether to allow eager class loading even for lazy-init beans.
-     */
-    private boolean allowEagerClassLoading = true;
-
-    /**
-     * Resolver to use for checking if a bean definition is an autowire candidate.
-     */
-    //todo
-    //private AutowireCandidateResolver autowireCandidateResolver = SimpleAutowireCandidateResolver.INSTANCE;
 
     /**
      * Map from dependency type to corresponding autowired value.
@@ -52,10 +27,6 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
      */
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
 
-    /**
-     * Map from bean name to merged BeanDefinitionHolder.
-     */
-    private final Map<String, BeanDefinitionHolder> mergedBeanDefinitionHolders = new ConcurrentHashMap<>(256);
 
 
     /**
@@ -172,7 +143,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
             throw new BeanCreationException(constructorToUse.toString(), "Constructor threw exception", e);
         }
 
-        //тут куча перевірок та автовайрінг можливо саме цього біна до вже існуючих
+        //we have a lot of checks and autowirings here. maybe will use later
         //populateBean(beanName, bd, bean);
 
         //let we have only one init method every time - "init"
