@@ -4,18 +4,17 @@ import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.exception.BeansException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
-import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry, Serializable {
+public class DefaultListableBeanFactory implements BeanFactory, Serializable {
 
+    private final BeanDefinitionRegistry beanDefinitionRegistry;
 
     /**
      * Map from dependency type to corresponding autowired value.
@@ -23,57 +22,26 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
     /**
-     * Map of bean definition objects, keyed by bean name.
+     * Map of bean objects, keyed by bean name.
      */
-    private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
+    private final Map<String, Object> beanMap = new ConcurrentHashMap<>(256);
 
 
 
     /**
      * Create a new DefaultListableBeanFactory.
      */
-    public DefaultListableBeanFactory() {
+    public DefaultListableBeanFactory(BeanDefinitionRegistry beanDefinitionRegistry) {
         super();
+        this.beanDefinitionRegistry = beanDefinitionRegistry;
     }
 
-    @Override
-    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
-
-    }
-
-    @Override
-    public void removeBeanDefinition(String beanName) {
-
-    }
-
-    @Override
-    public BeanDefinition getBeanDefinition(String beanName) {
-        return null;
-    }
-
-    @Override
-    public boolean containsBeanDefinition(String beanName) {
-        return false;
-    }
-
-    @Override
-    public String[] getBeanDefinitionNames() {
-        return new String[0];
-    }
-
-    @Override
-    public int getBeanDefinitionCount() {
-        return 0;
-    }
-
-    @Override
-    public boolean isBeanNameInUse(String beanName) {
-        return false;
-    }
-
-    @Override
-    public void registerAlias(String beanName, String alias) {
-
+    public void createBeansFromDefinitions() {
+        Map<String, BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
+        beanDefinitions.forEach((beanName, bd) -> {
+            Object bean = createBean(beanName, bd);
+            beanMap.put(beanName, bean);
+        });
     }
 
     @Override
@@ -121,7 +89,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     //-------------------------------------------------------------------------
 
     @Override
-    public Object createBean(String beanName, BeanDefinition bd, @Nullable Object[] args)
+    public Object createBean(String beanName, BeanDefinition bd)
             throws BeanCreationException {
 
         Class<?> clazz = bd.getClass();

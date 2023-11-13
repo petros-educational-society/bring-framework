@@ -39,7 +39,6 @@ public interface BeanFactory {
      * @return a new instance of the bean
      * @throws BeanCreationException if the bean could not be created
      */
-    Object createBean(String beanName, BeanDefinition bd, @Nullable Object[] args)
-            throws BeanCreationException;
+    Object createBean(String beanName, BeanDefinition bd) throws BeanCreationException;
 
 }
