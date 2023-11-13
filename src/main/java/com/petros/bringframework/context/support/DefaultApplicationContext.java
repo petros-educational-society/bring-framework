@@ -1,7 +1,6 @@
 package com.petros.bringframework.context.support;
 
 import com.petros.bringframework.beans.BeanException;
-import com.petros.bringframework.beans.factory.config.AutowiredAnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.context.ApplicationContext;
@@ -22,7 +21,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 //    private Config config;
 //    private ObjectFactory factory;
 
-    public DefaultApplicationContext(String packageToScan) {
+    public DefaultApplicationContext(String packageToScan, Map<Class, Class> ifc2impl) {
 //        registry = new SimpleBeanDefinitionRegistry();
 //        scaner = new Reflections(packageToScan);
 //        scaner = new SimplePathScanBeanDefinitionScaner(registry);
@@ -39,7 +38,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     @Override
     public Object getBean(String name) {
-        return AutowiredAnnotationBeanPostProcessor.class;
+        throw new RuntimeException("There is no implementation");
     }
 
     @SneakyThrows
