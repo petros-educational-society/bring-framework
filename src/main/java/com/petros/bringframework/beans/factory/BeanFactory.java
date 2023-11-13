@@ -1,5 +1,8 @@
 package com.petros.bringframework.beans.factory;
 
+import javax.annotation.Nullable;
+import java.util.Map;
+
 public interface BeanFactory {
 
     Object getBean(String name);
@@ -17,5 +20,7 @@ public interface BeanFactory {
     Class<?> getType(String name);
 
     String[] getAliases(String name);
+
+    <T> Map<String, T> getBeansOfType(@Nullable Class<T> type);
 
 }

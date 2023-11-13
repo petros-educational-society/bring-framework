@@ -1,32 +1,45 @@
 package com.petros.bringframework.context.support;
 
+import com.petros.bringframework.beans.BeanException;
+import com.petros.bringframework.beans.factory.config.AutowiredAnnotationBeanPostProcessor;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
+import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.context.ApplicationContext;
-import lombok.Getter;
 import lombok.SneakyThrows;
 
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultApplicationContext implements ApplicationContext {
     private Map<String, Object> beanCache;
+    private Map<String, ? extends BeanFactoryPostProcessor> beanFactoryPostProcessors;
+    private Map<String, ? extends BeanPostProcessor> beanPostProcessors;
+    private Map<Class<?>, String[]> allBeanNamesByType;
 //    @Getter
 //    private Reflections scaner;
 //    private BeanDefinitionRegistry registry;
 //    private Config config;
 //    private ObjectFactory factory;
 
-    public DefaultApplicationContext(String packageToScan, Map<Class, Class> ifc2impl) {
+    public DefaultApplicationContext(String packageToScan) {
 //        registry = new SimpleBeanDefinitionRegistry();
 //        scaner = new Reflections(packageToScan);
 //        scaner = new SimplePathScanBeanDefinitionScaner(registry);
 //        config = new JavaConfig(scaner, ifc2impl);
 //        factory = new ObjectFactory(this);
-        beanCache = new ConcurrentHashMap<>();
+        this.beanCache = new ConcurrentHashMap<>();
+        this.beanFactoryPostProcessors = this.getBeansOfType(BeanFactoryPostProcessor.class);
+        this.beanPostProcessors = this.getBeansOfType(BeanPostProcessor.class);
+    }
+
+    private <T> void configureBeans(T t) {
+        beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
     }
 
     @Override
     public Object getBean(String name) {
-        throw new RuntimeException("There is no implementation");
+        return AutowiredAnnotationBeanPostProcessor.class;
     }
 
     @SneakyThrows
@@ -72,6 +85,21 @@ public class DefaultApplicationContext implements ApplicationContext {
     @Override
     public String[] getAliases(String name) {
         throw new RuntimeException("There is no implementation");
+    }
+
+    @Override
+    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type) throws BeanException {
+        String[] beanNames = getBeanNamesForType(type);
+        Map<String, T> result = new LinkedHashMap<>(beanNames.length);
+        for (String beanName : beanNames) {
+            Object beanInstance = getBean(beanName);
+            result.put(beanName, (T) beanInstance);
+        }
+        return result;
+    }
+
+    private String[] getBeanNamesForType(Class<?> type) {
+        return allBeanNamesByType.get(type);
     }
 
     private <T> Class<T> resolveImpl(Class<T> type) {
