@@ -1,10 +1,7 @@
 package com.petros.bringframework.beans.factory;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.exception.BeansException;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
-
-import javax.annotation.Nullable;
 
 public interface BeanFactory {
 
@@ -24,18 +21,15 @@ public interface BeanFactory {
 
     String[] getAliases(String name);
 
-    void autowireBean(Object existingBean) throws BeansException;
-
-    Object configureBean(Object existingBean, String beanName) throws BeansException;
-
     /**
      * Create a bean instance for the given merged bean definition (and arguments).
      * The bean definition will already have been merged with the parent definition
      * in case of a child definition.
      * <p>All bean retrieval methods delegate to this method for actual bean creation.
+     *
      * @param beanName the name of the bean
-     * @param mbd the merged bean definition for the bean
-     * @param args explicit arguments to use for constructor or factory method invocation
+     * @param mbd      the merged bean definition for the bean
+     * @param args     explicit arguments to use for constructor or factory method invocation
      * @return a new instance of the bean
      * @throws BeanCreationException if the bean could not be created
      */

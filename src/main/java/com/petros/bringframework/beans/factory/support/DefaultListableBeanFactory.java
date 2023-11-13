@@ -1,7 +1,6 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.exception.BeansException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 
@@ -62,11 +61,13 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
 
     @Override
     public boolean isSingleton(String name) {
+        //no need for now
         return false;
     }
 
     @Override
     public boolean isPrototype(String name) {
+        //no need for now
         return false;
     }
 
@@ -87,20 +88,6 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
         //looks like we cant have Aliases in object. We need some wrapper for it
         return new String[0];
     }
-
-    @Override
-    public void autowireBean(Object existingBean) throws BeansException {
-
-    }
-
-    @Override
-    public Object configureBean(Object existingBean, String beanName) throws BeansException {
-        return null;
-    }
-
-    //-------------------------------------------------------------------------
-    // Typical methods for creating and populating external bean instances
-    //-------------------------------------------------------------------------
 
     @Override
     public Object createBean(String beanName, BeanDefinition bd)
