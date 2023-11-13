@@ -5,7 +5,6 @@ import com.petros.bringframework.beans.exception.BeansException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -27,7 +26,6 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
     private final Map<String, Object> beanMap = new ConcurrentHashMap<>(256);
 
 
-
     /**
      * Create a new DefaultListableBeanFactory.
      */
@@ -46,17 +44,20 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
 
     @Override
     public Object getBean(String name) {
-        return null;
+        return beanMap.get(name);
     }
 
     @Override
     public <T> T getBean(Class<T> requiredType) {
-        return null;
+        return (T) beanMap.values().stream()
+                .filter(bean -> requiredType.equals(bean.getClass()))
+                .findAny()
+                .orElseThrow();
     }
 
     @Override
     public boolean containsBean(String name) {
-        return false;
+        return beanMap.containsKey(name);
     }
 
     @Override
@@ -71,17 +72,30 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
 
     @Override
     public boolean isTypeMatch(String name, Class<?> typeToMatch) {
-        return false;
+        Class<?> type = getType(name);
+        return typeToMatch.equals(type);
     }
 
     @Override
     public Class<?> getType(String name) {
-        return null;
+        Object bean = getBean(name);
+        return bean.getClass();
     }
 
     @Override
     public String[] getAliases(String name) {
+        //looks like we cant have Aliases in object. We need some wrapper for it
         return new String[0];
+    }
+
+    @Override
+    public void autowireBean(Object existingBean) throws BeansException {
+
+    }
+
+    @Override
+    public Object configureBean(Object existingBean, String beanName) throws BeansException {
+        return null;
     }
 
     //-------------------------------------------------------------------------
@@ -132,13 +146,4 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
         }
     }
 
-    @Override
-    public void autowireBean(Object existingBean) throws BeansException {
-
-    }
-
-    @Override
-    public Object configureBean(Object existingBean, String beanName) throws BeansException {
-        return null;
-    }
 }
