@@ -1,13 +1,13 @@
 package com.petros.bringframework.context.support;
 
 import com.petros.bringframework.beans.BeanException;
+import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.context.ApplicationContext;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +16,8 @@ public class DefaultApplicationContext implements ApplicationContext {
     private Map<String, Object> beanCache;
     private Map<String, ? extends BeanFactoryPostProcessor> beanFactoryPostProcessors;
     private Map<String, ? extends BeanPostProcessor> beanPostProcessors;
-    private Map<Class<?>, String[]> allBeanNamesByType;
+
+    private BeanFactory beanFactory;
 //    @Getter
 //    private Reflections scaner;
 //    private BeanDefinitionRegistry registry;
@@ -89,19 +90,11 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type) throws BeanException {
-        String[] beanNames = getBeanNamesForType(type);
-        Map<String, T> result = new LinkedHashMap<>(beanNames.length);
-        for (String beanName : beanNames) {
-            Object beanInstance = getBean(beanName);
-            result.put(beanName, (T) beanInstance);
-        }
-        return result;
+        return beanFactory.getBeansOfType(type);
     }
 
-    private String[] getBeanNamesForType(Class<?> type) {
-        return allBeanNamesByType.get(type);
-    }
 
     private <T> Class<T> resolveImpl(Class<T> type) {
 //        return type.isInterface() ? (Class<T>) config.getImplClass(type) : type;

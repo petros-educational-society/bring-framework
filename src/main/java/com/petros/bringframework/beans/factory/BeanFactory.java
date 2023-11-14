@@ -22,5 +22,4 @@ public interface BeanFactory {
     String[] getAliases(String name);
 
     <T> Map<String, T> getBeansOfType(@Nullable Class<T> type);
-
 }

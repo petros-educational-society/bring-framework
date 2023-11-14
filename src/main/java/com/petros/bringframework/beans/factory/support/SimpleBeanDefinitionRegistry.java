@@ -17,6 +17,10 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
         beanDefinitions = new ConcurrentHashMap<>();
     }
 
+    public Map<String, BeanDefinition> getBeanDefinitions() {
+        return beanDefinitions;
+    }
+
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
         requireNonNull(beanName, "'beanName' is required");
