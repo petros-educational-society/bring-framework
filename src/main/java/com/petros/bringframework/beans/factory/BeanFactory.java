@@ -1,5 +1,8 @@
 package com.petros.bringframework.beans.factory;
 
+import com.petros.bringframework.beans.factory.config.BeanDefinition;
+import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
+
 public interface BeanFactory {
 
     Object getBean(String name);
@@ -15,6 +18,12 @@ public interface BeanFactory {
     boolean isTypeMatch(String name, Class<?> typeToMatch);
 
     Class<?> getType(String name);
+
+    void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+            throws BeanDefinitionStoreException;
+
+    void removeBeanDefinition(String beanName)
+            throws NoSuchBeanDefinitionException;
 
     String[] getAliases(String name);
 

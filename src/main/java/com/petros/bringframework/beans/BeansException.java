@@ -5,13 +5,13 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-public abstract class BeanException extends RuntimeException {
+public abstract class BeansException extends RuntimeException {
 
-    public BeanException(String msg) {
+    public BeansException(String msg) {
         super(msg);
     }
 
-    public BeanException(@Nullable String msg, @Nullable Throwable cause) {
+    public BeansException(@Nullable String msg, @Nullable Throwable cause) {
         super(msg, cause);
     }
 
@@ -42,7 +42,7 @@ public abstract class BeanException extends RuntimeException {
             return false;
         }
 
-        if (cause instanceof BeanException ex) {
+        if (cause instanceof BeansException ex) {
             return ex.contains(exType);
         }
 

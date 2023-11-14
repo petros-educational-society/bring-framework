@@ -1,10 +1,10 @@
 package com.petros.bringframework.beans.factory;
 
-import com.petros.bringframework.beans.FatalBeanException;
+import com.petros.bringframework.beans.FatalBeansException;
 
 import javax.annotation.Nullable;
 
-public class BeanDefinitionStoreException extends FatalBeanException {
+public class BeanDefinitionStoreException extends FatalBeansException {
 
     @Nullable
     private final String resourceDescription;

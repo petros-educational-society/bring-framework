@@ -1,16 +1,20 @@
 package com.petros.bringframework.util;
 
+import javax.annotation.Nullable;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
 import static com.petros.bringframework.core.AssertUtils.notBlank;
-import static com.petros.bringframework.core.AssertUtils.notNull;
+import static java.util.Objects.requireNonNull;
 
 public abstract class ClassUtils {
 
     private static final char PACKAGE_SEPARATOR = '.';
     public static final String CGLIB_CLASS_SEPARATOR = "$$";
     private static final char NESTED_CLASS_SEPARATOR = '$';
+
+    private static final char PATH_SEPARATOR = '/';
+
 
     /**
      * Map with primitive wrapper type as key and corresponding primitive
@@ -40,18 +44,20 @@ public abstract class ClassUtils {
     }
 
     public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
-        notNull(lhsType, "Left-hand side type must not be null");
-        notNull(rhsType, "Right-hand side type must not be null");
+        requireNonNull(lhsType, "Left-hand side type must not be null");
+        requireNonNull(rhsType, "Right-hand side type must not be null");
+
         if (lhsType.isAssignableFrom(rhsType)) {
             return true;
         }
+
         if (lhsType.isPrimitive()) {
-            Class<?> resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
+            var resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
             return (lhsType == resolvedPrimitive);
-        } else {
-            Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
-            return (resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper));
         }
+
+        var resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
+        return (resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper));
     }
 
     public static String getShortName(String className) {
@@ -63,8 +69,41 @@ public abstract class ClassUtils {
             nameEndIndex = className.length();
         }
 
-        var shortName = className.substring(lastDotIndex + 1, nameEndIndex);
-        shortName = shortName.replace(NESTED_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
-        return shortName;
+        return className.substring(lastDotIndex + 1, nameEndIndex)
+                .replace(NESTED_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
+    }
+
+    public static ClassLoader getDefaultClassLoader() {
+        ClassLoader cl = null;
+        try {
+            cl = Thread.currentThread().getContextClassLoader();
+        }
+        catch (Throwable ignored) {}
+
+        if (cl == null) {
+            cl = ClassUtils.class.getClassLoader();
+            if (cl == null) {
+                try {
+                    cl = ClassLoader.getSystemClassLoader();
+                }
+                catch (Throwable ignored) {}
+            }
+        }
+        return cl;
+    }
+
+    public static String classPackageAsResourcePath(@Nullable Class<?> clazz) {
+        if (clazz == null) {
+            return "";
+        }
+
+        var className = clazz.getName();
+        int packageEndIndex = className.lastIndexOf(PACKAGE_SEPARATOR);
+        if (packageEndIndex == -1) {
+            return "";
+        }
+
+        return className.substring(0, packageEndIndex)
+                .replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
     }
 }

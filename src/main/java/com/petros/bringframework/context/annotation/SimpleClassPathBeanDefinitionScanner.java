@@ -4,6 +4,7 @@ package com.petros.bringframework.context.annotation;
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
+import com.petros.bringframework.beans.factory.support.AnnotationBeanNameGenerator;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
 import com.petros.bringframework.beans.support.ScannedGenericBeanDefinition;
@@ -17,8 +18,8 @@ import java.util.Set;
 
 public class SimpleClassPathBeanDefinitionScanner {
 
-    private BeanDefinitionRegistry registry;
-    private BeanNameGenerator nameGenerator; //= AnnotationBeanNameGenerator.INSTANCE; todo: implement singelton AnnotationBeanNameGenerator
+    private final BeanDefinitionRegistry registry;
+    private final BeanNameGenerator nameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
     public SimpleClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
         this.registry = registry;
