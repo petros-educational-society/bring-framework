@@ -1,4 +1,4 @@
-package com.petros.bringframework.context.annotation;
+package com.petros.bringframework.beans.factory.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
