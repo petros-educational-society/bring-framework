@@ -7,5 +7,5 @@ public interface ApplicationContext {
 
     void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);
 
-    void refresh() throws BeansException, IllegalStateException;
+    void initApplicationContext() throws BeansException, IllegalStateException;
 }

@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultListableBeanFactory implements BeanFactory {
+public class DefaultBeanFactory implements BeanFactory {
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
     private final BeanDefinitionRegistry registry;
@@ -35,12 +33,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
-        AssertUtils.notNull(requiredType, "Required type must not be null");
-        Object resolved = resolveBean(ResolvableType.forRawClass(requiredType), args, false);
-        if (resolved == null) {
-            throw new NoSuchBeanDefinitionException(requiredType);
-        }
-        return (T) resolved;
+//        AssertUtils.notNull(requiredType, "Required type must not be null");
+//        Object resolved = resolveBean(ResolvableType.forRawClass(requiredType), args, false);
+//        if (resolved == null) {
+//            throw new NoSuchBeanDefinitionException(requiredType);
+//        }
+//        return (T) resolved;
+        return null;
     }
     @Override
     public boolean containsBean(String name) {
@@ -92,6 +91,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
             }
             throw new NoSuchBeanDefinitionException(beanName);
         }
+    }
+
+    @Override
+    public void destroyBeans() {
+
     }
 
     @Override

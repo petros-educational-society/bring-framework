@@ -1,11 +1,10 @@
 package com.petros.bringframework.context.annotation;
 
-import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.factory.BeanDefinitionStoreException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
-import com.petros.bringframework.beans.factory.support.DefaultListableBeanFactory;
+import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
 import com.petros.bringframework.context.support.AbstractApplicationContext;
 import com.petros.bringframework.core.AssertUtils;
@@ -14,12 +13,12 @@ import lombok.SneakyThrows;
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
 
     private final SimpleClassPathBeanDefinitionScanner scanner;
-    private final DefaultListableBeanFactory beanFactory;
+    private final DefaultBeanFactory beanFactory;
 
 
     public AnnotationConfigApplicationContext(BeanDefinitionRegistry registry, String... packages) {
         super();
-        this.beanFactory = new DefaultListableBeanFactory(registry);
+        this.beanFactory = new DefaultBeanFactory(registry);
         this.scanner = new SimpleClassPathBeanDefinitionScanner(registry);
         scan(packages);
     }
@@ -60,36 +59,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     }
 
     @Override
-    public boolean containsBean(String name) {
-        throw new UnsupportedOperationException("There is no implementation");
-    }
-
-    @Override
-    public boolean isSingleton(String name) {
-        throw new UnsupportedOperationException("There is no implementation");
-    }
-
-    @Override
-    public boolean isPrototype(String name) {
-        throw new UnsupportedOperationException("There is no implementation");
-    }
-
-    @Override
-    public boolean isTypeMatch(String name, Class<?> typeToMatch) {
-        throw new UnsupportedOperationException("There is no implementation");
-    }
-
-    @Override
-    public Class<?> getType(String name) {
-        throw new UnsupportedOperationException("There is no implementation");
-    }
-
-    @Override
-    public String[] getAliases(String name) {
-        throw new UnsupportedOperationException("There is no implementation");
-    }
-
-    @Override
     protected BeanFactory getBeanFactory() {
         return beanFactory;
     }
@@ -104,14 +73,12 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         this.scanner.scan(packages);
     }
 
-    @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
             throws BeanDefinitionStoreException {
 
         this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
     }
 
-    @Override
     public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
         this.beanFactory.removeBeanDefinition(beanName);
     }

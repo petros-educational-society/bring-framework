@@ -25,6 +25,8 @@ public interface BeanFactory {
     void removeBeanDefinition(String beanName)
             throws NoSuchBeanDefinitionException;
 
+    void destroyBeans();
+
     String[] getAliases(String name);
 
 }
