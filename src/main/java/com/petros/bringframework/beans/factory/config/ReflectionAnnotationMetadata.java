@@ -1,24 +1,31 @@
 package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.core.AssertUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * @author "Maksym Oliinyk"
  */
+@Slf4j
 public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implements AnnotationMetadata {
-    //todo finish this class
     private final Set<Annotation> annotations;
 
     public ReflectionAnnotationMetadata(@Nonnull Class<?> introspectedClass) {
         super(introspectedClass);
         AssertUtils.notNull(introspectedClass, "Class must not be null");
-        annotations = Arrays.stream(introspectedClass.getAnnotations()).collect(Collectors.toSet());
+        annotations = Arrays.stream(introspectedClass.getDeclaredAnnotations()).collect(Collectors.toSet());
     }
 
     @Override
@@ -33,7 +40,7 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
 
     @Override
     public Set<String> getMetaAnnotationTypes(String annotationName) {
-        return null;
+        return Collections.emptySet(); //todo implement
     }
 
     @Override
@@ -44,22 +51,26 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
 
     @Override
     public boolean hasMetaAnnotation(String metaAnnotationName) {
-        return false;
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public boolean hasAnnotatedMethods(String annotationName) {
-        return false;
+        return getDeclaredMethods().stream().anyMatch(methodMetadata -> methodMetadata.isAnnotated(annotationName));
     }
 
     @Override
     public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
-        return null;
+        return getDeclaredMethods().stream().filter(methodMetadata -> methodMetadata.isAnnotated(annotationName))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<MethodMetadata> getDeclaredMethods() {
-        return null;
+        final Method[] declaredMethods = introspectedClass.getDeclaredMethods();
+        return Arrays.stream(declaredMethods)
+                .map(ReflectionMethodMetadata::new)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -70,8 +81,6 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
     @Nullable
     @Override
     public Map<String, Object> getAnnotationAttributes(String annotationName) {
-        return null;
+        return getAnnotationAttributes(annotationName, log::error);
     }
-
-
 }

@@ -15,7 +15,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     private final SimpleClassPathBeanDefinitionScanner scanner;
     private final DefaultBeanFactory beanFactory;
 
-
     public AnnotationConfigApplicationContext(BeanDefinitionRegistry registry, String... packages) {
         super();
         this.beanFactory = new DefaultBeanFactory(registry);

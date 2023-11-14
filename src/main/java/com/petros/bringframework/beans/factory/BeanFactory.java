@@ -2,6 +2,8 @@ package com.petros.bringframework.beans.factory;
 
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
+import javax.annotation.Nullable;
+import java.util.Map;
 
 public interface BeanFactory {
 
@@ -29,4 +31,5 @@ public interface BeanFactory {
 
     String[] getAliases(String name);
 
+    <T> Map<String, T> getBeansOfType(@Nullable Class<T> type);
 }

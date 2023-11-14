@@ -3,6 +3,8 @@ package com.petros.bringframework.beans.factory.support;
 import com.petros.bringframework.beans.factory.BeanDefinitionStoreException;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 
+import java.util.Map;
+
 public interface BeanDefinitionRegistry {
 
 
@@ -53,4 +55,6 @@ public interface BeanDefinitionRegistry {
     boolean isBeanNameInUse(String beanName);
 
     void registerAlias(String beanName, String alias);
+
+    Map<String, BeanDefinition> getBeanDefinitions();
 }

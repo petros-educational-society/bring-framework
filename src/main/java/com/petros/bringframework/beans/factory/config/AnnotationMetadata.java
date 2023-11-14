@@ -72,7 +72,6 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
      * underlying class, preserving declaration order as far as possible.
      *
      * @return a set of {@link MethodMetadata}
-     * @since 6.0
      */
     Set<MethodMetadata> getDeclaredMethods();
 

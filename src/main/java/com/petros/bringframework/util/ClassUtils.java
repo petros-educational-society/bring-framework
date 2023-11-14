@@ -1,7 +1,9 @@
 package com.petros.bringframework.util;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.petros.bringframework.core.AssertUtils.notBlank;
@@ -105,5 +107,19 @@ public abstract class ClassUtils {
 
         return className.substring(0, packageEndIndex)
                 .replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
+    }
+
+    public static String collectionToCommaDelimitedString(Collection<?> coll) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<?> it = coll.iterator();
+
+        while(it.hasNext()) {
+            sb.append(it.next()).append("");
+            if (it.hasNext()) {
+                sb.append(", ");
+            }
+        }
+
+        return sb.toString();
     }
 }

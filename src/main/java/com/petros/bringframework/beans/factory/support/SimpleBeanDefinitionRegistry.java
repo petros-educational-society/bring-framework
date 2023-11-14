@@ -2,13 +2,16 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.factory.BeanDefinitionStoreException;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
+@Slf4j
 public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
     private final Map<String, BeanDefinition> beanDefinitions;
@@ -17,17 +20,26 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
         beanDefinitions = new ConcurrentHashMap<>();
     }
 
+    public Map<String, BeanDefinition> getBeanDefinitions() {
+        return beanDefinitions;
+    }
+
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
         requireNonNull(beanName, "'beanName' is required");
         requireNonNull(beanDefinition, "'beanDefinition' is required");
-        beanDefinitions.put(beanName, beanDefinition);
+
+        if (nonNull(beanDefinitions.put(beanName, beanDefinition))) {
+            log.info("BeanDefinition with name {} was registered", beanName);
+        }
     }
 
     @Override
     public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
-        var removed = beanDefinitions.remove(beanName);
-        if (isNull(removed)) {
+        if (isNull(beanDefinitions.remove(beanName))) {
+            if (log.isTraceEnabled()) {
+                log.trace("No bean named '{}' found in {}", beanName, this);
+            }
             throw new NoSuchBeanDefinitionException(beanName);
         }
     }
