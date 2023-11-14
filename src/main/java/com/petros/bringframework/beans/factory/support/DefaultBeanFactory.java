@@ -7,10 +7,11 @@ import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultListableBeanFactory implements BeanFactory, Serializable {
+public class DefaultBeanFactory implements BeanFactory, Serializable {
 
     private final BeanDefinitionRegistry beanDefinitionRegistry;
 
@@ -28,7 +29,7 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
     /**
      * Create a new DefaultListableBeanFactory.
      */
-    public DefaultListableBeanFactory(BeanDefinitionRegistry beanDefinitionRegistry) {
+    public DefaultBeanFactory(BeanDefinitionRegistry beanDefinitionRegistry) {
         super();
         this.beanDefinitionRegistry = beanDefinitionRegistry;
     }
@@ -48,10 +49,13 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
 
     @Override
     public <T> T getBean(Class<T> requiredType) {
-        return (T) beanMap.values().stream()
+        List<Object> beans = beanMap.values().stream()
                 .filter(bean -> requiredType.equals(bean.getClass()))
-                .findAny()
-                .orElseThrow();
+                .toList();
+        if (beans.size() > 1) {
+            throw new BeanCreationException(requiredType, "Class has more than one beans.");
+        }
+        return (T) beans.get(0);
     }
 
     @Override
@@ -61,13 +65,11 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
 
     @Override
     public boolean isSingleton(String name) {
-        //no need for now
-        return false;
+        return true;
     }
 
     @Override
     public boolean isPrototype(String name) {
-        //no need for now
         return false;
     }
 
@@ -115,8 +117,7 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
         //we have a lot of checks and autowirings here. maybe will use later
         //populateBean(beanName, bd, bean);
 
-        //let we have only one init method every time - "init"
-        invokeCustomInitMethod(bean, "init");
+        invokeCustomInitMethod(bean, bd.getInitMethodName());
         return bean;
     }
 
@@ -127,10 +128,11 @@ public class DefaultListableBeanFactory implements BeanFactory, Serializable {
             //not sure if it needs. We use org.reflections.ReflectionUtils instead org.springframework.util.ReflectionUtils
             //ReflectionUtils.makeAccessible(methodToInvoke);
             Method initMethod = beanClass.getMethod(initMethodName);
-            initMethod.invoke(bean);
+            if (initMethod != null) {
+                initMethod.invoke(bean);
+            }
         } catch (Throwable ex) {
             throw new BeanCreationException(beanClass, "Can`t invoke init method", ex);
         }
     }
-
 }
