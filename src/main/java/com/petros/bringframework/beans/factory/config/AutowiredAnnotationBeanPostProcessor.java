@@ -2,9 +2,9 @@ package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.BeanException;
 import com.petros.bringframework.beans.factory.BeanFactory;
+import com.petros.bringframework.beans.factory.annotation.InjectPlease;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
 import com.petros.bringframework.beans.factory.support.NoUniqueBeanDefinitionException;
-import com.petros.bringframework.context.annotation.InjectPlease;
 import com.petros.bringframework.context.annotation.Value;
 import lombok.SneakyThrows;
 
@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.toMap;
  * {@link com.petros.bringframework.beans.factory.config.BeanPostProcessor BeanPostProcessor}
  * implementation that autowires annotated fields, setter methods, and arbitrary
  * config methods. Such members to be injected are detected through annotations:
- * {@link com.petros.bringframework.context.annotation.InjectPlease @InjectPlease}
+ * {@link com.petros.bringframework.beans.factory.annotation.InjectPlease @InjectPlease}
  * and {@link com.petros.bringframework.context.annotation.Value @Value}.
  *
  * @author "Vasiuk Maryna"

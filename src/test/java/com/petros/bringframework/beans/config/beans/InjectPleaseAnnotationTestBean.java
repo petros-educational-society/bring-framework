@@ -1,6 +1,6 @@
 package com.petros.bringframework.beans.config.beans;
 
-import com.petros.bringframework.context.annotation.InjectPlease;
+import com.petros.bringframework.beans.factory.annotation.InjectPlease;
 import lombok.Data;
 
 @Data
