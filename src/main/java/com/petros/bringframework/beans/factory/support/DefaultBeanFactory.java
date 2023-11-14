@@ -1,12 +1,15 @@
 package com.petros.bringframework.beans.factory.support;
 
+import com.petros.bringframework.beans.BeanException;
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultBeanFactory implements BeanFactory, Serializable {
 
     private final BeanDefinitionRegistry beanDefinitionRegistry;
+
+    private Map<Class<?>, String[]> allBeanNamesByType;
 
     /**
      * Map from dependency type to corresponding autowired value.
@@ -37,7 +42,7 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
     public void createBeansFromDefinitions() {
         Map<String, BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
         beanDefinitions.forEach((beanName, bd) -> {
-            Object bean = createBean(beanName, bd);
+            Object bean = createBean(bd);
             beanMap.put(beanName, bean);
         });
     }
@@ -48,6 +53,7 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         List<Object> beans = beanMap.values().stream()
                 .filter(bean -> requiredType.equals(bean.getClass()))
@@ -92,7 +98,29 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
     }
 
     @Override
-    public Object createBean(String beanName, BeanDefinition bd)
+    @SuppressWarnings("unchecked")
+    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type) throws BeanException {
+        String[] beanNames = getBeanNamesForType(type);
+        Map<String, T> result = new LinkedHashMap<>(beanNames.length);
+        for (String beanName : beanNames) {
+            Object beanInstance = getBean(beanName);
+            result.put(beanName, (T) beanInstance);
+        }
+        return result;
+    }
+
+    private String[] getBeanNamesForType(Class<?> type) {
+        return allBeanNamesByType.get(type);
+    }
+
+    /**
+     * Create a bean instance for the given bean definition.
+     * <p>All bean retrieval methods delegate to this method for actual bean creation.
+     *
+     * @return a new instance of the bean
+     * @throws BeanCreationException if the bean could not be created
+     */
+    public Object createBean(BeanDefinition bd)
             throws BeanCreationException {
 
         Class<?> clazz = bd.getClass();

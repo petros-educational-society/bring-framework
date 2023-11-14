@@ -1,7 +1,7 @@
 package com.petros.bringframework.beans.factory;
 
-import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.factory.config.BeanDefinition;
+import javax.annotation.Nullable;
+import java.util.Map;
 
 public interface BeanFactory {
 
@@ -21,18 +21,5 @@ public interface BeanFactory {
 
     String[] getAliases(String name);
 
-    /**
-     * Create a bean instance for the given merged bean definition (and arguments).
-     * The bean definition will already have been merged with the parent definition
-     * in case of a child definition.
-     * <p>All bean retrieval methods delegate to this method for actual bean creation.
-     *
-     * @param beanName the name of the bean
-     * @param mbd      the merged bean definition for the bean
-     * @param args     explicit arguments to use for constructor or factory method invocation
-     * @return a new instance of the bean
-     * @throws BeanCreationException if the bean could not be created
-     */
-    Object createBean(String beanName, BeanDefinition bd) throws BeanCreationException;
-
+    <T> Map<String, T> getBeansOfType(@Nullable Class<T> type);
 }

@@ -1,14 +1,23 @@
 package com.petros.bringframework.context.support;
 
+import com.petros.bringframework.beans.BeanException;
+import com.petros.bringframework.beans.factory.BeanFactory;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
+import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.context.ApplicationContext;
-import lombok.Getter;
 import lombok.SneakyThrows;
 
+import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultApplicationContext implements ApplicationContext {
     private Map<String, Object> beanCache;
+    private Map<String, ? extends BeanFactoryPostProcessor> beanFactoryPostProcessors;
+    private Map<String, ? extends BeanPostProcessor> beanPostProcessors;
+
+    private BeanFactory beanFactory;
 //    @Getter
 //    private Reflections scaner;
 //    private BeanDefinitionRegistry registry;
@@ -21,7 +30,13 @@ public class DefaultApplicationContext implements ApplicationContext {
 //        scaner = new SimplePathScanBeanDefinitionScaner(registry);
 //        config = new JavaConfig(scaner, ifc2impl);
 //        factory = new ObjectFactory(this);
-        beanCache = new ConcurrentHashMap<>();
+        this.beanCache = new ConcurrentHashMap<>();
+        this.beanFactoryPostProcessors = this.getBeansOfType(BeanFactoryPostProcessor.class);
+        this.beanPostProcessors = this.getBeansOfType(BeanPostProcessor.class);
+    }
+
+    private <T> void configureBeans(T t) {
+        beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
     }
 
     @Override
@@ -73,6 +88,13 @@ public class DefaultApplicationContext implements ApplicationContext {
     public String[] getAliases(String name) {
         throw new RuntimeException("There is no implementation");
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type) throws BeanException {
+        return beanFactory.getBeansOfType(type);
+    }
+
 
     private <T> Class<T> resolveImpl(Class<T> type) {
 //        return type.isInterface() ? (Class<T>) config.getImplClass(type) : type;
