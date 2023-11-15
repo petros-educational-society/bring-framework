@@ -48,6 +48,7 @@ public abstract class AnnotationConfigUtils {
 
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> T getRequiredAttribute(String attributeName, Object value, Class<T> expectedType) {
         AssertUtils.notBlank(attributeName, "'attributeName' must not be null or empty");
         AssertUtils.notNull(value, "Attribute '" + attributeName + "' should not be null");

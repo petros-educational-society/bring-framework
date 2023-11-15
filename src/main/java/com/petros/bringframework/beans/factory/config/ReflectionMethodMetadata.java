@@ -1,11 +1,12 @@
 package com.petros.bringframework.beans.factory.config;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author "Maksym Oliinyk"
  */
+@Slf4j
 public class ReflectionMethodMetadata implements MethodMetadata {
 
     private final Method introspectedMethod;
@@ -33,21 +35,7 @@ public class ReflectionMethodMetadata implements MethodMetadata {
     @Nullable
     @Override
     public Map<String, Object> getAnnotationAttributes(String annotationName) {
-        Map<String, Object> attributes = new HashMap<>();
-
-        Annotation annotation = getAnnotation(annotationName);
-        if (annotation != null) {
-            for (Method method : annotation.annotationType().getDeclaredMethods()) {
-                try {
-                    Object value = method.invoke(annotation);
-                    attributes.put(method.getName(), value);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return attributes;
+        return getAnnotationAttributes(annotationName, log::error);
     }
 
     @Override

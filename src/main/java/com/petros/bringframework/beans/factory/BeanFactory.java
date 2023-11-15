@@ -1,9 +1,15 @@
 package com.petros.bringframework.beans.factory;
 
+import com.petros.bringframework.beans.factory.config.BeanDefinition;
+import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
 import javax.annotation.Nullable;
 import java.util.Map;
 
 public interface BeanFactory {
+
+    void createBeansFromDefinitions();
+
+    <T> void configureBeans(T t);
 
     Object getBean(String name);
 
@@ -18,6 +24,8 @@ public interface BeanFactory {
     boolean isTypeMatch(String name, Class<?> typeToMatch);
 
     Class<?> getType(String name);
+
+    void destroyBeans();
 
     String[] getAliases(String name);
 

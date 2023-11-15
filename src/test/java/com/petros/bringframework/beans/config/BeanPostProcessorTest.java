@@ -1,6 +1,10 @@
 package com.petros.bringframework.beans.config;
 
-import com.petros.bringframework.beans.config.beans.*;
+import com.petros.bringframework.beans.config.beans.AutowiredCandidate;
+import com.petros.bringframework.beans.config.beans.AutowiredCandidateImpl;
+import com.petros.bringframework.beans.config.beans.AutowiredCandidateImpl2;
+import com.petros.bringframework.beans.config.beans.InjectPleaseAnnotationTestBean;
+import com.petros.bringframework.beans.config.beans.ValueAnnotationTestBean;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.AutowiredAnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
@@ -15,7 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class BeanPostProcessorTest {

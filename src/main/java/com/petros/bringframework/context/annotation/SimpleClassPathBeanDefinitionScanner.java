@@ -17,9 +17,9 @@ import java.util.Set;
 
 public class SimpleClassPathBeanDefinitionScanner {
 
-    private BeanDefinitionRegistry registry;
-    private BeanNameGenerator nameGenerator = AnnotationBeanNameGenerator.INSTANCE;
-    private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
+    private final BeanDefinitionRegistry registry;
+    private final BeanNameGenerator nameGenerator = AnnotationBeanNameGenerator.INSTANCE;
+    private final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
     public SimpleClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
         this.registry = registry;
@@ -33,6 +33,8 @@ public class SimpleClassPathBeanDefinitionScanner {
     protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
         AssertUtils.notEmpty(basePackages, "At least one base package must be specified");
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+
+        //todo: what for the firs 'for' loop here?
         for (String basePackage : basePackages) {
             Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
             for (BeanDefinition beanDef : candidates) {

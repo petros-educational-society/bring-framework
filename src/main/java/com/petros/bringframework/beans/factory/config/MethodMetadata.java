@@ -1,5 +1,11 @@
 package com.petros.bringframework.beans.factory.config;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
 /**
  * @author "Maksym Oliinyk"
  */

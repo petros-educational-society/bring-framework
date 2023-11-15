@@ -1,6 +1,11 @@
 package com.petros.bringframework.context;
 
-import com.petros.bringframework.beans.factory.BeanFactory;
+import com.petros.bringframework.beans.BeansException;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 
-public interface ApplicationContext extends BeanFactory {
+public interface ApplicationContext {
+
+    void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);
+
+    void init() throws BeansException, IllegalStateException;
 }

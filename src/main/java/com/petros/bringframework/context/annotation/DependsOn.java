@@ -1,6 +1,10 @@
 package com.petros.bringframework.context.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Beans on which the current bean depends. Any beans specified are guaranteed to be
@@ -16,7 +20,6 @@ import java.lang.annotation.*;
  *
  * <p>May be used on any class directly or indirectly annotated with
  * {@link Component} or on methods annotated
- * with {@link Bean}.
  *
  * @author Maksym Oliinyk
  */

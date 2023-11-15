@@ -14,14 +14,14 @@ import static com.petros.bringframework.util.ClassUtils.getShortName;
 
 public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
+    public static final BeanNameGenerator INSTANCE = new AnnotationBeanNameGenerator();
     private final Map<String, Set<String>> metaAnnotationTypesCache;
-
-    public static final AnnotationBeanNameGenerator INSTANCE = new AnnotationBeanNameGenerator();
 
     private AnnotationBeanNameGenerator() {
         metaAnnotationTypesCache = new ConcurrentHashMap<>();
     }
 
+    //todo: remove beanDefinitionRegistry if not required
     @Override
     public String generateBeanName(BeanDefinition beanDefinition, BeanDefinitionRegistry beanDefinitionRegistry) {
         if (beanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {

@@ -1,12 +1,16 @@
 package com.petros.bringframework.beans.factory.support;
 
-import com.petros.bringframework.beans.BeanException;
+import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
+import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
+import com.petros.bringframework.beans.factory.config.ReflectionClassMetadata;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -14,59 +18,68 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultBeanFactory implements BeanFactory, Serializable {
-
-    private final BeanDefinitionRegistry beanDefinitionRegistry;
-
-    private Map<Class<?>, String[]> allBeanNamesByType;
-
-    /**
-     * Map from dependency type to corresponding autowired value.
-     */
+/**
+ * @author "Oleksii Skachkov"
+ * @author "Marina Vasiuk"
+ */
+@Slf4j
+public class DefaultBeanFactory implements BeanFactory {
+    private final Map<String, Object> beanCacheByName = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Object> beanCacheByType = new ConcurrentHashMap<>();
+    private final Map<String, BeanFactoryPostProcessor> beanFactoryPostProcessors = new ConcurrentHashMap<>();
+    private final Map<String, BeanPostProcessor> beanPostProcessors = new ConcurrentHashMap<>();
+    private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
-    /**
-     * Map of bean objects, keyed by bean name.
-     */
-    private final Map<String, Object> beanMap = new ConcurrentHashMap<>(256);
+    private final BeanDefinitionRegistry registry;
 
+    public DefaultBeanFactory(BeanDefinitionRegistry registry) {
+        this.registry = registry;
+//        this.beanFactoryPostProcessors.putAll(getBeansOfType(BeanFactoryPostProcessor.class));
+//        final Map<? extends Class<?>, List<ReflectionScannedGenericBeanDefinition>> collect =
+//                registry.getBeanDefinitions().entrySet().stream()
+//                        .filter(e -> ReflectionScannedGenericBeanDefinition.class.isInstance(e.getValue()))
+//                        .map(e -> (ReflectionScannedGenericBeanDefinition) e.getValue())
+//                        .collect(Collectors.groupingBy(bd -> ReflectionClassMetadata.class.cast(bd.getMetadata()).getIntrospectedClass()));
+//        this.beanPostProcessors.putAll(getBeansOfType(BeanPostProcessor.class));
 
-    /**
-     * Create a new DefaultListableBeanFactory.
-     */
-    public DefaultBeanFactory(BeanDefinitionRegistry beanDefinitionRegistry) {
-        super();
-        this.beanDefinitionRegistry = beanDefinitionRegistry;
     }
 
+    @Override
+    public boolean containsBean(String name) {
+        return beanCacheByName.containsKey(name);
+    }
+
+    @Override
     public void createBeansFromDefinitions() {
-        Map<String, BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
-        beanDefinitions.forEach((beanName, bd) -> {
+        registry.getBeanDefinitions().forEach((beanName, bd) -> {
             Object bean = createBean(bd);
-            beanMap.put(beanName, bean);
+            beanCacheByName.put(beanName, bean);
+            //todo: does it make sense to add the bean class-name to the beanDefinition when scanning packages and use it here?
+            beanCacheByType.put(bean.getClass(), bean);
         });
     }
 
     @Override
+    public <T> void configureBeans(T t) {
+        beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
+    }
+
+    @Override
     public Object getBean(String name) {
-        return beanMap.get(name);
+        return beanCacheByName.get(name);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
-        List<Object> beans = beanMap.values().stream()
+        List<Object> beans = beanCacheByName.values().stream()
                 .filter(bean -> requiredType.equals(bean.getClass()))
                 .toList();
         if (beans.size() > 1) {
             throw new BeanCreationException(requiredType, "Class has more than one beans.");
         }
         return (T) beans.get(0);
-    }
-
-    @Override
-    public boolean containsBean(String name) {
-        return beanMap.containsKey(name);
     }
 
     @Override
@@ -86,9 +99,13 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
     }
 
     @Override
+    public void destroyBeans() {
+        beanCacheByName.clear();
+    }
+
+    @Override
     public Class<?> getType(String name) {
-        Object bean = getBean(name);
-        return bean.getClass();
+        return getBean(name).getClass();
     }
 
     @Override
@@ -99,7 +116,7 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type) throws BeanException {
+    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type) throws BeansException {
         String[] beanNames = getBeanNamesForType(type);
         Map<String, T> result = new LinkedHashMap<>(beanNames.length);
         for (String beanName : beanNames) {
@@ -120,13 +137,14 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
      * @return a new instance of the bean
      * @throws BeanCreationException if the bean could not be created
      */
-    public Object createBean(BeanDefinition bd)
-            throws BeanCreationException {
-
-        Class<?> clazz = bd.getClass();
+    @SneakyThrows
+    private Object createBean(BeanDefinition bd) throws BeanCreationException {
+//        var clazz = ReflectionClassMetadata.class.cast(bd).getIntrospectedClass();
+        var clazz = Class.forName(bd.getBeanClassName());
         if (clazz.isInterface()) {
             throw new BeanCreationException(clazz, "Specified class is an interface");
         }
+
 
         Constructor<?> constructorToUse;
         try {
@@ -145,7 +163,7 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
         //we have a lot of checks and autowirings here. maybe will use later
         //populateBean(beanName, bd, bean);
 
-        invokeCustomInitMethod(bean, bd.getInitMethodName());
+//        invokeCustomInitMethod(bean, bd.getInitMethodName());
         return bean;
     }
 
@@ -156,9 +174,7 @@ public class DefaultBeanFactory implements BeanFactory, Serializable {
             //not sure if it needs. We use org.reflections.ReflectionUtils instead org.springframework.util.ReflectionUtils
             //ReflectionUtils.makeAccessible(methodToInvoke);
             Method initMethod = beanClass.getMethod(initMethodName);
-            if (initMethod != null) {
-                initMethod.invoke(bean);
-            }
+            initMethod.invoke(bean);
         } catch (Throwable ex) {
             throw new BeanCreationException(beanClass, "Can`t invoke init method", ex);
         }
