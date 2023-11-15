@@ -21,6 +21,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
         metaAnnotationTypesCache = new ConcurrentHashMap<>();
     }
 
+    //todo: remove beanDefinitionRegistry if not required
     @Override
     public String generateBeanName(BeanDefinition beanDefinition, BeanDefinitionRegistry beanDefinitionRegistry) {
         if (beanDefinition instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {

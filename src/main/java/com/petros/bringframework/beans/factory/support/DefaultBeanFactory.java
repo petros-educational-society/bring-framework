@@ -2,13 +2,12 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.factory.BeanDefinitionStoreException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
-import com.petros.bringframework.core.AssertUtils;
-import lombok.RequiredArgsConstructor;
+import com.petros.bringframework.beans.factory.config.ReflectionClassMetadata;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
@@ -19,13 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.petros.bringframework.core.AssertUtils.notBlank;
-import static java.util.Objects.requireNonNull;
-
+/**
+ * @author "Oleksii Skachkov"
+ * @author "Marina Vasiuk"
+ */
 @Slf4j
 public class DefaultBeanFactory implements BeanFactory {
-
-    private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
     private final Map<String, Object> beanCacheByName = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> beanCacheByType = new ConcurrentHashMap<>();
     private final Map<String, BeanFactoryPostProcessor> beanFactoryPostProcessors = new ConcurrentHashMap<>();
@@ -37,8 +35,14 @@ public class DefaultBeanFactory implements BeanFactory {
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
         this.registry = registry;
-        this.beanFactoryPostProcessors.putAll(getBeansOfType(BeanFactoryPostProcessor.class));
-        this.beanPostProcessors.putAll(getBeansOfType(BeanPostProcessor.class));
+//        this.beanFactoryPostProcessors.putAll(getBeansOfType(BeanFactoryPostProcessor.class));
+//        final Map<? extends Class<?>, List<ReflectionScannedGenericBeanDefinition>> collect =
+//                registry.getBeanDefinitions().entrySet().stream()
+//                        .filter(e -> ReflectionScannedGenericBeanDefinition.class.isInstance(e.getValue()))
+//                        .map(e -> (ReflectionScannedGenericBeanDefinition) e.getValue())
+//                        .collect(Collectors.groupingBy(bd -> ReflectionClassMetadata.class.cast(bd.getMetadata()).getIntrospectedClass()));
+//        this.beanPostProcessors.putAll(getBeansOfType(BeanPostProcessor.class));
+
     }
 
     @Override
@@ -46,15 +50,19 @@ public class DefaultBeanFactory implements BeanFactory {
         return beanCacheByName.containsKey(name);
     }
 
-    private <T> void configureBeans(T t) {
-        beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
-    }
-
+    @Override
     public void createBeansFromDefinitions() {
         registry.getBeanDefinitions().forEach((beanName, bd) -> {
             Object bean = createBean(bd);
             beanCacheByName.put(beanName, bean);
+            //todo: does it make sense to add the bean class-name to the beanDefinition when scanning packages and use it here?
+            beanCacheByType.put(bean.getClass(), bean);
         });
+    }
+
+    @Override
+    public <T> void configureBeans(T t) {
+        beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
     }
 
     @Override
@@ -88,20 +96,6 @@ public class DefaultBeanFactory implements BeanFactory {
     public boolean isTypeMatch(String name, Class<?> typeToMatch) {
         Class<?> type = getType(name);
         return typeToMatch.equals(type);
-    }
-
-    @Override
-    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
-        notBlank(beanName, "Bean name must not be empty");
-        requireNonNull(beanDefinition, "BeanDefinition must not be null");
-        registry.registerBeanDefinition(beanName, beanDefinition);
-    }
-
-
-    @Override
-    public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
-        notBlank(beanName, "'beanName' must not be empty");
-        registry.removeBeanDefinition(beanName);
     }
 
     @Override
@@ -143,11 +137,14 @@ public class DefaultBeanFactory implements BeanFactory {
      * @return a new instance of the bean
      * @throws BeanCreationException if the bean could not be created
      */
-    public Object createBean(BeanDefinition bd) throws BeanCreationException {
-        Class<?> clazz = bd.getClass();
+    @SneakyThrows
+    private Object createBean(BeanDefinition bd) throws BeanCreationException {
+//        var clazz = ReflectionClassMetadata.class.cast(bd).getIntrospectedClass();
+        var clazz = Class.forName(bd.getBeanClassName());
         if (clazz.isInterface()) {
             throw new BeanCreationException(clazz, "Specified class is an interface");
         }
+
 
         Constructor<?> constructorToUse;
         try {
@@ -166,7 +163,7 @@ public class DefaultBeanFactory implements BeanFactory {
         //we have a lot of checks and autowirings here. maybe will use later
         //populateBean(beanName, bd, bean);
 
-        invokeCustomInitMethod(bean, bd.getInitMethodName());
+//        invokeCustomInitMethod(bean, bd.getInitMethodName());
         return bean;
     }
 

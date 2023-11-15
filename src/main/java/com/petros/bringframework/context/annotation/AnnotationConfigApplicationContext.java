@@ -1,14 +1,10 @@
 package com.petros.bringframework.context.annotation;
 
-import com.petros.bringframework.beans.factory.BeanDefinitionStoreException;
-import com.petros.bringframework.beans.factory.BeanFactory;
-import com.petros.bringframework.beans.factory.config.BeanDefinition;
+import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
-import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
 import com.petros.bringframework.context.support.AbstractApplicationContext;
 import com.petros.bringframework.core.AssertUtils;
-import lombok.SneakyThrows;
 
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
 
@@ -17,54 +13,31 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
 
     public AnnotationConfigApplicationContext(BeanDefinitionRegistry registry, String... packages) {
         super();
-        this.beanFactory = new DefaultBeanFactory(registry);
         this.scanner = new SimpleClassPathBeanDefinitionScanner(registry);
         scan(packages);
+        this.beanFactory = new DefaultBeanFactory(registry);
+        init();
     }
 
     @Override
-    protected void postProcessBeanFactory(BeanFactory beanFactory) {
-
+    protected void initBeansPostProcessors() {
+        beanFactory.getBeansOfType(BeanPostProcessor.class)
+                .forEach((name, processor) -> beanFactory.configureBeans(processor));
     }
 
     @Override
-    protected void invokeBeanFactoryPostProcessors(BeanFactory beanFactory) {
-
-    }
-
-    @Override
-    protected void registerBeanPostProcessors(BeanFactory beanFactory) {
+    protected void invokeBeanFactoryPostProcessors() {
 
     }
 
     @Override
-    public Object getBean(String name) {
-        throw new RuntimeException("There is no implementation");
-    }
-
-    @SneakyThrows
-    @Override
-    public <T> T getBean(Class<T> type) {
-//        if (beanCache.containsKey(type)) {
-//            return type.cast(beanCache.get(type));
-//        }
-//        var implClass = resolveImpl(type);
-//        var obj = factory.createObject(implClass);
-//        if (implClass.isAnnotationPresent(Singleton.class)) {
-//            beanCache.put(type.getName(), obj);
-//        }
-//        return obj;
-        throw new UnsupportedOperationException("There is no implementation");
+    protected void destroyBeans() {
+        beanFactory.destroyBeans();
     }
 
     @Override
-    protected BeanFactory getBeanFactory() {
-        return beanFactory;
-    }
-
-    private <T> Class<T> resolveImpl(Class<T> type) {
-//        return type.isInterface() ? (Class<T>) config.getImplClass(type) : type;
-        throw new RuntimeException("There is no implementation");
+    protected void createBeansFromDefinitions() {
+        beanFactory.createBeansFromDefinitions();
     }
 
     public void scan(String... packages) {
@@ -72,13 +45,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         this.scanner.scan(packages);
     }
 
-    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
-            throws BeanDefinitionStoreException {
-
-        this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
-    }
-
-    public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
-        this.beanFactory.removeBeanDefinition(beanName);
+    public <T> T getBean(Class<T> type) {
+        return beanFactory.getBean(type);
     }
 }

@@ -33,6 +33,8 @@ public class SimpleClassPathBeanDefinitionScanner {
     protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
         AssertUtils.notEmpty(basePackages, "At least one base package must be specified");
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+
+        //todo: what for the firs 'for' loop here?
         for (String basePackage : basePackages) {
             Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
             for (BeanDefinition beanDef : candidates) {

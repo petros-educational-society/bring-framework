@@ -1,8 +1,11 @@
 package com.petros.bringframework.service;
 
+import com.petros.bringframework.context.annotation.Component;
+
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOfRange;
 
+@Component
 public class MergeSortRecursively implements MergeSort {
     @Override
     public <T extends Comparable<? super T>> void sort(T[] arr) {

@@ -7,6 +7,10 @@ import java.util.Map;
 
 public interface BeanFactory {
 
+    void createBeansFromDefinitions();
+
+    <T> void configureBeans(T t);
+
     Object getBean(String name);
 
     <T> T getBean(Class<T> requiredType);
@@ -20,12 +24,6 @@ public interface BeanFactory {
     boolean isTypeMatch(String name, Class<?> typeToMatch);
 
     Class<?> getType(String name);
-
-    void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
-            throws BeanDefinitionStoreException;
-
-    void removeBeanDefinition(String beanName)
-            throws NoSuchBeanDefinitionException;
 
     void destroyBeans();
 
