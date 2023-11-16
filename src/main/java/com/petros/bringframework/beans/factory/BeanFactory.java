@@ -1,7 +1,7 @@
 package com.petros.bringframework.beans.factory;
 
-import com.petros.bringframework.beans.factory.config.BeanDefinition;
-import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
+import com.petros.bringframework.core.type.ResolvableType;
+
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -21,7 +21,7 @@ public interface BeanFactory {
 
     boolean isPrototype(String name);
 
-    boolean isTypeMatch(String name, Class<?> typeToMatch);
+    boolean isTypeMatch(String name, ResolvableType typeToMatch);
 
     Class<?> getType(String name);
 

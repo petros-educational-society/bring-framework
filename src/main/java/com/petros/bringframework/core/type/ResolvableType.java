@@ -7,6 +7,7 @@ import com.petros.bringframework.util.ObjectUtils;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.*;
+import java.util.Objects;
 
 /**
  * @author "Maksym Oliinyk"
@@ -71,6 +72,11 @@ public class ResolvableType implements Serializable {
         this.componentType = null;
     }
 
+    public static <T> ResolvableType forRawClass(Class<T> requiredType) {
+        Objects.requireNonNull(requiredType);
+        return new ResolvableType(requiredType);
+    }
+
     public Type getType() {
         return type;
     }
@@ -127,8 +133,15 @@ public class ResolvableType implements Serializable {
         }
 
         //todo implement
+        boolean isAssignableFrom = false;
+        if (!isAssignableFrom) {
+            isAssignableFrom = this.getRawClass().isInstance(other.getRawClass());
+            if (!isAssignableFrom) {
+                isAssignableFrom = this.getRawClass().isAssignableFrom(other.getRawClass());
+            }
+        }
 
-        return true;
+        return isAssignableFrom;
     }
 
 
