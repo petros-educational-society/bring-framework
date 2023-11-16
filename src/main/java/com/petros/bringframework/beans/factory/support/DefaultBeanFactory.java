@@ -82,15 +82,6 @@ public class DefaultBeanFactory implements BeanFactory {
             throw new NoSuchBeanDefinitionException(requiredType);
         }
         return resolved;
-
-
-//        List<Object> beans = beanCacheByName.values().stream()
-//                .filter(bean -> requiredType.equals(bean.getClass()))
-//                .toList();
-//        if (beans.size() > 1) {
-//            throw new BeanCreationException(requiredType, "Class has more than one beans.");
-//        }
-//        return (T) beans.get(0);
     }
 
     @Override
