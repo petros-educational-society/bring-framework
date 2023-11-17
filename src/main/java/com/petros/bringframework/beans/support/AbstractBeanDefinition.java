@@ -275,7 +275,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * @see #AUTOWIRE_CONSTRUCTOR
      * @see #AUTOWIRE_BY_TYPE
      */
-    public int getResolvedAutowireMode() {
+    public AutowireMode getResolvedAutowireMode() {
         if (this.autowireMode == AUTOWIRE_AUTODETECT) {
             // Work out whether to apply setter autowiring or constructor autowiring.
             // If it has a no-arg constructor it's deemed to be setter autowiring,
@@ -283,16 +283,16 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
             Constructor<?>[] constructors = getBeanClass().getConstructors();
             for (Constructor<?> constructor : constructors) {
                 if (constructor.getParameterCount() == 0) {
-                    return AUTOWIRE_BY_TYPE.getValue();
+                    return AUTOWIRE_BY_TYPE;
                 }
             }
-            return AUTOWIRE_CONSTRUCTOR.getValue();
+            return AUTOWIRE_CONSTRUCTOR;
         } else {
-            return this.autowireMode.getValue();
+            return this.autowireMode;
         }
     }
 
-    private Class<?> getBeanClass() {
+    public Class<?> getBeanClass() {
         return (beanClass instanceof Class<?> clazz ? clazz : null);
     }
 }
