@@ -2,7 +2,7 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.factory.BeanFactory;
+import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author "Marina Vasiuk"
  */
 @Slf4j
-public class DefaultBeanFactory implements BeanFactory {
+public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory {
     private final Map<String, Object> beanCacheByName = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> beanCacheByType = new ConcurrentHashMap<>();
     private final Map<String, BeanFactoryPostProcessor> beanFactoryPostProcessors = new ConcurrentHashMap<>();
@@ -35,10 +35,8 @@ public class DefaultBeanFactory implements BeanFactory {
     private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
-    private final BeanDefinitionRegistry registry;
-
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
-        this.registry = registry;
+        super(registry);
 //        this.beanFactoryPostProcessors.putAll(getBeansOfType(BeanFactoryPostProcessor.class));
 //        final Map<? extends Class<?>, List<ReflectionScannedGenericBeanDefinition>> collect =
 //                registry.getBeanDefinitions().entrySet().stream()
@@ -55,23 +53,8 @@ public class DefaultBeanFactory implements BeanFactory {
     }
 
     @Override
-    public void createBeansFromDefinitions() {
-        registry.getBeanDefinitions().forEach((beanName, bd) -> {
-            Object bean = createBean(bd);
-            beanCacheByName.put(beanName, bean);
-            //todo: does it make sense to add the bean class-name to the beanDefinition when scanning packages and use it here?
-            beanCacheByType.put(bean.getClass(), bean);
-        });
-    }
-
-    @Override
     public <T> void configureBeans(T t) {
         beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
-    }
-
-    @Override
-    public Object getBean(String name) {
-        return beanCacheByName.get(name);
     }
 
     @Override
@@ -131,43 +114,6 @@ public class DefaultBeanFactory implements BeanFactory {
         return result;
     }
 
-    /**
-     * Create a bean instance for the given bean definition.
-     * <p>All bean retrieval methods delegate to this method for actual bean creation.
-     *
-     * @return a new instance of the bean
-     * @throws BeanCreationException if the bean could not be created
-     */
-    @SneakyThrows
-    private Object createBean(BeanDefinition bd) throws BeanCreationException {
-//        var clazz = ReflectionClassMetadata.class.cast(bd).getIntrospectedClass();
-        var clazz = Class.forName(bd.getBeanClassName());
-        if (clazz.isInterface()) {
-            throw new BeanCreationException(clazz, "Specified class is an interface");
-        }
-
-
-        Constructor<?> constructorToUse;
-        try {
-            constructorToUse = clazz.getDeclaredConstructor();
-        } catch (Throwable ex) {
-            throw new BeanCreationException(clazz, "No default constructor found", ex);
-        }
-
-        Object bean;
-        try {
-            bean = constructorToUse.newInstance();
-        } catch (Throwable e) {
-            throw new BeanCreationException(constructorToUse.toString(), "Constructor threw exception", e);
-        }
-
-        //we have a lot of checks and autowirings here. maybe will use later
-        //populateBean(beanName, bd, bean);
-
-//        invokeCustomInitMethod(bean, bd.getInitMethodName());
-        return bean;
-    }
-
     private void invokeCustomInitMethod(Object bean, String initMethodName) {
 
         Class<?> beanClass = bean.getClass();
@@ -214,24 +160,17 @@ public class DefaultBeanFactory implements BeanFactory {
         return null;
     }
 
-    private Object getSingleton(String name) {
-        final Object singelton = beanCacheByName.get(name);
-        if (singelton == null) {
-            throw new NotImplementedException();
-        }
-        return singelton;
-    }
-
-    private <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
-        // Check if required type matches the type of the actual bean instance.
-        if (requiredType != null && !requiredType.isInstance(bean)) {
-            throw new NotImplementedException("Work with converters not implemented");
-        }
-        return (T) bean;
-    }
+    //todo remove
+//    private Object getSingleton(String name) {
+//        final Object singelton = beanCacheByName.get(name);
+//        if (singelton == null) {
+//            throw new NotImplementedException();
+//        }
+//        return singelton;
+//    }
 
     private String[] getBeanNamesForType(Class<?> type) {
-        return allBeanNamesByType.get(type);
+        return getBeanNamesForType(type, true);
     }
 
     private String[] getBeanNamesForType(ResolvableType type) {
@@ -250,6 +189,7 @@ public class DefaultBeanFactory implements BeanFactory {
             return resolvedBeanNames;
         } else {
             resolvedBeanNames = doGetBeanNamesForType(ResolvableType.forRawClass(type), true);
+            cache.put(type, resolvedBeanNames);
         }
 
         return resolvedBeanNames;
@@ -270,5 +210,33 @@ public class DefaultBeanFactory implements BeanFactory {
         }
 
         return result != null && !result.isEmpty() ? result.toArray(new String[]{}) : new String[]{};
+    }
+
+    @Override
+    public void preInstantiateSingletons() throws BeansException {
+        List<String> beanNames = new ArrayList<>(this.registry.getBeanDefinitions().keySet());
+        for (String beanName : beanNames) {
+            final BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+            if (!beanDef.isAbstract() && beanDef.isSingleton() && !beanDef.isLazyInit()) {
+                if (isFactoryBean(beanName)) {
+                    //todo implement if needed
+                    throw new NotImplementedException();
+                } else {
+                    getBean(beanName);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        //todo finish implementation
+//        AssertUtils.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+//        synchronized (this.beanPostProcessors) {
+//            // Remove from old position, if any
+//            this.beanPostProcessors.remove(beanPostProcessor);
+//            // Add to end of list
+//            this.beanPostProcessors.add(beanPostProcessor);
+//        }
     }
 }

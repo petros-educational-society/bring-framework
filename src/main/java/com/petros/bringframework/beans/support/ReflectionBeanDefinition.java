@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ReflectionScannedGenericBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
+public class ReflectionBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
 
     private final AnnotationMetadata metadata;
 
@@ -28,7 +28,7 @@ public class ReflectionScannedGenericBeanDefinition extends GenericBeanDefinitio
      *
      * @param metadataReader the MetadataReader for the scanned target class
      */
-    public ReflectionScannedGenericBeanDefinition(ReflectionMetadataReader metadataReader) {
+    public ReflectionBeanDefinition(ReflectionMetadataReader metadataReader) {
         AssertUtils.notNull(metadataReader, "MetadataReader must not be null");
         this.metadata = metadataReader.getAnnotationMetadata();
         setBeanClassName(this.metadata.getClassName());

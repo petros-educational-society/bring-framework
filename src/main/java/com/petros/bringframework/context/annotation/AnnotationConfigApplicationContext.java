@@ -1,5 +1,7 @@
 package com.petros.bringframework.context.annotation;
 
+import com.petros.bringframework.beans.factory.BeanFactory;
+import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
@@ -26,7 +28,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     }
 
     @Override
-    protected void invokeBeanFactoryPostProcessors() {
+    protected void invokeBeanFactoryPostProcessors(BeanFactory beanFactory) {
 
     }
 
@@ -36,8 +38,13 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     }
 
     @Override
+    protected ConfigurableBeanFactory getBeanFactory() {
+        return beanFactory;
+    }
+
+    @Override
     protected void createBeansFromDefinitions() {
-        beanFactory.createBeansFromDefinitions();
+        refresh();
     }
 
     public void scan(String... packages) {
