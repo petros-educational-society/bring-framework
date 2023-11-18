@@ -7,8 +7,6 @@ import java.util.Map;
 
 public interface BeanFactory {
 
-    void createBeansFromDefinitions();
-
     <T> void configureBeans(T t);
 
     Object getBean(String name);

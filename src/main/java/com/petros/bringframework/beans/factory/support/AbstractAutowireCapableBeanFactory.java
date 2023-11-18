@@ -47,7 +47,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         } catch (BeanCreationException ex) {
             throw ex;
         } catch (Throwable ex) {
-            throw new BeanCreationException(beanName, "Unexpected exception during bean creation", ex);
+            throw new BeanCreationException(beanName, " Unexpected exception during bean creation", ex);
         }
     }
 

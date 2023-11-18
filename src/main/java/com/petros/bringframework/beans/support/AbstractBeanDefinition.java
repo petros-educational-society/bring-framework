@@ -72,6 +72,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     @Override
     public void setBeanClassName(@Nullable String beanClassName) {
         this.beanClass = beanClassName;
+        resolveBeanClass();
     }
 
     @Nullable
@@ -292,7 +293,31 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         }
     }
 
+    @Nullable
+    public Class<?> resolveBeanClass() {
+        String className = getBeanClassName();
+        if (className == null) {
+            return null;
+        }
+        Class<?> resolvedClass = null;
+        try {
+            resolvedClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Couldn't resolve class by name", e);
+        }
+        this.beanClass = resolvedClass;
+        return resolvedClass;
+    }
+
     public Class<?> getBeanClass() {
-        return (beanClass instanceof Class<?> clazz ? clazz : null);
+        Object beanClassObject = this.beanClass;
+        if (beanClassObject == null) {
+            throw new IllegalStateException("No bean class specified on bean definition");
+        }
+        if (!(beanClassObject instanceof Class<?> introspectedClass)) {
+            throw new IllegalStateException(
+                    "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
+        }
+        return introspectedClass;
     }
 }

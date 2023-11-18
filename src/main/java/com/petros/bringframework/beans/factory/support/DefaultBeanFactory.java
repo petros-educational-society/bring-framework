@@ -53,16 +53,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     }
 
     @Override
-    public void createBeansFromDefinitions() {
-        registry.getBeanDefinitions().forEach((beanName, bd) -> {
-            Object bean = createBean(bd);
-            beanCacheByName.put(beanName, bean);
-            //todo: does it make sense to add the bean class-name to the beanDefinition when scanning packages and use it here?
-            beanCacheByType.put(bean.getClass(), bean);
-        });
-    }
-
-    @Override
     public <T> void configureBeans(T t) {
         beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
     }
@@ -124,43 +114,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         return result;
     }
 
-    /**
-     * Create a bean instance for the given bean definition.
-     * <p>All bean retrieval methods delegate to this method for actual bean creation.
-     *
-     * @return a new instance of the bean
-     * @throws BeanCreationException if the bean could not be created
-     */
-    @SneakyThrows
-    private Object createBean(BeanDefinition bd) throws BeanCreationException {
-//        var clazz = ReflectionClassMetadata.class.cast(bd).getIntrospectedClass();
-        var clazz = Class.forName(bd.getBeanClassName());
-        if (clazz.isInterface()) {
-            throw new BeanCreationException(clazz, "Specified class is an interface");
-        }
-
-
-        Constructor<?> constructorToUse;
-        try {
-            constructorToUse = clazz.getDeclaredConstructor();
-        } catch (Throwable ex) {
-            throw new BeanCreationException(clazz, "No default constructor found", ex);
-        }
-
-        Object bean;
-        try {
-            bean = constructorToUse.newInstance();
-        } catch (Throwable e) {
-            throw new BeanCreationException(constructorToUse.toString(), "Constructor threw exception", e);
-        }
-
-        //we have a lot of checks and autowirings here. maybe will use later
-        //populateBean(beanName, bd, bean);
-
-//        invokeCustomInitMethod(bean, bd.getInitMethodName());
-        return bean;
-    }
-
     private void invokeCustomInitMethod(Object bean, String initMethodName) {
 
         Class<?> beanClass = bean.getClass();
@@ -217,7 +170,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 //    }
 
     private String[] getBeanNamesForType(Class<?> type) {
-        return allBeanNamesByType.get(type);
+        return getBeanNamesForType(type, true);
     }
 
     private String[] getBeanNamesForType(ResolvableType type) {
@@ -236,6 +189,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             return resolvedBeanNames;
         } else {
             resolvedBeanNames = doGetBeanNamesForType(ResolvableType.forRawClass(type), true);
+            cache.put(type, resolvedBeanNames);
         }
 
         return resolvedBeanNames;
