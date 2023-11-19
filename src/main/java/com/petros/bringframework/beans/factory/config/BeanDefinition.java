@@ -162,8 +162,6 @@ public interface BeanDefinition {
 
     /**
      * Return if there are constructor argument values defined for this bean.
-     *
-     * @since 5.0.2
      */
     default boolean hasConstructorArgumentValues() {
         return !getConstructorArgumentValues().isEmpty();

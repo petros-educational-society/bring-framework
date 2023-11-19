@@ -16,6 +16,10 @@ public class BeanCreationException extends FatalBeanException {
         super("Class " + clazz.getName() + " " + message);
     }
 
+    public BeanCreationException(String beanName, String msg) {
+        super("Error creating bean with name '" + beanName + "': " + msg);
+    }
+
     public BeanCreationException(String objectCreatedException, String message, Throwable e) {
         super(objectCreatedException + message, e);
     }
