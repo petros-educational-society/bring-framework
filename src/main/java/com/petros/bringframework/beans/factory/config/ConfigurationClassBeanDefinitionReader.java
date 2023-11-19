@@ -1,7 +1,6 @@
 package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
-import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
 import com.petros.bringframework.context.annotation.AnnotationConfigUtils;
 import com.petros.bringframework.context.annotation.AnnotationScopeMetadataResolver;
 import com.petros.bringframework.context.annotation.ScopeMetadata;
@@ -11,12 +10,10 @@ import java.util.Set;
 
 public class ConfigurationClassBeanDefinitionReader {
     private final BeanDefinitionRegistry registry;
-    private final BeanNameGenerator importBeanNameGenerator;
     private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
-    public ConfigurationClassBeanDefinitionReader(BeanDefinitionRegistry registry, BeanNameGenerator importBeanNameGenerator) {
+    public ConfigurationClassBeanDefinitionReader(BeanDefinitionRegistry registry) {
         this.registry = registry;
-        this.importBeanNameGenerator = importBeanNameGenerator;
     }
 
     public void loadBeanDefinitions(Set<ConfigurationClass> configurationModel) {
@@ -37,7 +34,7 @@ public class ConfigurationClassBeanDefinitionReader {
 
         ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
         configBeanDef.setScope(scopeMetadata.getScopeName());
-        String configBeanName = this.importBeanNameGenerator.generateBeanName(configBeanDef, this.registry);
+        String configBeanName = configBeanDef.getBeanClassName();
         AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
 
         BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);

@@ -1,9 +1,7 @@
 package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.factory.BeanFactory;
-import com.petros.bringframework.beans.factory.support.AnnotationBeanNameGenerator;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
-import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
 import com.petros.bringframework.type.reading.MetadataReader;
 
 import javax.annotation.Nullable;
@@ -16,9 +14,6 @@ import java.util.Set;
 
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
-    public static final AnnotationBeanNameGenerator IMPORT_BEAN_NAME_GENERATOR =
-            new FullyQualifiedAnnotationBeanNameGenerator();
-
     private MetadataReader metadataReader;
 
     private final Set<Integer> registriesPostProcessed = new HashSet<>();
@@ -27,8 +22,6 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
     @Nullable
     private ConfigurationClassBeanDefinitionReader reader;
-
-    private BeanNameGenerator importBeanNameGenerator = IMPORT_BEAN_NAME_GENERATOR;
 
     /**
      * Build and validate a configuration model based on the registry of
@@ -60,7 +53,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
             // Read the model and create bean definitions based on its content
             if (this.reader == null) {
-                this.reader = new ConfigurationClassBeanDefinitionReader(registry, this.importBeanNameGenerator);
+                this.reader = new ConfigurationClassBeanDefinitionReader(registry);
             }
             this.reader.loadBeanDefinitions(configClasses);
             alreadyParsed.addAll(configClasses);
