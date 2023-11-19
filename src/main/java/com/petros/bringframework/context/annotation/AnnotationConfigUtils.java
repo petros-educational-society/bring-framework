@@ -2,10 +2,18 @@ package com.petros.bringframework.context.annotation;
 
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.AnnotatedTypeMetadata;
+import com.petros.bringframework.beans.factory.config.AnnotationMetadata;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionRole;
+import com.petros.bringframework.beans.factory.support.AnnotationAttributes;
 import com.petros.bringframework.core.AssertUtils;
 
+import javax.annotation.Nullable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Centralizes the logic for processing key annotations
@@ -18,7 +26,7 @@ public abstract class AnnotationConfigUtils {
         processCommonDefinitionAnnotations(abd, abd.getMetadata());
     }
 
-    static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
+    public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
         var lazy = metadata.getAnnotationAttributes(Lazy.class.getName());
         if (!lazy.isEmpty()) {
             abd.setLazyInit(getRequiredAttribute("value", lazy.get("value"), Boolean.class));
@@ -65,5 +73,24 @@ public abstract class AnnotationConfigUtils {
                     attributeName, value.getClass().getSimpleName(), expectedType.getSimpleName()));
         }
         return (T) value;
+    }
+
+    public static Set<AnnotationAttributes> attributesForRepeatable(AnnotationMetadata metadata, String annotationClassName) {
+        Set<AnnotationAttributes> result = new LinkedHashSet<>();
+
+        addAttributesIfNotNull(result, metadata.getAnnotationAttributes(annotationClassName, false));
+
+        return Collections.unmodifiableSet(result);
+    }
+
+    private static void addAttributesIfNotNull(Set<AnnotationAttributes> result, @Nullable Map<String, Object> attributes) {
+
+        if (attributes != null) {
+            result.add(AnnotationAttributes.fromMap(attributes));
+        }
+    }
+
+    public static void validateAnnotation(Annotation annotation) {
+        AttributeMethods.forAnnotationType(annotation.annotationType()).validate(annotation);
     }
 }

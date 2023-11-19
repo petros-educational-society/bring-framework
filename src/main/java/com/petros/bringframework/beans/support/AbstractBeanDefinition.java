@@ -292,7 +292,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         }
     }
 
-    private Class<?> getBeanClass() {
+    public Class<?> getBeanClass() {
         return (beanClass instanceof Class<?> clazz ? clazz : null);
     }
 }
