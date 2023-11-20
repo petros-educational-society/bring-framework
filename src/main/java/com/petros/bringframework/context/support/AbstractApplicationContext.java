@@ -3,35 +3,21 @@ package com.petros.bringframework.context.support;
 import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
-import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.context.ConfigurableApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.Objects.requireNonNull;
-
 @Slf4j
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
-    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
     private final Object startupShutdownMonitor = new Object();
 
     @Override
-    public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor) {
-        requireNonNull(postProcessor, "BeanFactoryPostProcessor must not be null");
-        this.beanFactoryPostProcessors.add(postProcessor);
-    }
-
-    @Override
-    public void init() throws BeansException, IllegalStateException {
+    public void init()
+            throws BeansException, IllegalStateException {
         synchronized (startupShutdownMonitor) {
             try {
                 createBeansFromDefinitions();
-//                invokeBeanFactoryPostProcessors();
-//                initBeansPostProcessors();
             } catch (BeansException ex) {
                 if (log.isWarnEnabled()) {
                     log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}", ex.getMessage(), ex);
@@ -59,28 +45,20 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             // Register bean processors that intercept bean creation.
             registerBeanPostProcessors(beanFactory);
 
-            // Initialize other special beans in specific context subclasses.
-            onRefresh();
-
-            // Check for listener beans and register them.
-//            registerListeners();
-
             // Instantiate all remaining (non-lazy-init) singletons.
             finishBeanFactoryInitialization(beanFactory);
 
-            // Last step: publish corresponding event.
-//            finishRefresh();
         } catch (BeansException ex) {
             if (log.isWarnEnabled()) {
                 log.warn("Exception encountered during context initialization - " +
-                        "cancelling refresh attempt: " + ex);
+                         "cancelling refresh attempt: " + ex);
             }
 
             // Destroy already created singletons to avoid dangling resources.
             destroyBeans();
 
             // Reset 'active' flag.
-//            cancelRefresh(ex);
+            //            cancelRefresh(ex);
 
             // Propagate exception to caller.
             throw ex;
@@ -101,10 +79,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         beanFactory.preInstantiateSingletons();
     }
 
-    protected void onRefresh() {
-        // For subclasses: do nothing by default.
-    }
-
     /**
      * Reset common reflection metadata caches, in particular the
      * {@link ReflectionUtils}, {@link AnnotationUtils} and {@link ResolvableType} caches.
@@ -121,7 +95,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
         beanFactory.getBeansOfType(BeanPostProcessor.class).values()
-                .forEach(beanFactory::addBeanPostProcessor);
+                   .forEach(beanFactory::addBeanPostProcessor);
     }
 
     /**
@@ -158,7 +132,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     protected abstract ConfigurableBeanFactory getBeanFactory();
 
-
     /**
      * Tell the subclass to refresh the internal bean factory.
      *
@@ -186,4 +159,5 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     protected abstract void invokeBeanFactoryPostProcessors(BeanFactory beanFactory);
 
     protected abstract void destroyBeans();
+
 }

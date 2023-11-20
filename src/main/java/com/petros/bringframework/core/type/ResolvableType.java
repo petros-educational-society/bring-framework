@@ -114,7 +114,7 @@ public class ResolvableType implements Serializable {
      * @see #isAssignableFrom(Class)
      * @since 4.2
      */
-    public boolean isInstance(@Nullable Object obj) {
+    public <T> boolean isInstance(@Nullable T obj) {
         return (obj != null && isAssignableFrom(obj.getClass()));
     }
 

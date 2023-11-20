@@ -9,15 +9,14 @@ import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.factory.config.NamedBeanHolder;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,15 +73,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     @Override
     public boolean isPrototype(String name) {
-        return false;
-    }
-
-    @Override
-    public boolean isTypeMatch(String name, ResolvableType typeToMatchh) {
-        final Object beanInstance = getSingleton(name);
-        if (beanInstance != null) {
-            return typeToMatchh.isInstance(beanInstance);
-        }
         return false;
     }
 
@@ -202,7 +192,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             final BeanDefinition beanDefinition = beanDefinitionEntry.getValue();
             boolean matchFound = false;
             if (beanDefinition.isSingleton()) {
-                matchFound = isTypeMatch(beanName, resolvableType);
+                matchFound = isTypeMatch(beanName, beanDefinition, resolvableType);
             }
             if (matchFound) {
                 result.add(beanName);
