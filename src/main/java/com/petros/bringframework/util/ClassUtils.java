@@ -1,13 +1,19 @@
 package com.petros.bringframework.util;
 
+import com.petros.bringframework.core.AssertUtils;
+
 import javax.annotation.Nullable;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import static com.petros.bringframework.core.AssertUtils.notBlank;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.ClassUtils.isPrimitiveWrapper;
 
 public abstract class ClassUtils {
 
@@ -121,5 +127,72 @@ public abstract class ClassUtils {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Return a descriptive name for the given object's type: usually simply
+     * the class name, but component type class name + "[]" for arrays,
+     * and an appended list of implemented interfaces for JDK proxies.
+     * @param value the value to introspect
+     * @return the qualified name of the class
+     */
+    @Nullable
+    public static String getDescriptiveType(@Nullable Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        var clazz = value.getClass();
+        if (Proxy.isProxyClass(clazz)) {
+            var prefix = clazz.getName() + " implementing ";
+            var result = new StringJoiner(",", prefix, "");
+            for (var inter : clazz.getInterfaces()) {
+                result.add(inter.getName());
+            }
+            return result.toString();
+        }
+
+        return clazz.getTypeName();
+    }
+
+    /**
+     * Return the qualified name of the given class: usually simply
+     * the class name, but component type class name + "[]" for arrays.
+     * @param clazz the class
+     * @return the qualified name of the class
+     */
+    public static String getQualifiedName(Class<?> clazz) {
+        AssertUtils.notNull(clazz, "Class must not be null");
+        return clazz.getTypeName();
+    }
+
+    /**
+     * Check if the given class represents a primitive (i.e. boolean, byte,
+     * char, short, int, long, float, or double), {@code void}, or a wrapper for
+     * those types (i.e. Boolean, Byte, Character, Short, Integer, Long, Float,
+     * Double, or Void).
+     * @param clazz the class to check
+     * @return {@code true} if the given class represents a primitive, void, or
+     * a wrapper class
+     */
+    public static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        AssertUtils.notNull(clazz, "Class must not be null");
+        return (clazz.isPrimitive() || isPrimitiveWrapper(clazz));
+    }
+
+    /**
+     * Determine if the given type is assignable from the given value,
+     * assuming setting by reflection. Considers primitive wrapper classes
+     * as assignable to the corresponding primitive types.
+     * @param type the target type
+     * @param value the value that should be assigned to the type
+     * @return if the type is assignable from the value
+     */
+    public static boolean isAssignableValue(Class<?> type, @Nullable Object value) {
+        AssertUtils.notNull(type, "Type must not be null");
+        if (nonNull(value)) {
+            return isAssignableValue(type, value.getClass());
+        }
+        return !type.isPrimitive();
     }
 }

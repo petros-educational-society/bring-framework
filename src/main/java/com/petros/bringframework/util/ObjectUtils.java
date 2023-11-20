@@ -1,9 +1,37 @@
 package com.petros.bringframework.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.time.ZoneId;
+import java.time.temporal.Temporal;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Currency;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class ObjectUtils {
+    private static final String ARRAY_START = "{";
+    private static final String ARRAY_END = "}";
+    private static final String EMPTY_ARRAY = ARRAY_START + ARRAY_END;
+    private static final String NON_EMPTY_ARRAY = ARRAY_START + "..." + ARRAY_END;
+    private static final String COLLECTION = "[...]";
+    private static final String MAP = NON_EMPTY_ARRAY;
+    private static final int DEFAULT_TRUNCATION_THRESHOLD = 100;
+
     public static boolean nullSafeEquals(@Nullable Object o1, @Nullable Object o2) {
         if (o1 == o2) {
             return true;
@@ -49,5 +77,74 @@ public class ObjectUtils {
             return Arrays.equals(shorts1, shorts2);
         }
         return false;
+    }
+
+    public static String nullSafeConciseToString(@Nullable Object obj) {
+        if (obj == null) {
+            return "null";
+        }
+        if (obj instanceof Optional<?> optional) {
+            return (optional.isEmpty() ? "Optional.empty" :
+                    "Optional[%s]".formatted(nullSafeConciseToString(optional.get())));
+        }
+        if (obj.getClass().isArray()) {
+            return (Array.getLength(obj) == 0 ? EMPTY_ARRAY : NON_EMPTY_ARRAY);
+        }
+        if (obj instanceof Collection) {
+            return COLLECTION;
+        }
+        if (obj instanceof Map) {
+            return MAP;
+        }
+        if (obj instanceof Class<?> clazz) {
+            return clazz.getName();
+        }
+        if (obj instanceof Charset charset) {
+            return charset.name();
+        }
+        if (obj instanceof TimeZone timeZone) {
+            return timeZone.getID();
+        }
+        if (obj instanceof ZoneId zoneId) {
+            return zoneId.getId();
+        }
+        if (obj instanceof CharSequence charSequence) {
+            return StringUtils.truncate(charSequence.toString(), DEFAULT_TRUNCATION_THRESHOLD);
+        }
+        Class<?> type = obj.getClass();
+        if (isSimpleValueType(type)) {
+            String str = obj.toString();
+            if (str != null) {
+                return StringUtils.truncate(str, DEFAULT_TRUNCATION_THRESHOLD);
+            }
+        }
+        return type.getTypeName() + "@" + getIdentityHexString(obj);
+    }
+
+    public static String getIdentityHexString(Object obj) {
+        return Integer.toHexString(System.identityHashCode(obj));
+    }
+
+    private static boolean isSimpleValueType(Class<?> type) {
+        return (Void.class != type && void.class != type &&
+                (ClassUtils.isPrimitiveOrWrapper(type) ||
+                        Enum.class.isAssignableFrom(type) ||
+                        CharSequence.class.isAssignableFrom(type) ||
+                        Number.class.isAssignableFrom(type) ||
+                        Date.class.isAssignableFrom(type) ||
+                        Temporal.class.isAssignableFrom(type) ||
+                        ZoneId.class.isAssignableFrom(type) ||
+                        TimeZone.class.isAssignableFrom(type) ||
+                        File.class.isAssignableFrom(type) ||
+                        Path.class.isAssignableFrom(type) ||
+                        Charset.class.isAssignableFrom(type) ||
+                        Currency.class.isAssignableFrom(type) ||
+                        InetAddress.class.isAssignableFrom(type) ||
+                        URI.class == type ||
+                        URL.class == type ||
+                        UUID.class == type ||
+                        Locale.class == type ||
+                        Pattern.class == type ||
+                        Class.class == type));
     }
 }

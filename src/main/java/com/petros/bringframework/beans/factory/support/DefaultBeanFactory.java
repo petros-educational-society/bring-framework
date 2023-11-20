@@ -1,7 +1,9 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
+import com.petros.bringframework.beans.TypeConverter;
 import com.petros.bringframework.beans.exception.BeanCreationException;
+import com.petros.bringframework.beans.exception.TypeMismatchException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -17,10 +19,16 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.petros.bringframework.util.ClassUtils.getQualifiedName;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author "Oleksii Skachkov"
@@ -36,6 +44,7 @@ public class DefaultBeanFactory implements BeanFactory {
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
     private final BeanDefinitionRegistry registry;
+    private TypeConverter typeConverter;
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
         this.registry = registry;
@@ -75,7 +84,6 @@ public class DefaultBeanFactory implements BeanFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T getBean(Class<T> requiredType) {
         T resolved = resolveBean(ResolvableType.forRawClass(requiredType), null);
         if (resolved == null) {
@@ -95,10 +103,10 @@ public class DefaultBeanFactory implements BeanFactory {
     }
 
     @Override
-    public boolean isTypeMatch(String name, ResolvableType typeToMatchh) {
+    public boolean isTypeMatch(String name, ResolvableType typeToMatch) {
         final Object beanInstance = getSingleton(name);
         if (beanInstance != null) {
-            return typeToMatchh.isInstance(beanInstance);
+            return typeToMatch.isInstance(beanInstance);
         }
         return false;
     }
@@ -140,12 +148,10 @@ public class DefaultBeanFactory implements BeanFactory {
      */
     @SneakyThrows
     private Object createBean(BeanDefinition bd) throws BeanCreationException {
-//        var clazz = ReflectionClassMetadata.class.cast(bd).getIntrospectedClass();
         var clazz = Class.forName(bd.getBeanClassName());
         if (clazz.isInterface()) {
             throw new BeanCreationException(clazz, "Specified class is an interface");
         }
-
 
         Constructor<?> constructorToUse;
         try {
@@ -197,15 +203,20 @@ public class DefaultBeanFactory implements BeanFactory {
         String[] candidateNames = getBeanNamesForType(requiredType);
 
         if (candidateNames.length > 1) {
-            throw new NotImplementedException("Work with several beans of same type not implemented yet");
+            var autowireCandidates = Arrays.stream(candidateNames)
+                    .filter(this::absentInDefinitionsAndAutowireCandidate).toList();
+            candidateNames = getNewAutowireCandidatesIfPresent(autowireCandidates, candidateNames);
         }
 
         if (candidateNames.length == 1) {
             final String beanName = candidateNames[0];
             Object bean = getBean(beanName);
             return new NamedBeanHolder<>(beanName, adaptBeanInstance(beanName, bean, requiredType.toClass()));
-        } else if (candidateNames.length > 1) {
+        }
+
+        if (candidateNames.length > 1) {
             Map<String, Object> candidates = new LinkedHashMap<>(candidateNames.length);
+            //todo: to finish from here
             if (throwExceptionIfNonUnique) {
                 throw new NoUniqueBeanDefinitionException(candidates.keySet());
             }
@@ -214,20 +225,61 @@ public class DefaultBeanFactory implements BeanFactory {
         return null;
     }
 
-    private Object getSingleton(String name) {
-        final Object singelton = beanCacheByName.get(name);
-        if (singelton == null) {
-            throw new NotImplementedException();
-        }
-        return singelton;
+    private String[] getNewAutowireCandidatesIfPresent(List<String> autowireCandidates, String[] oldCandidates) {
+        return !autowireCandidates.isEmpty() ? autowireCandidates.toArray(String[]::new) : oldCandidates;
     }
 
+    private boolean absentInDefinitionsAndAutowireCandidate(String name) {
+        return !containsBeanDefinition(name) || getBeanDefinition(name).isAutowireCandidate();
+    }
+
+    private boolean containsBeanDefinition(String beanName) {
+        return Arrays.stream(registry.getBeanDefinitionNames())
+                .anyMatch(beanName::equalsIgnoreCase);
+    }
+
+    private BeanDefinition getBeanDefinition(String beanName) {
+        return Optional.ofNullable(registry.getBeanDefinition(beanName))
+                .orElseThrow(() -> {
+                    if (log.isTraceEnabled()) log.trace("No bean names '{}' found in {}", beanName, this);
+                    throw new NoSuchBeanDefinitionException(beanName);
+                });
+    }
+
+    private Object getSingleton(String name) {
+        final Object singleton = beanCacheByName.get(name);
+        if (singleton == null) {
+            throw new NotImplementedException();
+        }
+        return singleton;
+    }
+
+    @SuppressWarnings("unchecked")
     private <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
-        // Check if required type matches the type of the actual bean instance.
-        if (requiredType != null && !requiredType.isInstance(bean)) {
-            throw new NotImplementedException("Work with converters not implemented");
+        if (nonNull(requiredType) && !requiredType.isInstance(bean)) {
+            try {
+                return (T) Optional.ofNullable(getTypeConverter().convertIfNecessary(bean, requiredType))
+                        .orElseThrow(() -> new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass()));
+            } catch (TypeMismatchException ex) {
+                if (log.isTraceEnabled()) {
+                    log.trace("Failed to convert bean '{}' to required type '{}'", name, getQualifiedName(requiredType), ex);
+                }
+                throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+            }
         }
         return (T) bean;
+    }
+
+    public TypeConverter getTypeConverter() {
+        TypeConverter customConverter = getCustomTypeConverter();
+        if (customConverter != null) {
+            return customConverter;
+        }
+
+        SimpleTypeConverter converter = new SimpleTypeConverter();
+        converter.setConversionService(getConversionService());
+        registerCustomEditors(converter);
+        return converter;
     }
 
     private String[] getBeanNamesForType(Class<?> type) {

@@ -2,6 +2,7 @@ package com.petros.bringframework.core;
 
 import javax.annotation.Nullable;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -54,13 +55,17 @@ public abstract class AssertUtils {
     }
 
     public static void notBlank(String str, String msg) {
-        if (!notBlank(str)) {
+        if (isBlank(str)) {
             throw new NullPointerException(msg);
         }
     }
 
     public static boolean notBlank(String str) {
-        return nonNull(str) && !str.isBlank();
+        return !isBlank(str);
+    }
+
+    public static boolean isBlank(String str) {
+        return isNull(str) || str.isBlank();
     }
 
     public static String uncapitalizeAsProperty(String str) {
@@ -91,5 +96,11 @@ public abstract class AssertUtils {
         char[] chars = str.toCharArray();
         chars[0] = updatedChar;
         return new String(chars);
+    }
+
+    public static void state(boolean ex, String msg) {
+        if (!ex) {
+            throw new IllegalStateException(msg);
+        }
     }
 }
