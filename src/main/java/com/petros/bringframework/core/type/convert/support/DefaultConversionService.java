@@ -42,6 +42,7 @@ public class DefaultConversionService implements ConversionService {
     @Nullable
     @Override
     public Object convert(@Nullable Object source, @Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
-        return null;
+        //todo: implement method
+        return source;
     }
 }
