@@ -1,6 +1,7 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
+import com.petros.bringframework.beans.exception.BeanCurrentlyInCreationException;
 import com.petros.bringframework.beans.factory.config.SingletonBeanRegistry;
 import com.petros.bringframework.core.AssertUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -145,7 +146,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
      */
     protected void beforeSingletonCreation(String beanName) {
         if (!this.singletonsCurrentlyInCreation.add(beanName)) {
-            throw new IllegalStateException("Requested bean '" + beanName + "' is currently in creation");
+            throw new BeanCurrentlyInCreationException(beanName);
         }
     }
 

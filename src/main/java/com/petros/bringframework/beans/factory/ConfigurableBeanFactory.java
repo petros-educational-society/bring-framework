@@ -4,6 +4,7 @@ import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.SingletonBeanRegistry;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
+import com.petros.bringframework.core.type.ResolvableType;
 
 /**
  * @author "Maksym Oliinyk"

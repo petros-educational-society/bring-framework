@@ -24,7 +24,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     @Override
     public Object getBean(String name) {
-//        return beanCacheByName.get(name);
         return doGetBean(name, null, null, false);
     }
 
