@@ -1,4 +1,4 @@
-package com.petros.bringframework.core.type.convert.support;
+package com.petros.bringframework.core.type.convert;
 
 public abstract class ConversionException extends RuntimeException {
     public ConversionException(String message) {

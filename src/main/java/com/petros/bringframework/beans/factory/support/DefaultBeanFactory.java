@@ -1,7 +1,10 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
+import com.petros.bringframework.beans.DefaultPropertyEditorRegistry;
+import com.petros.bringframework.beans.PropertyEditorRegistry;
 import com.petros.bringframework.beans.TypeConverter;
+import com.petros.bringframework.beans.converter.SympleTypeConverter;
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.exception.TypeMismatchException;
 import com.petros.bringframework.beans.factory.BeanFactory;
@@ -10,6 +13,7 @@ import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.ResolvableType;
+import com.petros.bringframework.core.type.convert.ConversionService;
 import com.petros.bringframework.factory.config.NamedBeanHolder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +48,10 @@ public class DefaultBeanFactory implements BeanFactory {
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
     private final BeanDefinitionRegistry registry;
+    @Nullable
     private TypeConverter typeConverter;
+    @Nullable
+    private ConversionService conversionService;
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
         this.registry = registry;
@@ -271,15 +278,73 @@ public class DefaultBeanFactory implements BeanFactory {
     }
 
     public TypeConverter getTypeConverter() {
-        TypeConverter customConverter = getCustomTypeConverter();
+        var customConverter = getCustomTypeConverter();
         if (customConverter != null) {
             return customConverter;
         }
 
-        SimpleTypeConverter converter = new SimpleTypeConverter();
+        var converter = new SympleTypeConverter();
         converter.setConversionService(getConversionService());
-        registerCustomEditors(converter);
+
         return converter;
+    }
+    @Nullable
+    private TypeConverter getCustomTypeConverter() {
+        return this.typeConverter;
+    }
+
+    public void setTypeConverter(@Nullable TypeConverter typeConverter) {
+        this.typeConverter = typeConverter;
+    }
+
+    @Nullable
+    private ConversionService getConversionService() {
+        return this.conversionService;
+    }
+
+    public void setConversionService(@Nullable ConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
+
+    /**
+     * Initialize the given PropertyEditorRegistry with the custom editors
+     * that have been registered with this BeanFactory.
+     * <p>To be called for BeanWrappers that will create and populate bean
+     * instances, and for SimpleTypeConverter used for constructor argument
+     * and factory method type conversion.
+     * @param registry the PropertyEditorRegistry to initialize
+     */
+    protected void registerCustomEditors(PropertyEditorRegistry registry) {
+        if (registry instanceof DefaultPropertyEditorRegistry defaultRegistry) {
+            defaultRegistry.useConfigValueEditors();
+        }
+        if (!this.propertyEditorRegistrars.isEmpty()) {
+            for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
+                try {
+                    registrar.registerCustomEditors(registry);
+                }
+                catch (BeanCreationException ex) {
+                    Throwable rootCause = ex.getMostSpecificCause();
+                    if (rootCause instanceof BeanCurrentlyInCreationException bce) {
+                        String bceBeanName = bce.getBeanName();
+                        if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("PropertyEditorRegistrar [" + registrar.getClass().getName() +
+                                        "] failed because it tried to obtain currently created bean '" +
+                                        ex.getBeanName() + "': " + ex.getMessage());
+                            }
+                            onSuppressedException(ex);
+                            continue;
+                        }
+                    }
+                    throw ex;
+                }
+            }
+        }
+        if (!this.customEditors.isEmpty()) {
+            this.customEditors.forEach((requiredType, editorClass) ->
+                    registry.registerCustomEditor(requiredType, BeanUtils.instantiateClass(editorClass)));
+        }
     }
 
     private String[] getBeanNamesForType(Class<?> type) {

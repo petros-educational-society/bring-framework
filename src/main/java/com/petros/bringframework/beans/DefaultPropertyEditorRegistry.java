@@ -44,6 +44,10 @@ public class DefaultPropertyEditorRegistry implements PropertyEditorRegistry {
         registerCustomEditor(requiredType, null, propertyEditor);
     }
 
+    public void setConversionService(@Nullable ConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
+
     @Nullable
     public ConversionService getConversionService() {
         return this.conversionService;
@@ -93,6 +97,14 @@ public class DefaultPropertyEditorRegistry implements PropertyEditorRegistry {
             }
         }
         return getCustomEditor(requiredTypeToUse);
+    }
+
+    public void useConfigValueEditors() {
+        this.configValueEditorsActive = true;
+    }
+
+    protected void registerDefaultEditors() {
+        this.defaultEditorsActive = true;
     }
 
     /**

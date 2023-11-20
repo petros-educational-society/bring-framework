@@ -1,6 +1,5 @@
-package com.petros.bringframework.core.type.convert.support;
+package com.petros.bringframework.core.type.convert;
 
-import com.petros.bringframework.core.type.convert.TypeDescriptor;
 import com.petros.bringframework.util.ObjectUtils;
 import lombok.Getter;
 
