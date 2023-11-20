@@ -3,17 +3,17 @@ package com.petros.bringframework.beans.factory.support;
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.BeanFactoryUtils;
 import com.petros.bringframework.beans.factory.config.AutowireCapableBeanFactory;
-import com.petros.bringframework.beans.factory.config.AutowireMode;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
+import com.petros.bringframework.context.support.ConstructorResolver;
+import com.petros.bringframework.core.type.ResolvableType;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import static com.petros.bringframework.util.AutowireClassUtils.determineCandidateConstructors;
+import static com.petros.bringframework.util.AutowireClassUtils.determineInjectCandidateConstructor;
 
 /**
  * Abstract bean factory superclass that implements default bean creation.
@@ -62,6 +62,26 @@ public abstract class AbstractAutowireCapableBeanFactory
         return bean;
     }
 
+    @Override
+    public boolean isTypeMatch(String name, BeanDefinition bd, ResolvableType typeToMatch) {
+        final Object beanInstance = getSingleton(name);
+        if (beanInstance != null) {
+            return typeToMatch.isInstance(beanInstance);
+        }
+        Class<?> predictedType = predictBeanType(name, bd, typeToMatch);
+        return predictedType != null;
+    }
+
+    protected Class<?> predictBeanType(String name, BeanDefinition bd, ResolvableType typeToMatch) {
+        final Class<?> targetType = resolveBeanClass(bd, name);
+        if (targetType != null && typeToMatch.isAssignableFrom(targetType)) {
+            return targetType;
+        } else {
+            return null;
+        }
+    }
+
+
 
     /**
      * Create a new instance for the specified bean, using an appropriate instantiation strategy:
@@ -107,17 +127,14 @@ public abstract class AbstractAutowireCapableBeanFactory
             // Candidate constructors for autowiring?
 
 
-            Constructor<?>[] ctors = determineCandidateConstructors(beanClass, beanName);
-            if (ctors != null || gbd.getResolvedAutowireMode() == AutowireMode.AUTOWIRE_CONSTRUCTOR ||
-                    gbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
+            Constructor<?>[] ctors = determineInjectCandidateConstructor(beanClass, beanName);
+//            if (ctors != null || gbd.getResolvedAutowireMode() == AutowireMode.AUTOWIRE_CONSTRUCTOR ||
+//                    gbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
+//                return autowireConstructor(beanName, gbd, ctors, args);
+//            }
+            if (ctors != null && ctors.length > 0) {
                 return autowireConstructor(beanName, gbd, ctors, args);
             }
-
-            // Preferred constructors for default construction?
-//            ctors = gbd.getPreferredConstructors();
-//            if (ctors != null) {
-//                return autowireConstructor(beanName, gbd, ctors, null);
-//            }
 
             // No special handling: simply use no-arg constructor.
             return instantiateBean(beanName, gbd);
@@ -139,9 +156,7 @@ public abstract class AbstractAutowireCapableBeanFactory
      */
     protected BeanWrapper autowireConstructor(
             String beanName, GenericBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
-
-        return null;
-//        return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
+        return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
     }
 
     /**

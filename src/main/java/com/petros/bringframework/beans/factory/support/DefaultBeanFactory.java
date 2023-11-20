@@ -11,13 +11,10 @@ import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.core.type.convert.ConversionService;
 import com.petros.bringframework.factory.config.NamedBeanHolder;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -93,14 +90,13 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         return false;
     }
 
-    @Override
-    public boolean isTypeMatch(String name, ResolvableType typeToMatch) {
-        final Object beanInstance = getSingleton(name);
-        if (beanInstance != null) {
-            return typeToMatch.isInstance(beanInstance);
-        }
-        return false;
-    }
+//    public boolean isTypeMatch(String name, ResolvableType typeToMatch) {
+//        final Object beanInstance = getSingleton(name);
+//        if (beanInstance != null) {
+//            return typeToMatch.isInstance(beanInstance);
+//        }
+//        return false;
+//    }
 
     @Override
     public void destroyBeans() {
@@ -137,46 +133,46 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
      * @return a new instance of the bean
      * @throws BeanCreationException if the bean could not be created
      */
-    @SneakyThrows
-    private Object createBean(BeanDefinition bd) throws BeanCreationException {
-        var clazz = Class.forName(bd.getBeanClassName());
-        if (clazz.isInterface()) {
-            throw new BeanCreationException(clazz, "Specified class is an interface");
-        }
+//    @SneakyThrows
+//    private Object createBean(BeanDefinition bd) throws BeanCreationException {
+//        var clazz = Class.forName(bd.getBeanClassName());
+//        if (clazz.isInterface()) {
+//            throw new BeanCreationException(clazz, "Specified class is an interface");
+//        }
+//
+//        Constructor<?> constructorToUse;
+//        try {
+//            constructorToUse = clazz.getDeclaredConstructor();
+//        } catch (Throwable ex) {
+//            throw new BeanCreationException(clazz, "No default constructor found", ex);
+//        }
+//
+//        Object bean;
+//        try {
+//            bean = constructorToUse.newInstance();
+//        } catch (Throwable e) {
+//            throw new BeanCreationException(constructorToUse.toString(), "Constructor threw exception", e);
+//        }
+//
+//        //we have a lot of checks and autowirings here. maybe will use later
+//        //populateBean(beanName, bd, bean);
+//
+////        invokeCustomInitMethod(bean, bd.getInitMethodName());
+//        return bean;
+//    }
 
-        Constructor<?> constructorToUse;
-        try {
-            constructorToUse = clazz.getDeclaredConstructor();
-        } catch (Throwable ex) {
-            throw new BeanCreationException(clazz, "No default constructor found", ex);
-        }
-
-        Object bean;
-        try {
-            bean = constructorToUse.newInstance();
-        } catch (Throwable e) {
-            throw new BeanCreationException(constructorToUse.toString(), "Constructor threw exception", e);
-        }
-
-        //we have a lot of checks and autowirings here. maybe will use later
-        //populateBean(beanName, bd, bean);
-
-//        invokeCustomInitMethod(bean, bd.getInitMethodName());
-        return bean;
-    }
-
-    private void invokeCustomInitMethod(Object bean, String initMethodName) {
-
-        Class<?> beanClass = bean.getClass();
-        try {
-            //not sure if it needs. We use org.reflections.ReflectionUtils instead org.springframework.util.ReflectionUtils
-            //ReflectionUtils.makeAccessible(methodToInvoke);
-            Method initMethod = beanClass.getMethod(initMethodName);
-            initMethod.invoke(bean);
-        } catch (Throwable ex) {
-            throw new BeanCreationException(beanClass, "Can`t invoke init method", ex);
-        }
-    }
+//    private void invokeCustomInitMethod(Object bean, String initMethodName) {
+//
+//        Class<?> beanClass = bean.getClass();
+//        try {
+//            //not sure if it needs. We use org.reflections.ReflectionUtils instead org.springframework.util.ReflectionUtils
+//            //ReflectionUtils.makeAccessible(methodToInvoke);
+//            Method initMethod = beanClass.getMethod(initMethodName);
+//            initMethod.invoke(bean);
+//        } catch (Throwable ex) {
+//            throw new BeanCreationException(beanClass, "Can`t invoke init method", ex);
+//        }
+//    }
 
 
     @Nullable
@@ -338,23 +334,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
                 });
     }
 
-//    private Object getSingleton(String name) {
-//        final Object singleton = beanCacheByName.get(name);
-//        if (singleton == null) {
-//            throw new NotImplementedException();
-//        }
-//        return singleton;
-//    }
-
-    //todo remove
-//    private Object getSingleton(String name) {
-//        final Object singelton = beanCacheByName.get(name);
-//        if (singelton == null) {
-//            throw new NotImplementedException();
-//        }
-//        return singelton;
-//    }
-
     @Nullable
     @Override
     protected TypeConverter getCustomTypeConverter() {
@@ -448,7 +427,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             final BeanDefinition beanDefinition = beanDefinitionEntry.getValue();
             boolean matchFound = false;
             if (beanDefinition.isSingleton()) {
-                matchFound = isTypeMatch(beanName, resolvableType);
+                matchFound = isTypeMatch(beanName, beanDefinition, resolvableType);
             }
             if (matchFound) {
                 result.add(beanName);

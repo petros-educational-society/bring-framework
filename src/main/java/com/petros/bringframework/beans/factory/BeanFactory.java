@@ -1,5 +1,6 @@
 package com.petros.bringframework.beans.factory;
 
+import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.core.type.ResolvableType;
 
 import javax.annotation.Nullable;
@@ -21,7 +22,7 @@ public interface BeanFactory {
 
     boolean isPrototype(String name);
 
-    boolean isTypeMatch(String name, ResolvableType typeToMatch);
+    boolean isTypeMatch(String name, BeanDefinition beanDefinition, ResolvableType typeToMatchh);
 
     Class<?> getType(String name);
 
