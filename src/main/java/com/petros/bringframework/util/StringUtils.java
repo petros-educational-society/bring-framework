@@ -3,6 +3,7 @@ package com.petros.bringframework.util;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 import static com.petros.bringframework.core.AssertUtils.isBlank;
 import static java.util.Objects.isNull;
@@ -104,5 +105,38 @@ public abstract class StringUtils {
             return inString;
         }
         return new String(result, 0, lastCharIndex);
+    }
+
+    /**
+     * Convert a {@code String} array into a comma delimited {@code String}
+     * (i.e., CSV).
+     * <p>Useful for {@code toString()} implementations.
+     * @param arr the array to display (potentially {@code null} or empty)
+     * @return the delimited {@code String}
+     */
+    public static String arrayToCommaDelimitedString(@Nullable Object[] arr) {
+        return arrayToDelimitedString(arr, ",");
+    }
+
+    /**
+     * Convert a {@code String} array into a delimited {@code String} (e.g. CSV).
+     * <p>Useful for {@code toString()} implementations.
+     * @param arr the array to display (potentially {@code null} or empty)
+     * @param delim the delimiter to use (typically a ",")
+     * @return the delimited {@code String}
+     */
+    public static String arrayToDelimitedString(@Nullable Object[] arr, String delim) {
+        if (ObjectUtils.isEmpty(arr)) {
+            return "";
+        }
+        if (arr.length == 1) {
+            return ObjectUtils.nullSafeToString(arr[0]);
+        }
+
+        StringJoiner sj = new StringJoiner(delim);
+        for (Object elem : arr) {
+            sj.add(String.valueOf(elem));
+        }
+        return sj.toString();
     }
 }

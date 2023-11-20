@@ -27,6 +27,8 @@ public class ObjectUtils {
     private static final String ARRAY_START = "{";
     private static final String ARRAY_END = "}";
     private static final String EMPTY_ARRAY = ARRAY_START + ARRAY_END;
+    private static final String NULL_STRING = "null";
+    private static final String EMPTY_STRING = "";
     private static final String NON_EMPTY_ARRAY = ARRAY_START + "..." + ARRAY_END;
     private static final String COLLECTION = "[...]";
     private static final String MAP = NON_EMPTY_ARRAY;
@@ -147,4 +149,60 @@ public class ObjectUtils {
                         Pattern.class == type ||
                         Class.class == type));
     }
+
+    /**
+     * Determine whether the given array is empty:
+     * i.e. {@code null} or of zero length.
+     * @param array the array to check
+     */
+    public static boolean isEmpty(@Nullable Object[] array) {
+        return (array == null || array.length == 0);
+    }
+
+    /**
+     * Return a String representation of the specified Object.
+     * <p>Builds a String representation of the contents in case of an array.
+     * Returns a {@code "null"} String if {@code obj} is {@code null}.
+     * @param obj the object to build a String representation for
+     * @return a String representation of {@code obj}
+     * @see #nullSafeConciseToString(Object)
+     */
+    public static String nullSafeToString(@Nullable Object obj) {
+        if (obj == null) {
+            return NULL_STRING;
+        }
+        if (obj instanceof String string) {
+            return string;
+        }
+        if (obj instanceof Object[] objects) {
+            return nullSafeToString(objects);
+        }
+        if (obj instanceof boolean[] booleans) {
+            return nullSafeToString(booleans);
+        }
+        if (obj instanceof byte[] bytes) {
+            return nullSafeToString(bytes);
+        }
+        if (obj instanceof char[] chars) {
+            return nullSafeToString(chars);
+        }
+        if (obj instanceof double[] doubles) {
+            return nullSafeToString(doubles);
+        }
+        if (obj instanceof float[] floats) {
+            return nullSafeToString(floats);
+        }
+        if (obj instanceof int[] ints) {
+            return nullSafeToString(ints);
+        }
+        if (obj instanceof long[] longs) {
+            return nullSafeToString(longs);
+        }
+        if (obj instanceof short[] shorts) {
+            return nullSafeToString(shorts);
+        }
+        String str = obj.toString();
+        return (str != null ? str : EMPTY_STRING);
+    }
+
 }

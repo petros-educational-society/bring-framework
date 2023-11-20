@@ -223,6 +223,7 @@ public class DefaultBeanFactory implements BeanFactory {
 
         if (candidateNames.length > 1) {
             Map<String, Object> candidates = new LinkedHashMap<>(candidateNames.length);
+
             //todo: to finish from here
             if (throwExceptionIfNonUnique) {
                 throw new NoUniqueBeanDefinitionException(candidates.keySet());
@@ -314,38 +315,38 @@ public class DefaultBeanFactory implements BeanFactory {
      * and factory method type conversion.
      * @param registry the PropertyEditorRegistry to initialize
      */
-    protected void registerCustomEditors(PropertyEditorRegistry registry) {
-        if (registry instanceof DefaultPropertyEditorRegistry defaultRegistry) {
-            defaultRegistry.useConfigValueEditors();
-        }
-        if (!this.propertyEditorRegistrars.isEmpty()) {
-            for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
-                try {
-                    registrar.registerCustomEditors(registry);
-                }
-                catch (BeanCreationException ex) {
-                    Throwable rootCause = ex.getMostSpecificCause();
-                    if (rootCause instanceof BeanCurrentlyInCreationException bce) {
-                        String bceBeanName = bce.getBeanName();
-                        if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("PropertyEditorRegistrar [" + registrar.getClass().getName() +
-                                        "] failed because it tried to obtain currently created bean '" +
-                                        ex.getBeanName() + "': " + ex.getMessage());
-                            }
-                            onSuppressedException(ex);
-                            continue;
-                        }
-                    }
-                    throw ex;
-                }
-            }
-        }
-        if (!this.customEditors.isEmpty()) {
-            this.customEditors.forEach((requiredType, editorClass) ->
-                    registry.registerCustomEditor(requiredType, BeanUtils.instantiateClass(editorClass)));
-        }
-    }
+//    protected void registerCustomEditors(PropertyEditorRegistry registry) {
+//        if (registry instanceof DefaultPropertyEditorRegistry defaultRegistry) {
+//            defaultRegistry.useConfigValueEditors();
+//        }
+//        if (!this.propertyEditorRegistrars.isEmpty()) {
+//            for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
+//                try {
+//                    registrar.registerCustomEditors(registry);
+//                }
+//                catch (BeanCreationException ex) {
+//                    Throwable rootCause = ex.getMostSpecificCause();
+//                    if (rootCause instanceof BeanCurrentlyInCreationException bce) {
+//                        String bceBeanName = bce.getBeanName();
+//                        if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
+//                            if (logger.isDebugEnabled()) {
+//                                logger.debug("PropertyEditorRegistrar [" + registrar.getClass().getName() +
+//                                        "] failed because it tried to obtain currently created bean '" +
+//                                        ex.getBeanName() + "': " + ex.getMessage());
+//                            }
+//                            onSuppressedException(ex);
+//                            continue;
+//                        }
+//                    }
+//                    throw ex;
+//                }
+//            }
+//        }
+//        if (!this.customEditors.isEmpty()) {
+//            this.customEditors.forEach((requiredType, editorClass) ->
+//                    registry.registerCustomEditor(requiredType, BeanUtils.instantiateClass(editorClass)));
+//        }
+//    }
 
     private String[] getBeanNamesForType(Class<?> type) {
         return allBeanNamesByType.get(type);
