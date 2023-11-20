@@ -124,7 +124,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         String[] beanNames = getBeanNamesForType(type);
         Map<String, T> result = new LinkedHashMap<>(beanNames.length);
         for (String beanName : beanNames) {
-            Object beanInstance = getBean(beanName);
+            var beanInstance = getBean(beanName);
             result.put(beanName, (T) beanInstance);
         }
         return result;
