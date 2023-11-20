@@ -6,7 +6,7 @@ import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
 import com.petros.bringframework.beans.factory.support.AnnotationBeanNameGenerator;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
-import com.petros.bringframework.beans.support.ReflectionScannedGenericBeanDefinition;
+import com.petros.bringframework.beans.support.ReflectionBeanDefinition;
 import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.type.reading.ReflectionMetadataReader;
 import org.reflections.Reflections;
@@ -56,7 +56,7 @@ public class SimpleClassPathBeanDefinitionScanner {
             final Set<Class<?>> sources = scanner.getTypesAnnotatedWith(Component.class);
             for (Class<?> source : sources) {
                 ReflectionMetadataReader metadataReader = new ReflectionMetadataReader(source);
-                ReflectionScannedGenericBeanDefinition sbd = new ReflectionScannedGenericBeanDefinition(metadataReader);
+                ReflectionBeanDefinition sbd = new ReflectionBeanDefinition(metadataReader);
                 candidates.add(sbd);
             }
         }

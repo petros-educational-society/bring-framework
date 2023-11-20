@@ -1,23 +1,26 @@
 package com.petros.bringframework.beans.support;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.annotation.Nullable;
+import java.lang.reflect.Executable;
 
 /**
  * @author "Maksym Oliinyk"
  */
+@Getter
+@Setter
 public abstract class GenericBeanDefinition extends AbstractBeanDefinition {
 
     @Nullable
     private String parentName;
 
-    @Override
-    public void setParentName(@Nullable String parentName) {
-        this.parentName = parentName;
-    }
-
+    /**resolved constructor*/
     @Nullable
-    @Override
-    public String getParentName() {
-        return parentName;
-    }
+    protected Executable resolvedConstructor;
+
+    /** Package-visible field that marks the constructor arguments as resolved. */
+    protected boolean constructorArgumentsResolved = false;
+
 }

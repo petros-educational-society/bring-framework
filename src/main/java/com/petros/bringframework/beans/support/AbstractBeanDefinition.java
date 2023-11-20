@@ -72,6 +72,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     @Override
     public void setBeanClassName(@Nullable String beanClassName) {
         this.beanClass = beanClassName;
+        resolveBeanClass();
     }
 
     @Nullable
@@ -275,7 +276,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * @see #AUTOWIRE_CONSTRUCTOR
      * @see #AUTOWIRE_BY_TYPE
      */
-    public int getResolvedAutowireMode() {
+    public AutowireMode getResolvedAutowireMode() {
         if (this.autowireMode == AUTOWIRE_AUTODETECT) {
             // Work out whether to apply setter autowiring or constructor autowiring.
             // If it has a no-arg constructor it's deemed to be setter autowiring,
@@ -283,16 +284,40 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
             Constructor<?>[] constructors = getBeanClass().getConstructors();
             for (Constructor<?> constructor : constructors) {
                 if (constructor.getParameterCount() == 0) {
-                    return AUTOWIRE_BY_TYPE.getValue();
+                    return AUTOWIRE_BY_TYPE;
                 }
             }
-            return AUTOWIRE_CONSTRUCTOR.getValue();
+            return AUTOWIRE_CONSTRUCTOR;
         } else {
-            return this.autowireMode.getValue();
+            return this.autowireMode;
         }
     }
 
-    private Class<?> getBeanClass() {
-        return (beanClass instanceof Class<?> clazz ? clazz : null);
+    @Nullable
+    public Class<?> resolveBeanClass() {
+        String className = getBeanClassName();
+        if (className == null) {
+            return null;
+        }
+        Class<?> resolvedClass = null;
+        try {
+            resolvedClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Couldn't resolve class by name", e);
+        }
+        this.beanClass = resolvedClass;
+        return resolvedClass;
+    }
+
+    public Class<?> getBeanClass() {
+        Object beanClassObject = this.beanClass;
+        if (beanClassObject == null) {
+            throw new IllegalStateException("No bean class specified on bean definition");
+        }
+        if (!(beanClassObject instanceof Class<?> introspectedClass)) {
+            throw new IllegalStateException(
+                    "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
+        }
+        return introspectedClass;
     }
 }

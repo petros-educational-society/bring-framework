@@ -8,6 +8,7 @@ import com.petros.bringframework.beans.converter.SympleTypeConverter;
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.exception.TypeMismatchException;
 import com.petros.bringframework.beans.factory.BeanFactory;
+import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
@@ -39,7 +40,7 @@ import static java.util.Objects.nonNull;
  * @author "Marina Vasiuk"
  */
 @Slf4j
-public class DefaultBeanFactory implements BeanFactory {
+public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory {
     private final Map<String, Object> beanCacheByName = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> beanCacheByType = new ConcurrentHashMap<>();
     private final Map<String, BeanFactoryPostProcessor> beanFactoryPostProcessors = new ConcurrentHashMap<>();
@@ -47,14 +48,13 @@ public class DefaultBeanFactory implements BeanFactory {
     private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
-    private final BeanDefinitionRegistry registry;
     @Nullable
     private TypeConverter typeConverter;
     @Nullable
     private ConversionService conversionService;
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
-        this.registry = registry;
+        super(registry);
 //        this.beanFactoryPostProcessors.putAll(getBeansOfType(BeanFactoryPostProcessor.class));
 //        final Map<? extends Class<?>, List<ReflectionScannedGenericBeanDefinition>> collect =
 //                registry.getBeanDefinitions().entrySet().stream()
@@ -68,16 +68,6 @@ public class DefaultBeanFactory implements BeanFactory {
     @Override
     public boolean containsBean(String name) {
         return beanCacheByName.containsKey(name);
-    }
-
-    @Override
-    public void createBeansFromDefinitions() {
-        registry.getBeanDefinitions().forEach((beanName, bd) -> {
-            Object bean = createBean(bd);
-            beanCacheByName.put(beanName, bean);
-            //todo: does it make sense to add the bean class-name to the beanDefinition when scanning packages and use it here?
-            beanCacheByType.put(bean.getClass(), bean);
-        });
     }
 
     @Override
@@ -254,43 +244,26 @@ public class DefaultBeanFactory implements BeanFactory {
                 });
     }
 
-    private Object getSingleton(String name) {
-        final Object singleton = beanCacheByName.get(name);
-        if (singleton == null) {
-            throw new NotImplementedException();
-        }
-        return singleton;
-    }
+//    private Object getSingleton(String name) {
+//        final Object singleton = beanCacheByName.get(name);
+//        if (singleton == null) {
+//            throw new NotImplementedException();
+//        }
+//        return singleton;
+//    }
 
-    @SuppressWarnings("unchecked")
-    private <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
-        if (nonNull(requiredType) && !requiredType.isInstance(bean)) {
-            try {
-                return (T) Optional.ofNullable(getTypeConverter().convertIfNecessary(bean, requiredType))
-                        .orElseThrow(() -> new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass()));
-            } catch (TypeMismatchException ex) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Failed to convert bean '{}' to required type '{}'", name, getQualifiedName(requiredType), ex);
-                }
-                throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
-            }
-        }
-        return (T) bean;
-    }
+    //todo remove
+//    private Object getSingleton(String name) {
+//        final Object singelton = beanCacheByName.get(name);
+//        if (singelton == null) {
+//            throw new NotImplementedException();
+//        }
+//        return singelton;
+//    }
 
-    public TypeConverter getTypeConverter() {
-        var customConverter = getCustomTypeConverter();
-        if (customConverter != null) {
-            return customConverter;
-        }
-
-        var converter = new SympleTypeConverter();
-        converter.setConversionService(getConversionService());
-
-        return converter;
-    }
     @Nullable
-    private TypeConverter getCustomTypeConverter() {
+    @Override
+    protected TypeConverter getCustomTypeConverter() {
         return this.typeConverter;
     }
 
@@ -298,8 +271,9 @@ public class DefaultBeanFactory implements BeanFactory {
         this.typeConverter = typeConverter;
     }
 
+    @Override
     @Nullable
-    private ConversionService getConversionService() {
+    protected ConversionService getConversionService() {
         return this.conversionService;
     }
 
@@ -313,7 +287,6 @@ public class DefaultBeanFactory implements BeanFactory {
      * <p>To be called for BeanWrappers that will create and populate bean
      * instances, and for SimpleTypeConverter used for constructor argument
      * and factory method type conversion.
-     * @param registry the PropertyEditorRegistry to initialize
      */
 //    protected void registerCustomEditors(PropertyEditorRegistry registry) {
 //        if (registry instanceof DefaultPropertyEditorRegistry defaultRegistry) {
@@ -349,7 +322,7 @@ public class DefaultBeanFactory implements BeanFactory {
 //    }
 
     private String[] getBeanNamesForType(Class<?> type) {
-        return allBeanNamesByType.get(type);
+        return getBeanNamesForType(type, true);
     }
 
     private String[] getBeanNamesForType(ResolvableType type) {
@@ -368,6 +341,7 @@ public class DefaultBeanFactory implements BeanFactory {
             return resolvedBeanNames;
         } else {
             resolvedBeanNames = doGetBeanNamesForType(ResolvableType.forRawClass(type), true);
+            cache.put(type, resolvedBeanNames);
         }
 
         return resolvedBeanNames;
@@ -388,5 +362,33 @@ public class DefaultBeanFactory implements BeanFactory {
         }
 
         return result != null && !result.isEmpty() ? result.toArray(new String[]{}) : new String[]{};
+    }
+
+    @Override
+    public void preInstantiateSingletons() throws BeansException {
+        List<String> beanNames = new ArrayList<>(this.registry.getBeanDefinitions().keySet());
+        for (String beanName : beanNames) {
+            final BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+            if (!beanDef.isAbstract() && beanDef.isSingleton() && !beanDef.isLazyInit()) {
+                if (isFactoryBean(beanName)) {
+                    //todo implement if needed
+                    throw new NotImplementedException();
+                } else {
+                    getBean(beanName);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        //todo finish implementation
+//        AssertUtils.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+//        synchronized (this.beanPostProcessors) {
+//            // Remove from old position, if any
+//            this.beanPostProcessors.remove(beanPostProcessor);
+//            // Add to end of list
+//            this.beanPostProcessors.add(beanPostProcessor);
+//        }
     }
 }
