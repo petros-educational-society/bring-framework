@@ -75,8 +75,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     protected Class<?> predictBeanType(String name, BeanDefinition bd, ResolvableType typeToMatch) {
-        final Class<?> targetType = resolveBeanClass(bd,
-                                                     name);
+        final Class<?> targetType = resolveBeanClass(bd, name);
         if (targetType != null && typeToMatch.isAssignableFrom(targetType)) {
             return targetType;
         } else {
