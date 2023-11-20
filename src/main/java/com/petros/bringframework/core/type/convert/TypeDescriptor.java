@@ -1,10 +1,14 @@
 package com.petros.bringframework.core.type.convert;
 
 import com.petros.bringframework.core.type.ResolvableType;
+import org.apache.commons.lang3.ObjectUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +38,13 @@ public class TypeDescriptor implements Serializable {
 
     private final AnnotatedElementAdapter annotatedElement;
 
+    public TypeDescriptor(MethodParameter methodParameter) {
+        this.resolvableType = ResolvableType.forMethodParameter(methodParameter);
+        this.type = this.resolvableType.resolve(methodParameter.getNestedParameterType());
+        this.annotatedElement = new AnnotatedElementAdapter(methodParameter.getParameterIndex() == -1 ?
+                methodParameter.getMethodAnnotations() : methodParameter.getParameterAnnotations());
+    }
+
     public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
         this.resolvableType = resolvableType;
         this.type = (type != null ? type : resolvableType.toClass());
@@ -56,5 +67,60 @@ public class TypeDescriptor implements Serializable {
             return descriptor;
         }
         return new TypeDescriptor(ResolvableType.forRawClass(type), null, null);
+    }
+
+    private class AnnotatedElementAdapter implements AnnotatedElement, Serializable {
+
+        @Nullable
+        private final Annotation[] annotations;
+
+        public AnnotatedElementAdapter(@Nullable Annotation[] annotations) {
+            this.annotations = annotations;
+        }
+
+        @Override
+        public boolean isAnnotationPresent(@Nonnull Class<? extends Annotation> annotationClass) {
+            return Arrays.stream(getAnnotations())
+                    .anyMatch(a -> a.annotationType() == annotationClass);
+        }
+
+        @Override
+        @Nullable
+        @SuppressWarnings("unchecked")
+        public <T extends Annotation> T getAnnotation(@Nonnull Class<T> annotationClass) {
+            return (T) Arrays.stream(getAnnotations())
+                    .filter(a -> a.annotationType() == annotationClass)
+                    .findAny().orElse(null);
+        }
+
+        @Override
+        public Annotation[] getAnnotations() {
+            return annotations != null ? annotations.clone() : EMPTY_ANNOTATION_ARRAY;
+        }
+
+        @Override
+        public Annotation[] getDeclaredAnnotations() {
+            return getAnnotations();
+        }
+
+        public boolean isEmpty() {
+            return ObjectUtils.isEmpty(annotations);
+        }
+
+        @Override
+        public boolean equals(@Nullable Object other) {
+            return (this == other || (other instanceof AnnotatedElementAdapter that &&
+                    Arrays.equals(this.annotations, that.annotations)));
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(this.annotations);
+        }
+
+        @Override
+        public String toString() {
+            return TypeDescriptor.this.toString();
+        }
     }
 }
