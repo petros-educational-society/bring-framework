@@ -17,6 +17,7 @@ import java.util.Map;
  */
 
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
+
     private static final String UNKNOWN = "unknown";
 
     @Nullable

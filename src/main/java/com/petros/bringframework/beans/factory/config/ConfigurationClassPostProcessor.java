@@ -2,7 +2,10 @@ package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
+import com.petros.bringframework.context.annotation.Configuration;
+import com.petros.bringframework.context.annotation.Lazy;
 import com.petros.bringframework.type.reading.MetadataReader;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -12,6 +15,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * BeanFactoryPostProcessor used for bootstrapping processing of @Configuration classes.
+ *
+ * @author "Vasiuk Maryna"
+ */
+@Slf4j
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
     private MetadataReader metadataReader;
@@ -33,7 +42,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
         for (String beanName : candidateNames) {
             BeanDefinition beanDef = registry.getBeanDefinition(beanName);
-            configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
+            if (hasConfigurationAnnotation(beanDef)) {
+                configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
+            }
         }
 
         if (configCandidates.isEmpty()) {
@@ -99,5 +110,13 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     @Override
     public void postProcessBeanFactory(BeanFactory beanFactory) {
 
+    }
+
+    private boolean hasConfigurationAnnotation(BeanDefinition beanDef) {
+        if (beanDef instanceof AnnotatedBeanDefinition) {
+            AnnotationMetadata metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
+            return metadata.isAnnotated(Configuration.class.getName());
+        }
+        return false;
     }
 }

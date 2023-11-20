@@ -35,7 +35,6 @@ public class ConfigurationClassParser {
     private final Map<String, ConfigurationClass> knownSuperclasses = new HashMap<>();
 
     public ConfigurationClassParser(MetadataReader reader, BeanDefinitionRegistry registry) {
-
         this.reader = reader;
         this.registry = registry;
         this.componentScanParser = new ComponentScanAnnotationParser(registry);
@@ -132,6 +131,7 @@ public class ConfigurationClassParser {
             }
         }
 
+        // No superclass -> processing is complete
         return null;
     }
 

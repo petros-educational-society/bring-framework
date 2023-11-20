@@ -8,9 +8,11 @@ import com.petros.bringframework.context.annotation.ScopeMetadataResolver;
 
 import java.util.Set;
 
+
 public class ConfigurationClassBeanDefinitionReader {
-    private final BeanDefinitionRegistry registry;
+
     private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
+    private final BeanDefinitionRegistry registry;
 
     public ConfigurationClassBeanDefinitionReader(BeanDefinitionRegistry registry) {
         this.registry = registry;

@@ -23,7 +23,6 @@ public abstract class ClassUtils {
 
     private static final char PACKAGE_SEPARATOR = '.';
     public static final String CGLIB_CLASS_SEPARATOR = "$$";
-    private static final char NESTED_CLASS_SEPARATOR = '$';
     private static final char INNER_CLASS_SEPARATOR = '$';
     private static final char PATH_SEPARATOR = '/';
     public static final String ARRAY_SUFFIX = "[]";
@@ -97,7 +96,7 @@ public abstract class ClassUtils {
         }
 
         return className.substring(lastDotIndex + 1, nameEndIndex)
-                .replace(NESTED_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
+                .replace(INNER_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
     }
 
     public static ClassLoader getDefaultClassLoader() {
