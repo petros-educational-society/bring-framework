@@ -201,5 +201,4 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
         return beanClass;
     }
-
 }

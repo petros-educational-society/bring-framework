@@ -1,13 +1,8 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
-import com.petros.bringframework.beans.DefaultPropertyEditorRegistry;
-import com.petros.bringframework.beans.PropertyEditorRegistry;
 import com.petros.bringframework.beans.TypeConverter;
-import com.petros.bringframework.beans.converter.SympleTypeConverter;
 import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.exception.TypeMismatchException;
-import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -31,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.petros.bringframework.util.ClassUtils.getQualifiedName;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -195,6 +189,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     }
 
     @Nullable
+    @SuppressWarnings("unchecked")
     private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object[] args, boolean throwExceptionIfNonUnique) throws BeansException {
         AssertUtils.notNull(requiredType, "Required type must not be null");
         String[] candidateNames = getBeanNamesForType(requiredType);
@@ -206,21 +201,120 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         }
 
         if (candidateNames.length == 1) {
-            final String beanName = candidateNames[0];
-            Object bean = getBean(beanName);
-            return new NamedBeanHolder<>(beanName, adaptBeanInstance(beanName, bean, requiredType.toClass()));
+            return resolveNamedBean(candidateNames[0], requiredType);
         }
 
         if (candidateNames.length > 1) {
             Map<String, Object> candidates = new LinkedHashMap<>(candidateNames.length);
+            for (var beanName : candidateNames) {
+                candidates.put(beanName, containsSingleton(beanName) ? getBean(beanName) : getType(beanName));
+            }
 
-            //todo: to finish from here
+            var candidateName = determinePrimaryCandidate(candidates);
+//            if (isNull(candidateName)) {
+//                candidateName = determineHighestPriorityCandidate(candidates);
+//            }
+
+            if (nonNull(candidateName)) {
+                var beanInstance = candidates.get(candidateName);
+                if (isNull(beanInstance)) {
+                    return null;
+                }
+                if (beanInstance instanceof Class) {
+                    return resolveNamedBean(candidateName, requiredType);
+                }
+                return new NamedBeanHolder<>(candidateName, (T) beanInstance);
+            }
+
             if (throwExceptionIfNonUnique) {
                 throw new NoUniqueBeanDefinitionException(candidates.keySet());
             }
         }
 
         return null;
+    }
+
+    /**
+     * Determine the primary candidate in the given set of beans.
+     * @param candidates a Map of candidate names and candidate instances
+     * @return the name of the primary candidate, or {@code null} if none found
+     */
+    @Nullable
+    protected String determinePrimaryCandidate(Map<String, Object> candidates) {
+        String primaryBeanName = null;
+        for (var candidateBeanName : candidates.keySet()) {
+            if (isPrimary(candidateBeanName)) {
+                if (nonNull(primaryBeanName)) {
+                    boolean candidateLocal = containsBeanDefinition(candidateBeanName);
+                    if (candidateLocal && containsBeanDefinition(primaryBeanName)) {
+                        throw new NoUniqueBeanDefinitionException(candidates.size(),
+                                "more than one 'primary' bean found among candidates: " + candidates.keySet());
+                    }
+                    if (candidateLocal) {
+                        primaryBeanName = candidateBeanName;
+                    }
+                } else {
+                    primaryBeanName = candidateBeanName;
+                }
+            }
+        }
+        return primaryBeanName;
+    }
+
+//    /**
+//     * Determine the candidate with the highest priority in the given set of beans.
+//     * <p>Based on {@code @jakarta.annotation.Priority}. As defined by the related
+//     * the highest priority.
+//     * @param candidates a Map of candidate names and candidate instances
+//     * (or candidate classes if not created yet) that match the required type
+//     * @return the name of the candidate with the highest priority,
+//     * or {@code null} if none found
+//     */
+//    @Nullable
+//    protected String determineHighestPriorityCandidate(Map<String, Object> candidates) {
+//        String highestPriorityBeanName = null;
+//        Integer highestPriority = null;
+//        for (var entry : candidates.entrySet()) {
+//            var candidateBeanName = entry.getKey();
+//            var beanInstance = entry.getValue();
+//            if (nonNull(beanInstance)) {
+//                Integer candidatePriority = getPriority(beanInstance);
+//                if (nonNull(candidatePriority)) {
+//                    if (nonNull(highestPriority)) {
+//                        if (candidatePriority.equals(highestPriority)) {
+//                            throw new NoUniqueBeanDefinitionException(candidates.size(),
+//                                    "Multiple beans found with the same priority ('" + highestPriority +
+//                                            "') among candidates: " + candidates.keySet());
+//                        } else if (candidatePriority < highestPriority) {
+//                            highestPriorityBeanName = candidateBeanName;
+//                            highestPriority = candidatePriority;
+//                        }
+//                    } else {
+//                        highestPriorityBeanName = candidateBeanName;
+//                        highestPriority = candidatePriority;
+//                    }
+//                }
+//            }
+//        }
+//        return highestPriorityBeanName;
+//    }
+
+    /**
+     * Return whether the bean definition for the given bean name has been
+     * marked as a primary bean.
+     * @param beanName the name of the bean
+     * @return whether the given bean qualifies as primary
+     */
+    private boolean isPrimary(String beanName) {
+        var transBeanName = transformedBeanName(beanName);
+        if (containsBeanDefinition(transBeanName)) {
+            return getBeanDefinition(transBeanName).isPrimary();
+        }
+        return false;
+    }
+
+    private <T> NamedBeanHolder<T> resolveNamedBean(String beanName, ResolvableType requiredType) throws BeansException {
+        return new NamedBeanHolder<>(beanName, adaptBeanInstance(beanName, getBean(beanName), requiredType.toClass()));
     }
 
     private String[] getNewAutowireCandidatesIfPresent(List<String> autowireCandidates, String[] oldCandidates) {

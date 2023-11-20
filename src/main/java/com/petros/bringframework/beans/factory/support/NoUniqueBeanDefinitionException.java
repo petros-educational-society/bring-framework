@@ -19,4 +19,10 @@ public class NoUniqueBeanDefinitionException extends BeansException {
         this.numberOfBeansFound = beanNamesFound.size();
         this.beanNamesFound = beanNamesFound;
     }
+
+    public NoUniqueBeanDefinitionException(int numberOfBeansFound, String msg) {
+        super(msg);
+        this.numberOfBeansFound = numberOfBeansFound;
+        this.beanNamesFound = null;
+    }
 }

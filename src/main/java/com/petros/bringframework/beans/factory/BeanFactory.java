@@ -7,6 +7,8 @@ import java.util.Map;
 
 public interface BeanFactory {
 
+    String FACTORY_BEAN_PREFIX = "&";
+
     <T> void configureBeans(T t);
 
     Object getBean(String name);
