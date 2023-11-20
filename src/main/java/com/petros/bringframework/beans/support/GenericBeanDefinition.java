@@ -20,7 +20,7 @@ public abstract class GenericBeanDefinition extends AbstractBeanDefinition {
     @Nullable
     protected Executable resolvedConstructor;
 
-    /** Package-visible field that marks the constructor arguments as resolved. */
-    protected boolean constructorArgumentsResolved = false;
+    /** Package-visible field that marks the autowired constructor arguments as resolved. */
+    protected boolean autowiredConstructorArgumentsResolved = false;
 
 }

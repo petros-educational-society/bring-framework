@@ -2,19 +2,17 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.config.AutowireCapableBeanFactory;
-import com.petros.bringframework.beans.factory.config.AutowireMode;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.context.support.ConstructorResolver;
 import com.petros.bringframework.core.type.ResolvableType;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.stream.Stream;
 
-import static com.petros.bringframework.util.AutowireClassUtils.determineCandidateConstructors;
 import static com.petros.bringframework.util.AutowireClassUtils.determineInjectCandidateConstructor;
 
 /**
@@ -115,12 +113,16 @@ public abstract class AbstractAutowireCapableBeanFactory
             if (args == null) {
                 if (gbd.getResolvedConstructor() != null) {
                     resolved = true;
-                    autowireNecessary = gbd.isConstructorArgumentsResolved();
+                    autowireNecessary = gbd.isAutowiredConstructorArgumentsResolved();
                 }
             }
             if (resolved) {
                 if (autowireNecessary) {
-                    return autowireConstructor(beanName, gbd, null, null);
+                    Constructor<?>[] ctors = Stream.of(gbd.getResolvedConstructor()).toArray(Constructor<?>[]::new);
+                    Object[] argss = gbd.getConstructorArgumentValues().getIndexedArgumentValues().values().stream()
+                            .map(valueHolder -> (Class<?>) valueHolder.getType())
+                            .toArray();
+                    return autowireConstructor(beanName, gbd, ctors, argss);
                 } else {
                     return instantiateBean(beanName, gbd);
                 }

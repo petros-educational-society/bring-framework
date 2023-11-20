@@ -9,6 +9,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 /**
  * Delegate for resolving constructors and factory methods.
@@ -39,7 +40,8 @@ public class ConstructorResolver {
         Constructor<?> ctorToUse = ctors[0];
         Class<?>[] paramToUse;
         if (explicitArgs != null) {
-            paramToUse = (Class<?>[]) explicitArgs[0];
+            Class<?> explicitArg = (Class<?>) explicitArgs[0];
+            paramToUse = new Class<?>[]{explicitArg};
         } else {
             paramToUse = ctorToUse.getParameterTypes();
         }

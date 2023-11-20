@@ -1,10 +1,13 @@
 package com.petros.bringframework.beans.factory;
 
 import com.petros.bringframework.beans.BeansException;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.SingletonBeanRegistry;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
 import com.petros.bringframework.core.type.ResolvableType;
+
+import java.util.List;
 
 /**
  * @author "Maksym Oliinyk"
@@ -42,4 +45,7 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
         return false;
     }
 
+    void addBeanFactoryPostProcessor(BeanFactoryPostProcessor beanFactoryPostProcessor);
+
+    List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors();
 }
