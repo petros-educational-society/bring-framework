@@ -17,7 +17,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             throws BeansException, IllegalStateException {
         synchronized (startupShutdownMonitor) {
             try {
-                createBeansFromDefinitions();
+                refresh();
             } catch (BeansException ex) {
                 if (log.isWarnEnabled()) {
                     log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}", ex.getMessage(), ex);
@@ -131,13 +131,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * @return beanFactory the bean factory used by the application context
      */
     protected abstract ConfigurableBeanFactory getBeanFactory();
-
-    /**
-     * Tell the subclass to refresh the internal bean factory.
-     *
-     * @return the fresh BeanFactory instance
-     */
-    protected abstract void createBeansFromDefinitions();
 
     /**
      * Modify the application context's internal bean factory after its standard

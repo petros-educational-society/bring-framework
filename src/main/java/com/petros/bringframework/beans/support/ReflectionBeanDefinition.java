@@ -32,8 +32,6 @@ public class ReflectionBeanDefinition extends GenericBeanDefinition implements A
         AssertUtils.notNull(metadataReader, "MetadataReader must not be null");
         this.metadata = metadataReader.getAnnotationMetadata();
         setBeanClassName(this.metadata.getClassName());
-        initConstructorArgumentValues(metadataReader.getIntrospectedClass());
-//		setResource(metadataReader.getResource());
     }
 
 

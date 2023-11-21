@@ -1,8 +1,6 @@
 package com.petros.bringframework;
 
-import com.petros.bringframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
-import com.petros.bringframework.service.MergeSort;
 import com.petros.bringframework.service.Test;
 import com.petros.configtest.HelloWorld;
 
@@ -10,9 +8,10 @@ import java.util.Arrays;
 
 public class BringDemo {
     public static void main(String[] args) {
-        var registry = new SimpleBeanDefinitionRegistry();
+
         final var annotationConfigApplicationContext
-                = new AnnotationConfigApplicationContext(registry, "com.petros.bringframework");
+//                = new AnnotationConfigApplicationContext( "com.petros.bringframework");
+                = new AnnotationConfigApplicationContext(JavaConfig.class);
 
         var ms = annotationConfigApplicationContext
                 .getBean(Test.class);

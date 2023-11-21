@@ -6,12 +6,7 @@ import com.petros.bringframework.context.annotation.Configuration;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * BeanFactoryPostProcessor used for bootstrapping processing of @Configuration classes.
@@ -80,9 +75,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                     if (!oldCandidateNames.contains(candidateName)) {
                         BeanDefinition bd = registry.getBeanDefinition(candidateName);
                         if (!alreadyParsedClasses.contains(bd.getBeanClassName())) {
-//                            if(hasConfigurationAnnotation(bd)){
-                                candidates.add(new BeanDefinitionHolder(bd, candidateName));
-//                            }
+                            candidates.add(new BeanDefinitionHolder(bd, candidateName));
                         }
                     }
                 }
