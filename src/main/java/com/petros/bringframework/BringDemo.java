@@ -2,7 +2,6 @@ package com.petros.bringframework;
 
 import com.petros.bringframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
-import com.petros.bringframework.service.MergeSort;
 import com.petros.bringframework.service.Test;
 
 import java.util.Arrays;

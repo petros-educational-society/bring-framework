@@ -4,6 +4,7 @@ package com.petros.bringframework.context.annotation;
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.support.AnnotationBeanNameGenerator;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
@@ -35,20 +36,19 @@ public class SimpleClassPathBeanDefinitionScanner {
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 
         //todo: what for the firs 'for' loop here?
-        for (String basePackage : basePackages) {
-            Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
-            for (BeanDefinition beanDef : candidates) {
-                final String beanName = nameGenerator.generateBeanName(beanDef, registry);
-                ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
-                beanDef.setScope(scopeMetadata.scopeName());
-                if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
-                    AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedBeanDefinition);
-                }
-                BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
-                beanDefinitions.add(definitionHolder);
-                registerBeanDefinition(definitionHolder);
+        Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
+        for (BeanDefinition beanDef : candidates) {
+            final String beanName = nameGenerator.generateBeanName(beanDef, registry);
+            ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
+            beanDef.setScope(scopeMetadata.scopeName());
+            if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+                AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedBeanDefinition);
             }
+            BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
+            beanDefinitions.add(definitionHolder);
+            registerBeanDefinition(definitionHolder);
         }
+
         return beanDefinitions;
 
     }
