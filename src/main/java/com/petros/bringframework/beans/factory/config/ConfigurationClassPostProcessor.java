@@ -103,7 +103,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
     @Override
     public void postProcessBeanFactory(BeanFactory beanFactory) {
-
+        postProcessBeanDefinitionRegistry(beanFactory.getBeanDefinitionRegistry());
     }
 
     private boolean hasConfigurationAnnotation(BeanDefinition beanDef) {

@@ -45,8 +45,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
         this();
         register(componentClasses);
-        ConfigurationClassPostProcessor processor = new ConfigurationClassPostProcessor();
-        processor.postProcessBeanDefinitionRegistry(registry);
         refresh();
     }
 

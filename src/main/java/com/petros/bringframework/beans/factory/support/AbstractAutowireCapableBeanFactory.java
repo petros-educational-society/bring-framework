@@ -134,7 +134,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
                 Constructor<?> constructor = constructors.get(Boolean.FALSE);
                 if (constructor != null) {
-                    return instantiateBean(beanName, gbd, getConstructors(autowiredConstructor), null);
+                    return instantiateBean(beanName, gbd, getConstructors(constructor), null);
                 } else {
                     throw new BeanCreationException(beanName, "Unresolved constructor.");
                 }

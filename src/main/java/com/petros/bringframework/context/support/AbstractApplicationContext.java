@@ -4,6 +4,7 @@ import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
+import com.petros.bringframework.beans.factory.config.ConfigurationClassPostProcessor;
 import com.petros.bringframework.beans.factory.config.SimpleBeanFactoryPostProcessor;
 import com.petros.bringframework.context.ConfigurableApplicationContext;
 import lombok.extern.slf4j.Slf4j;
@@ -100,13 +101,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     /**
-     * Configure the factory's standard context characteristics, such as post-processors
+     * Configure the factory's standard context characteristics, such as factory-post-processors
      *
      * @param beanFactory the bean factory used by the application context
      */
     protected void prepareBeanFactory(final ConfigurableBeanFactory beanFactory) {
-        // For subclasses: do nothing by default.
         beanFactory.addBeanFactoryPostProcessor(new SimpleBeanFactoryPostProcessor(beanFactory));
+        beanFactory.addBeanFactoryPostProcessor(new ConfigurationClassPostProcessor());
+
     }
 
     /**

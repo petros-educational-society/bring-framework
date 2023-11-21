@@ -14,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
     @Override
     public Object instantiate(GenericBeanDefinition gbd, String beanName, Constructor<?>[] ctors, Object[] explicitArgs) {
-
         if (ctors == null || ctors.length == 0) {
             throw new BeanCreationException(beanName,
                     "Could not resolve matching constructor on bean class[" + gbd.getBeanClassName() + "]");

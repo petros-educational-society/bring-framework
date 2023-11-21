@@ -119,7 +119,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             });
             beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
         } else if (mbd.isPrototype()) {
-            //todo create prototype
+            return createBean(beanName, mbd, args);
         } else {
             String scopeName = mbd.getScope();
             //todo create custom scope
