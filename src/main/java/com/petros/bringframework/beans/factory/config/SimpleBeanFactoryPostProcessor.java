@@ -45,6 +45,17 @@ public class SimpleBeanFactoryPostProcessor implements BeanFactoryPostProcessor{
             beanDefinition.setResolvedConstructor(autowiredConstructor);
             beanDefinition.setAutowiredConstructorArgumentsResolved(true);
             beanDefinition.setAutowireMode(AutowireMode.AUTOWIRE_CONSTRUCTOR);
+        } else {
+            Constructor<?> constructor = constructors.get(Boolean.FALSE);
+            if (constructor != null) {
+                Parameter[] parameters = constructor.getParameters();
+                SimpleConstructorArgumentValues values = new SimpleConstructorArgumentValues();
+                for (int i = 0; i < parameters.length; i++) {
+                    values.addIndexedArgumentValue(i, parameters[i].getParameterizedType(), parameters[i].getName());
+                }
+                beanDefinition.setConstructorArgumentValues(values);
+                beanDefinition.setResolvedConstructor(constructor);
+            }
         }
     }
 }

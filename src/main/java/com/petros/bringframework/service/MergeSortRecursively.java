@@ -1,5 +1,6 @@
 package com.petros.bringframework.service;
 
+import com.petros.bringframework.beans.factory.annotation.InjectPlease;
 import com.petros.bringframework.context.annotation.Component;
 
 import static java.lang.System.arraycopy;
@@ -26,5 +27,9 @@ public class MergeSortRecursively implements MergeSort {
 
         arraycopy(left, l, arr, l + r, left.length - l);
         arraycopy(right, r, arr, l + r, right.length - r);
+    }
+
+    @InjectPlease
+    public MergeSortRecursively() {
     }
 }

@@ -1,6 +1,7 @@
 package com.petros.bringframework.context.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
+import com.petros.bringframework.beans.exception.BeanInstantiationException;
 import com.petros.bringframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanWrapper;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
@@ -39,7 +40,7 @@ public class ConstructorResolver {
 
         Constructor<?> ctorToUse = ctors[0];
         Class<?>[] paramToUse;
-        if (explicitArgs != null) {
+        if (explicitArgs != null && explicitArgs.length > 0) {
             Class<?> explicitArg = (Class<?>) explicitArgs[0];
             paramToUse = new Class<?>[]{explicitArg};
         } else {
@@ -61,12 +62,17 @@ public class ConstructorResolver {
             final Object o = ctorToUse.newInstance(argsWithDefaultValues);
             return new BeanWrapper(o,
                                    o.getClass());
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+        } catch (InstantiationException ex) {
+            throw new BeanInstantiationException(ctorToUse.getName(), "Is it an abstract class?", ex);
+        }
+        catch (IllegalAccessException ex) {
+            throw new BeanInstantiationException(ctorToUse.getName(), "Is the constructor accessible?", ex);
+        }
+        catch (IllegalArgumentException ex) {
+            throw new BeanInstantiationException(ctorToUse.getName(), "Illegal arguments for constructor", ex);
+        }
+        catch (InvocationTargetException ex) {
+            throw new BeanInstantiationException(ctorToUse.getName(), "Constructor threw exception", ex.getTargetException());
         }
     }
 
