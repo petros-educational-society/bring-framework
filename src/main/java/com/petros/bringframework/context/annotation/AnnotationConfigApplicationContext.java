@@ -3,7 +3,10 @@ package com.petros.bringframework.context.annotation;
 import com.petros.bringframework.JavaConfig;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
+import com.petros.bringframework.beans.factory.config.SimpleBeanFactoryPostProcessor;
+import com.petros.bringframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import com.petros.bringframework.beans.factory.config.ConfigurationClassPostProcessor;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
@@ -12,6 +15,8 @@ import com.petros.bringframework.context.support.AbstractApplicationContext;
 import com.petros.bringframework.core.AssertUtils;
 
 import java.util.Arrays;
+
+import java.util.List;
 
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
     private final BeanDefinitionRegistry registry;
@@ -68,7 +73,9 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
 
     @Override
     protected void invokeBeanFactoryPostProcessors(BeanFactory beanFactory) {
-
+        AbstractAutowireCapableBeanFactory factory = (AbstractAutowireCapableBeanFactory) beanFactory;
+        factory.getBeanFactoryPostProcessors().forEach(factoryPostProcessor ->
+                factoryPostProcessor.postProcessBeanFactory(beanFactory));
     }
 
     @Override

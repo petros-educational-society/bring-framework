@@ -2,19 +2,20 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.config.AutowireCapableBeanFactory;
-import com.petros.bringframework.beans.factory.config.AutowireMode;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.context.support.ConstructorResolver;
 import com.petros.bringframework.core.type.ResolvableType;
+import com.petros.bringframework.util.AutowireClassUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.stream.Stream;
 
-import static com.petros.bringframework.util.AutowireClassUtils.determineCandidateConstructors;
 import static com.petros.bringframework.util.AutowireClassUtils.determineInjectCandidateConstructor;
 
 /**
@@ -93,8 +94,6 @@ public abstract class AbstractAutowireCapableBeanFactory
      * @param mbd      the bean definition for the bean
      * @param args     explicit arguments to use for constructor or factory method invocation
      * @return a BeanWrapper for the new instance
-     * @see #obtainFromSupplier
-     * @see #instantiateUsingFactoryMethod
      * @see #autowireConstructor
      * @see #instantiateBean
      */
@@ -115,32 +114,42 @@ public abstract class AbstractAutowireCapableBeanFactory
             if (args == null) {
                 if (gbd.getResolvedConstructor() != null) {
                     resolved = true;
-                    autowireNecessary = gbd.isConstructorArgumentsResolved();
+                    autowireNecessary = gbd.isAutowiredConstructorArgumentsResolved();
                 }
             }
             if (resolved) {
+                Constructor<?>[] ctors = getConstructors(gbd.getResolvedConstructor());
+                Object[] argss = getArgss(gbd);
                 if (autowireNecessary) {
-                    return autowireConstructor(beanName, gbd, null, null);
+                    return autowireConstructor(beanName, gbd, ctors, argss);
                 } else {
-                    return instantiateBean(beanName, gbd);
+                    return instantiateBean(beanName, gbd, ctors, argss);
+                }
+            } else {
+                Map<Boolean, Constructor<?>> constructors = AutowireClassUtils.determineCandidateConstructors(beanName, gbd);
+                Constructor<?> autowiredConstructor = constructors.get(Boolean.TRUE);
+                if (autowiredConstructor != null) {
+                    return autowireConstructor(beanName, gbd, getConstructors(autowiredConstructor), null);
+                }
+
+                Constructor<?> constructor = constructors.get(Boolean.FALSE);
+                if (constructor != null) {
+                    return instantiateBean(beanName, gbd, getConstructors(autowiredConstructor), null);
+                } else {
+                    throw new BeanCreationException(beanName, "Unresolved constructor.");
                 }
             }
-
-            // Candidate constructors for autowiring?
-
-
-            Constructor<?>[] ctors = determineInjectCandidateConstructor(beanClass, beanName);
-//            if (ctors != null || gbd.getResolvedAutowireMode() == AutowireMode.AUTOWIRE_CONSTRUCTOR ||
-//                    gbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
-//                return autowireConstructor(beanName, gbd, ctors, args);
-//            }
-            if (ctors != null && ctors.length > 0) {
-                return autowireConstructor(beanName, gbd, ctors, args);
-            }
-
-            // No special handling: simply use no-arg constructor.
-            return instantiateBean(beanName, gbd);
         }
+    }
+
+    private static Object[] getArgss(GenericBeanDefinition gbd) {
+        return gbd.getConstructorArgumentValues().getIndexedArgumentValues().values().stream()
+                .map(valueHolder -> (Class<?>) valueHolder.getType())
+                .toArray();
+    }
+
+    private static Constructor<?>[] getConstructors(Executable resolvedConstructor) {
+        return Stream.of(resolvedConstructor).toArray(Constructor<?>[]::new);
     }
 
     /**
@@ -157,7 +166,7 @@ public abstract class AbstractAutowireCapableBeanFactory
      * @return {@link BeanWrapper} instance. This wrapper encapsulates the newly created bean instance
      */
     protected BeanWrapper autowireConstructor(
-            String beanName, GenericBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
+            String beanName, GenericBeanDefinition mbd, Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
         return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
     }
 
@@ -168,8 +177,8 @@ public abstract class AbstractAutowireCapableBeanFactory
      * @param mbd      the bean definition for the bean
      * @return a BeanWrapper for the new instance
      */
-    private BeanWrapper instantiateBean(String beanName, GenericBeanDefinition gbd) {
-        Object instance = instantiationStrategy.instantiate(gbd, beanName);
+    private BeanWrapper instantiateBean(String beanName, GenericBeanDefinition gbd, Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
+        Object instance = instantiationStrategy.instantiate(gbd, beanName, ctors, explicitArgs);
         return new BeanWrapper(instance, instance.getClass());
     }
 

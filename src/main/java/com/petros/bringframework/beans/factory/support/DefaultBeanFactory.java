@@ -15,6 +15,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory {
     private final Map<String, Object> beanCacheByName = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> beanCacheByType = new ConcurrentHashMap<>();
-    private final Map<String, BeanFactoryPostProcessor> beanFactoryPostProcessors = new ConcurrentHashMap<>();
+    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = Collections.synchronizedList(new LinkedList<>());
     private final Map<String, BeanPostProcessor> beanPostProcessors = new ConcurrentHashMap<>();
     private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
@@ -102,6 +103,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             result.put(beanName, (T) beanInstance);
         }
         return result;
+    }
+
+    @Override
+    public List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors() {
+        return beanFactoryPostProcessors;
     }
 
     private void invokeCustomInitMethod(Object bean, String initMethodName) {
@@ -228,5 +234,13 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 //            // Add to end of list
 //            this.beanPostProcessors.add(beanPostProcessor);
 //        }
+    }
+
+    @Override
+    public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor beanFactoryPostProcessor) {
+        synchronized (this.beanFactoryPostProcessors) {
+            this.beanFactoryPostProcessors.remove(beanFactoryPostProcessor);
+            this.beanFactoryPostProcessors.add(beanFactoryPostProcessor);
+        }
     }
 }

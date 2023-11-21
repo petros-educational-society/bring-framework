@@ -4,6 +4,7 @@ package com.petros.bringframework.context.annotation;
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
+import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.support.AnnotationBeanNameGenerator;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
@@ -46,6 +47,7 @@ public class SimpleClassPathBeanDefinitionScanner {
             beanDefinitions.add(definitionHolder);
             registerBeanDefinition(definitionHolder);
         }
+
         return beanDefinitions;
 
     }

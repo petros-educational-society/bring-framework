@@ -23,6 +23,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     }
 
     @Override
+    public BeanDefinitionRegistry getBeanDefinitionRegistry() {
+        return registry;
+    }
+
+    @Override
     public Object getBean(String name) {
         return doGetBean(name, null, null, false);
     }

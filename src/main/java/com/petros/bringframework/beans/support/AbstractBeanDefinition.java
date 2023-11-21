@@ -257,8 +257,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * @see #AUTOWIRE_CONSTRUCTOR
      * @see #AUTOWIRE_AUTODETECT
      */
-    public void setAutowireMode(int autowireMode) {
-        this.autowireMode = AutowireMode.valueOf(autowireMode);
+    public void setAutowireMode(AutowireMode autowireMode) {
+        this.autowireMode = autowireMode;
     }
 
     /**

@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SimpleConstructorArgumentValues {
+    @Getter
     private final Map<Integer, ValueHolder> indexedArgumentValues = new HashMap<>();
     private final List<ValueHolder> genericArgumentValues = new ArrayList<>();
 
@@ -19,10 +21,11 @@ public class SimpleConstructorArgumentValues {
      * Params:
      *
      * @param index – the index in the constructor argument list
-     * @param value – the argument value
+     * @param type – the argument type
+     * @param name - the argument name
      */
-    public void addIndexedArgumentValue(int index, Object value) {
-        indexedArgumentValues.put(index, ValueHolder.builder().value(value).build());
+    public void addIndexedArgumentValue(int index, Type type, String name) {
+        indexedArgumentValues.put(index, ValueHolder.builder().type(type).name(name).build());
     }
 
     /**
@@ -102,7 +105,7 @@ public class SimpleConstructorArgumentValues {
         private Object value;
 
         @Nullable
-        private String type;
+        private Type type;
 
         @Nullable
         private String name;
@@ -115,7 +118,7 @@ public class SimpleConstructorArgumentValues {
          * @param name  the name of the constructor argument
          */
         @Builder
-        public ValueHolder(@Nullable Object value, @Nullable String type, @Nullable String name) {
+        public ValueHolder(@Nullable Object value, @Nullable Type type, @Nullable String name) {
             this.value = value;
             this.type = type;
             this.name = name;
