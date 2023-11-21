@@ -1,22 +1,14 @@
 package com.petros.bringframework.context.annotation;
 
-import com.petros.bringframework.JavaConfig;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
-import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
-import com.petros.bringframework.beans.factory.config.SimpleBeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import com.petros.bringframework.beans.factory.config.ConfigurationClassPostProcessor;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
 import com.petros.bringframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import com.petros.bringframework.context.support.AbstractApplicationContext;
 import com.petros.bringframework.core.AssertUtils;
-
-import java.util.Arrays;
-
-import java.util.List;
 
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
     private final BeanDefinitionRegistry registry;
@@ -39,8 +31,9 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     /**
      * Create a new AnnotationConfigApplicationContext, deriving bean definitions
      * from the given component classes and automatically refreshing the context.
+     *
      * @param componentClasses one or more component classes &mdash; for example,
-     * {@link Configuration @Configuration} classes
+     *                         {@link Configuration @Configuration} classes
      */
     public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
         this();
@@ -52,6 +45,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      * Create a new AnnotationConfigApplicationContext, scanning for components
      * in the given packages, registering bean definitions for those components,
      * and automatically refreshing the context.
+     *
      * @param basePackages the packages to scan for component classes
      */
     public AnnotationConfigApplicationContext(String... basePackages) {
@@ -59,8 +53,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         scan(basePackages);
         refresh();
     }
-
-
 
 
     @Override
@@ -90,8 +82,9 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      * Register one or more component classes to be processed.
      * <p>Note that {@link #refresh()} must be called in order for the context
      * to fully process the new classes.
+     *
      * @param componentClasses one or more component classes &mdash; for example,
-     * {@link Configuration @Configuration} classes
+     *                         {@link Configuration @Configuration} classes
      * @see #scan(String...)
      * @see #refresh()
      */

@@ -1,8 +1,9 @@
-package com.petros.bringframework;
+package com.petros;
 
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
-import com.petros.bringframework.service.Test;
-import com.petros.configtest.HelloWorld;
+import com.petros.services.Test;
+import com.petros.services.HelloWorld;
+import com.petros.configuration.JavaConfig;
 
 import java.util.Arrays;
 
@@ -10,7 +11,7 @@ public class BringDemo {
     public static void main(String[] args) {
 
         final var annotationConfigApplicationContext
-//                = new AnnotationConfigApplicationContext( "com.petros.bringframework");
+//                = new AnnotationConfigApplicationContext( "com.petros");
                 = new AnnotationConfigApplicationContext(JavaConfig.class);
 
         var ms = annotationConfigApplicationContext

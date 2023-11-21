@@ -1,4 +1,4 @@
-package com.petros.bringframework.service;
+package com.petros.services;
 
 /**
  * @author "Maksym Oliinyk"

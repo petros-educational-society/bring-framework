@@ -1,4 +1,4 @@
-package com.petros.configtest;
+package com.petros.services;
 
 import com.petros.bringframework.context.annotation.Component;
 

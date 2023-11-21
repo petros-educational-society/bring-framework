@@ -6,7 +6,11 @@
     <groupId>com.petros</groupId>
     <artifactId>bringframework</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    <modules>
+        <module>demo</module>
+        <module>bring</module>
+    </modules>
 
     <properties>
         <mave.compiler.source>17</mave.compiler.source>

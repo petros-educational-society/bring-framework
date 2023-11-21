@@ -1,4 +1,4 @@
-package com.petros.bringframework.service;
+package com.petros.services;
 
 import com.petros.bringframework.beans.factory.annotation.InjectPlease;
 import com.petros.bringframework.context.annotation.Component;
