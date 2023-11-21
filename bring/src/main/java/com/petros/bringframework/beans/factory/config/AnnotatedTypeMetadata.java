@@ -1,5 +1,7 @@
 package com.petros.bringframework.beans.factory.config;
 
+import com.petros.bringframework.core.AssertUtils;
+
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -48,7 +50,9 @@ public interface AnnotatedTypeMetadata {
      * @return whether a matching annotation is defined
      */
     default boolean isAnnotated(String annotationName) {
-        return getAnnotations().stream().anyMatch(annotation -> annotation.annotationType().getName().equals(annotationName));
+        AssertUtils.notNull(annotationName, "Annotation type must not be null");
+        return getAnnotations().stream()
+                .anyMatch(annotation -> annotation.annotationType().getName().equals(annotationName));
     }
 
     /**

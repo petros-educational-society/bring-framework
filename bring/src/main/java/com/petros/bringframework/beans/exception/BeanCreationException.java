@@ -6,6 +6,9 @@ import com.petros.bringframework.beans.FatalBeanException;
 /**
  * Exception thrown when a BeanFactory encounters an error when attempting
  * to create a bean from a bean definition.
+ *
+ * @author "Maksym Oliinyk"
+ * @author "Oleksii Skachkov"
  */
 public class BeanCreationException extends FatalBeanException {
     public BeanCreationException(Class<?> clazz, String message, Throwable e) {

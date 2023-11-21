@@ -11,9 +11,7 @@ import javax.annotation.Nullable;
  * interface that exposes {@link AnnotationMetadata}
  * about its bean class - without requiring the class to be loaded yet.
  *
- * @author Juergen Hoeller
- * @since 2.5
- * @see AnnotationMetadata
+ * @author "Maksym Oliinyk"
  */
 public interface AnnotatedBeanDefinition extends BeanDefinition {
 

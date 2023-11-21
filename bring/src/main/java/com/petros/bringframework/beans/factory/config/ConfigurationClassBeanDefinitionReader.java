@@ -1,6 +1,7 @@
 package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
+import com.petros.bringframework.beans.support.ReflectionBeanDefinition;
 import com.petros.bringframework.context.annotation.AnnotationConfigUtils;
 import com.petros.bringframework.context.annotation.AnnotationScopeMetadataResolver;
 import com.petros.bringframework.context.annotation.ScopeMetadata;
@@ -26,13 +27,14 @@ public class ConfigurationClassBeanDefinitionReader {
 
     private void loadBeanDefinitionsForConfigurationClass(ConfigurationClass configClass) {
         if (configClass.isImported()) {
+            //todo remove imported functionality or add it
             registerBeanDefinitionForImportedConfigurationClass(configClass);
         }
     }
 
     private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
         AnnotationMetadata metadata = configClass.getMetadata();
-        AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
+        ReflectionBeanDefinition configBeanDef = new ReflectionBeanDefinition(metadata);
 
         ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
         configBeanDef.setScope(scopeMetadata.getScopeName());

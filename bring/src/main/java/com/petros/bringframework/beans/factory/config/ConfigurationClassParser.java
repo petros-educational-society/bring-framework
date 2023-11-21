@@ -20,6 +20,7 @@ import java.util.*;
  * Parses a Configuration class definition, populating a collection of ConfigurationClass objects (parsing a single Configuration class may result in any number of ConfigurationClass objects because one Configuration class may import another using the Import annotation).
  * This class helps separate the concern of parsing the structure of a Configuration class from the concern of registering BeanDefinition objects based on the content of that model (with the exception of @ComponentScan annotations which need to be registered immediately).
  *
+ * @author "Maksym Oliinyk"
  * @author "Vasiuk Maryna"
  */
 public class ConfigurationClassParser {
@@ -54,25 +55,18 @@ public class ConfigurationClassParser {
     protected final void parse(Class<?> clazz, String beanName) throws IOException {
         processConfigurationClass(new ConfigurationClass(clazz, beanName));
     }
-
-    //todo remove this method
-//    protected final void parse(AnnotationMetadata metadata, String beanName) throws IOException {
-//        processConfigurationClass(new ConfigurationClass(metadata, beanName));
-//    }
-
     protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
         ConfigurationClass existingClass = this.configurationClasses.get(configClass);
         if (existingClass != null) {
-            //todo remove all related to imported
-//            if (configClass.isImported()) {
-//                if (existingClass.isImported()) {
-//                    existingClass.mergeImportedBy(configClass);
-//                }
-//                return;
-//            } else {
+            if (configClass.isImported()) {
+                if (existingClass.isImported()) {
+                    existingClass.mergeImportedBy(configClass);
+                }
+                return;
+            } else {
                 this.configurationClasses.remove(configClass);
                 this.knownSuperclasses.values().removeIf(configClass::equals);
-//            }
+            }
         }
 
         SourceClass sourceClass = asSourceClass(configClass);

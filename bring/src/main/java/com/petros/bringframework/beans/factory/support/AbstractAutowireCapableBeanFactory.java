@@ -16,8 +16,6 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.petros.bringframework.util.AutowireClassUtils.determineInjectCandidateConstructor;
-
 /**
  * Abstract bean factory superclass that implements default bean creation.
  * Implements the AutowireCapableBeanFactory interface in addition to AbstractBeanFactory's createBean method.
@@ -83,7 +81,6 @@ public abstract class AbstractAutowireCapableBeanFactory
             return null;
         }
     }
-
 
 
     /**

@@ -12,6 +12,7 @@ import java.util.*;
  * BeanFactoryPostProcessor used for bootstrapping processing of @Configuration classes.
  *
  * @author "Vasiuk Maryna"
+ * @author "Maksym Oliinyk"
  */
 @Slf4j
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {

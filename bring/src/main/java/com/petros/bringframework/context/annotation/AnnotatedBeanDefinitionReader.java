@@ -1,9 +1,9 @@
 package com.petros.bringframework.context.annotation;
 
-import com.petros.bringframework.beans.factory.config.AnnotatedGenericBeanDefinition;
 import com.petros.bringframework.beans.factory.support.AnnotationBeanNameGenerator;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
+import com.petros.bringframework.beans.support.ReflectionBeanDefinition;
 import com.petros.bringframework.type.reading.ReflectionMetadataReader;
 import lombok.Getter;
 
@@ -42,7 +42,7 @@ public class AnnotatedBeanDefinitionReader {
      */
     public void registerBean(Class<?> beanClass) {
         ReflectionMetadataReader metadataReader = new ReflectionMetadataReader(beanClass);
-        AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(metadataReader.getAnnotationMetadata());
+        ReflectionBeanDefinition abd = new ReflectionBeanDefinition(metadataReader);
         ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
         abd.setScope(scopeMetadata.getScopeName());
         final String beanName = this.nameGenerator.generateBeanName(abd, this.registry);

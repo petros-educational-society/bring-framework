@@ -20,7 +20,7 @@ public class BeanCurrentlyInCreationException
 
     private static String getMsg(String beanName) {
         return String.format("Requested bean '%s' is currently in creation: Is there an unresolvable circular reference?",
-                             beanName);
+                beanName);
     }
 
 }

@@ -5,7 +5,7 @@ import com.petros.bringframework.context.annotation.Component;
 /**
  * @author "Maksym Oliinyk"
  */
-@Component
+@Component("worldHello")
 public class HelloWorld {
 
     public void print() {

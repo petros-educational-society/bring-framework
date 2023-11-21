@@ -7,12 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,11 +34,6 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
     }
 
     @Override
-    public Set<String> getMetaAnnotationTypes(String annotationName) {
-        return Collections.emptySet(); //todo implement
-    }
-
-    @Override
     public boolean hasAnnotation(String annotationType) {
         return annotations.stream()
                 .anyMatch(annotation -> annotation.annotationType().getName().equals(annotationType));
@@ -51,7 +41,13 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
 
     @Override
     public boolean hasMetaAnnotation(String metaAnnotationName) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return getAnnotations().stream().map(annotation -> annotation.annotationType())
+                .flatMap(annotationType -> Arrays.stream(annotationType.getDeclaredAnnotations()))
+                .map(Annotation::annotationType)
+                .map(Class::getName)
+                .filter(Objects::nonNull)
+                .anyMatch(metaAnnotationName::equals);
+
     }
 
     @Override

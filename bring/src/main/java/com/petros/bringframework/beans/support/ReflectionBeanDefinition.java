@@ -8,9 +8,14 @@ import com.petros.bringframework.type.reading.ReflectionMetadataReader;
 
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
+
 public class ReflectionBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
 
     private final AnnotationMetadata metadata;
+
+    @Nullable
+    private MethodMetadata factoryMethodMetadata;
 
     /**
      * Create a new ScannedGenericBeanDefinition for the class that the
@@ -22,7 +27,13 @@ public class ReflectionBeanDefinition extends GenericBeanDefinition implements A
         AssertUtils.notNull(metadataReader, "MetadataReader must not be null");
         this.metadata = metadataReader.getAnnotationMetadata();
         setBeanClassName(this.metadata.getClassName());
-//		setResource(metadataReader.getResource());
+
+    }
+
+    public ReflectionBeanDefinition(AnnotationMetadata metadata) {
+        requireNonNull(metadata, "AnnotationMetadata must not be null");
+        setBeanClassName(metadata.getClassName());
+        this.metadata = metadata;
     }
 
 
@@ -33,8 +44,8 @@ public class ReflectionBeanDefinition extends GenericBeanDefinition implements A
 
     @Override
     @Nullable
-    public MethodMetadata getFactoryMethodMetadata() {
-        return null;
+    public final MethodMetadata getFactoryMethodMetadata() {
+        return factoryMethodMetadata;
     }
 
 }

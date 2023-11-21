@@ -1,6 +1,8 @@
 package com.petros.bringframework.beans.factory.config;
 
-import java.util.Set;
+import java.lang.annotation.Annotation;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author "Maksym Oliinyk"
@@ -22,7 +24,17 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
      *                       type to look for
      * @return the meta-annotation type names, or an empty set if none found
      */
-    Set<String> getMetaAnnotationTypes(String annotationName);
+    default Set<String> getMetaAnnotationTypes(String annotationName) {
+        return Optional.ofNullable(getAnnotation(annotationName))
+                .map(annotation -> {
+                    final Annotation[] declaredAnnotations = annotation.annotationType().getDeclaredAnnotations();
+                    return Arrays.stream(declaredAnnotations)
+                            .map(Annotation::annotationType)
+                            .map(Class::getName)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+                }).orElseGet(LinkedHashSet::new);
+    }
 
     /**
      * Determine whether an annotation of the given type is <em>present</em> on

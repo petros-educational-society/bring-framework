@@ -14,12 +14,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,14 +32,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
         super(registry);
-//        this.beanFactoryPostProcessors.putAll(getBeansOfType(BeanFactoryPostProcessor.class));
-//        final Map<? extends Class<?>, List<ReflectionScannedGenericBeanDefinition>> collect =
-//                registry.getBeanDefinitions().entrySet().stream()
-//                        .filter(e -> ReflectionScannedGenericBeanDefinition.class.isInstance(e.getValue()))
-//                        .map(e -> (ReflectionScannedGenericBeanDefinition) e.getValue())
-//                        .collect(Collectors.groupingBy(bd -> ReflectionClassMetadata.class.cast(bd.getMetadata()).getIntrospectedClass()));
-//        this.beanPostProcessors.putAll(getBeansOfType(BeanPostProcessor.class));
-
     }
 
     @Override
@@ -155,15 +142,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
         return null;
     }
-
-    //todo remove
-//    private Object getSingleton(String name) {
-//        final Object singelton = beanCacheByName.get(name);
-//        if (singelton == null) {
-//            throw new NotImplementedException();
-//        }
-//        return singelton;
-//    }
 
     private String[] getBeanNamesForType(Class<?> type) {
         return getBeanNamesForType(type, true);
