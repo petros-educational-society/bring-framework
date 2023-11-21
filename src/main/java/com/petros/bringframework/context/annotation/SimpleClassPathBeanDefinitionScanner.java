@@ -34,20 +34,17 @@ public class SimpleClassPathBeanDefinitionScanner {
         AssertUtils.notEmpty(basePackages, "At least one base package must be specified");
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 
-        //todo: what for the firs 'for' loop here?
-        for (String basePackage : basePackages) {
-            Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
-            for (BeanDefinition beanDef : candidates) {
-                final String beanName = nameGenerator.generateBeanName(beanDef, registry);
-                ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
-                beanDef.setScope(scopeMetadata.scopeName());
-                if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
-                    AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedBeanDefinition);
-                }
-                BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
-                beanDefinitions.add(definitionHolder);
-                registerBeanDefinition(definitionHolder);
+        Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
+        for (BeanDefinition beanDef : candidates) {
+            final String beanName = nameGenerator.generateBeanName(beanDef, registry);
+            ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
+            beanDef.setScope(scopeMetadata.scopeName());
+            if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+                AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedBeanDefinition);
             }
+            BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
+            beanDefinitions.add(definitionHolder);
+            registerBeanDefinition(definitionHolder);
         }
         return beanDefinitions;
 
@@ -59,6 +56,9 @@ public class SimpleClassPathBeanDefinitionScanner {
             Reflections scanner = new Reflections(basePackage);
             final Set<Class<?>> sources = scanner.getTypesAnnotatedWith(Component.class);
             for (Class<?> source : sources) {
+                if(source.isAnnotation()){
+                    continue;
+                }
                 ReflectionMetadataReader metadataReader = new ReflectionMetadataReader(source);
                 ReflectionBeanDefinition sbd = new ReflectionBeanDefinition(metadataReader);
                 candidates.add(sbd);

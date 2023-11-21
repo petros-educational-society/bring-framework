@@ -9,17 +9,12 @@ import com.petros.bringframework.context.annotation.ComponentScan;
 import com.petros.bringframework.context.annotation.ComponentScanAnnotationParser;
 import com.petros.bringframework.type.reading.MetadataReader;
 import com.petros.bringframework.util.ClassUtils;
+import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.Objects.requireNonNull;
+import java.util.*;
 
 /**
  * Parses a Configuration class definition, populating a collection of ConfigurationClass objects (parsing a single Configuration class may result in any number of ConfigurationClass objects because one Configuration class may import another using the Import annotation).
@@ -28,14 +23,12 @@ import static java.util.Objects.requireNonNull;
  * @author "Vasiuk Maryna"
  */
 public class ConfigurationClassParser {
-    private final MetadataReader reader;
     private final ComponentScanAnnotationParser componentScanParser;
     private final BeanDefinitionRegistry registry;
     private final Map<ConfigurationClass, ConfigurationClass> configurationClasses = new LinkedHashMap<>();
     private final Map<String, ConfigurationClass> knownSuperclasses = new HashMap<>();
 
-    public ConfigurationClassParser(MetadataReader reader, BeanDefinitionRegistry registry) {
-        this.reader = reader;
+    public ConfigurationClassParser(BeanDefinitionRegistry registry) {
         this.registry = registry;
         this.componentScanParser = new ComponentScanAnnotationParser(registry);
     }
@@ -44,52 +37,42 @@ public class ConfigurationClassParser {
         for (BeanDefinitionHolder holder : configCandidates) {
             BeanDefinition bd = holder.getBeanDefinition();
             try {
-                if (bd instanceof AnnotatedBeanDefinition) {
-                    parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
+                if (bd instanceof AbstractBeanDefinition abd) {
+                    parse(abd.getBeanClass(), holder.getBeanName());
+                } else {
+                    throw new NotImplementedException("Not implemented, should be AbstractBeanDefinition");
                 }
-                else if (bd instanceof AbstractBeanDefinition) {
-                    parse(((AbstractBeanDefinition) bd).getBeanClass(), holder.getBeanName());
-                }
-                else {
-                    parse(bd.getBeanClassName(), holder.getBeanName());
-                }
-            }
-            catch (BeanDefinitionStoreException ex) {
+            } catch (BeanDefinitionStoreException ex) {
                 throw ex;
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                 throw new BeanDefinitionStoreException(
                         "Failed to parse configuration class [" + bd.getBeanClassName() + "]", ex);
             }
         }
     }
 
-    protected final void parse(@Nullable String className, String beanName) throws IOException {
-        requireNonNull(className, "No bean class name for configuration class bean definition");
-        processConfigurationClass(new ConfigurationClass(reader, beanName));
-    }
-
     protected final void parse(Class<?> clazz, String beanName) throws IOException {
         processConfigurationClass(new ConfigurationClass(clazz, beanName));
     }
 
-    protected final void parse(AnnotationMetadata metadata, String beanName) throws IOException {
-        processConfigurationClass(new ConfigurationClass(metadata, beanName));
-    }
+    //todo remove this method
+//    protected final void parse(AnnotationMetadata metadata, String beanName) throws IOException {
+//        processConfigurationClass(new ConfigurationClass(metadata, beanName));
+//    }
 
     protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
         ConfigurationClass existingClass = this.configurationClasses.get(configClass);
         if (existingClass != null) {
-            if (configClass.isImported()) {
-                if (existingClass.isImported()) {
-                    existingClass.mergeImportedBy(configClass);
-                }
-                return;
-            }
-            else {
+            //todo remove all related to imported
+//            if (configClass.isImported()) {
+//                if (existingClass.isImported()) {
+//                    existingClass.mergeImportedBy(configClass);
+//                }
+//                return;
+//            } else {
                 this.configurationClasses.remove(configClass);
                 this.knownSuperclasses.values().removeIf(configClass::equals);
-            }
+//            }
         }
 
         SourceClass sourceClass = asSourceClass(configClass);
@@ -105,23 +88,25 @@ public class ConfigurationClassParser {
     protected final SourceClass doProcessConfigurationClass(
             ConfigurationClass configClass, SourceClass sourceClass)
             throws IOException {
-
         Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
                 sourceClass.getMetadata(), ComponentScan.class.getName());
+
         if (!componentScans.isEmpty()) {
             for (AnnotationAttributes componentScan : componentScans) {
                 Set<BeanDefinitionHolder> scannedBeanDefinitions =
                         this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
-                for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
-                    BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
-                    if (bdCand == null) {
-                        bdCand = holder.getBeanDefinition();
-                    }
-                    parse(bdCand.getBeanClassName(), holder.getBeanName());
-                }
+                //todo delete this ???
+//                for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
+//                    BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
+//                    if (bdCand == null) {
+//                        bdCand = holder.getBeanDefinition();
+//                    }
+//                    parse(bdCand.getBeanClassName(), holder.getBeanName());
+//                }
             }
         }
 
+        //Do we need this logic
         if (sourceClass.getMetadata().hasSuperClass()) {
             String superclass = sourceClass.getMetadata().getSuperClassName();
             if (superclass != null && !superclass.startsWith("java") &&
@@ -153,8 +138,7 @@ public class ConfigurationClassParser {
             this.source = source;
             if (source instanceof Class) {
                 this.metadata = new ReflectionAnnotationMetadata((Class<?>) source);
-            }
-            else {
+            } else {
                 this.metadata = ((MetadataReader) source).getAnnotationMetadata();
             }
         }
@@ -175,8 +159,7 @@ public class ConfigurationClassParser {
                 if (!annType.getName().startsWith("java")) {
                     try {
                         result.add(asSourceClass(annType));
-                    }
-                    catch (Throwable ex) {
+                    } catch (Throwable ex) {
                         // An annotation not present on the classpath is being ignored by the JVM's class loading -> ignore here as well.
                     }
                 }
@@ -215,24 +198,23 @@ public class ConfigurationClassParser {
                 AnnotationConfigUtils.validateAnnotation(ann);
             }
             return new SourceClass(classType);
-        }
-        catch (Throwable ex) {
-            return asSourceClass(classType.getName());
+        } catch (Throwable ex) {
+//            return asSourceClass(classType.getName());
+            return null;
         }
     }
 
     /**
      * Factory method to obtain a {@link SourceClass} from a class name.
      */
-    SourceClass asSourceClass(String className) throws IOException {
-        if (className.startsWith("java")) {
-            try {
-                return new SourceClass(ClassUtils.forName(className, ClassLoader.getSystemClassLoader()));
-            }
-            catch (ClassNotFoundException ex) {
-                throw new IOException("Failed to load class [" + className + "]", ex);
-            }
-        }
-        return new SourceClass(reader);
-    }
+//    SourceClass asSourceClass(String className) throws IOException {
+//        if (className.startsWith("java")) {
+//            try {
+//                return new SourceClass(ClassUtils.forName(className, ClassLoader.getSystemClassLoader()));
+//            } catch (ClassNotFoundException ex) {
+//                throw new IOException("Failed to load class [" + className + "]", ex);
+//            }
+//        }
+//        return new SourceClass(reader);
+//    }
 }

@@ -4,6 +4,7 @@ import com.petros.bringframework.beans.factory.support.SimpleBeanDefinitionRegis
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
 import com.petros.bringframework.service.MergeSort;
 import com.petros.bringframework.service.Test;
+import com.petros.configtest.HelloWorld;
 
 import java.util.Arrays;
 
@@ -21,5 +22,9 @@ public class BringDemo {
         ms.testMerge(arr);
         System.out.println("After: " + Arrays.toString(arr));
 
+
+        var helloWorld = annotationConfigApplicationContext
+                .getBean(HelloWorld.class);
+        helloWorld.print();
     }
 }

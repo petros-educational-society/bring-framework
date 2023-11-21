@@ -26,7 +26,9 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
             final boolean isAnnotated = metadata.hasAnnotation(annotationName);
             if (isAnnotated) {
                 final Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(annotationName);
-                System.out.println(annotationAttributes);
+                if (annotationAttributes != null) {
+                    System.out.println(annotationAttributes);
+                }
             }
         }
 

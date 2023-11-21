@@ -28,11 +28,11 @@ public abstract class AnnotationConfigUtils {
 
     public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
         var lazy = metadata.getAnnotationAttributes(Lazy.class.getName());
-        if (!lazy.isEmpty()) {
+        if (lazy != null && !lazy.isEmpty()) {
             abd.setLazyInit(getRequiredAttribute("value", lazy.get("value"), Boolean.class));
         } else if (abd.getMetadata() != metadata) {
             lazy = abd.getMetadata().getAnnotationAttributes(Lazy.class.getName());
-            if (!lazy.isEmpty()) {
+            if (lazy != null && !lazy.isEmpty()) {
                 abd.setLazyInit(getRequiredAttribute("value", lazy.get("value"), Boolean.class));
             }
         }
@@ -41,16 +41,16 @@ public abstract class AnnotationConfigUtils {
             abd.setPrimary(true);
         }
         var dependsOn = metadata.getAnnotationAttributes(DependsOn.class.getName());
-        if (!dependsOn.isEmpty()) {
+        if (dependsOn != null && !dependsOn.isEmpty()) {
             abd.setDependsOn(getRequiredAttribute("value", dependsOn.get("value"), String[].class));
         }
 
         var role = metadata.getAnnotationAttributes(Role.class.getName());
-        if (!role.isEmpty()) {
+        if (role != null && !role.isEmpty()) {
             abd.setRole(getRequiredAttribute("value", role.get("value"), BeanDefinitionRole.class).getRole());
         }
         var desciption = metadata.getAnnotationAttributes(Description.class.getName());
-        if (!desciption.isEmpty()) {
+        if (desciption != null && !desciption.isEmpty()) {
             abd.setDescription(getRequiredAttribute("value", desciption.get("value"), String.class));
         }
 
@@ -78,7 +78,7 @@ public abstract class AnnotationConfigUtils {
     public static Set<AnnotationAttributes> attributesForRepeatable(AnnotationMetadata metadata, String annotationClassName) {
         Set<AnnotationAttributes> result = new LinkedHashSet<>();
 
-        addAttributesIfNotNull(result, metadata.getAnnotationAttributes(annotationClassName, false));
+        addAttributesIfNotNull(result, metadata.getAnnotationAttributes(annotationClassName));
 
         return Collections.unmodifiableSet(result);
     }

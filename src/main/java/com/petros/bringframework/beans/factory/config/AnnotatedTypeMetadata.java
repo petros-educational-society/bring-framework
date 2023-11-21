@@ -3,10 +3,13 @@ package com.petros.bringframework.beans.factory.config;
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Defines access to the annotations of a specific type ({@link AnnotationMetadata class}
@@ -69,41 +72,25 @@ public interface AnnotatedTypeMetadata {
     }
 
     default Map<String, Object> getAnnotationAttributes(String annotationName, BiConsumer<String, Throwable> logger) {
-        Map<String, Object> attributes = new HashMap<>();
+        final Function<Annotation, Map<String, Object>> retrieveAnnotationAttributesFunction
+                = annotation -> Arrays.stream(annotation.annotationType().getDeclaredMethods())
+                .collect(Collectors.toMap(Method::getName,
+                        method -> {
+                            try {
+                                return method.invoke(annotation);
+                            } catch (Exception e) {
+                                logger.accept(e.getMessage(), e);
+                                return null;
+                            }
+                        },
+                        (existing, replacement) -> existing))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        Annotation annotation = getAnnotation(annotationName);
-        if (annotation != null) {
-            for (Method method : annotation.annotationType().getDeclaredMethods()) {
-                try {
-                    Object value = method.invoke(annotation);
-                    attributes.put(method.getName(), value);
-                } catch (Exception e) {
-                    logger.accept(e.getMessage(), e);
-                }
-            }
-        }
-
-        return attributes;
-    }
-
-    /**
-     * Retrieve the attributes of the annotation of the given type, if any (i.e. if
-     * defined on the underlying element, as direct annotation or meta-annotation),
-     * also taking attribute overrides on composed annotations into account.
-     *
-     * @param annotationName      the fully qualified class name of the annotation
-     *                            type to look for
-     * @param classValuesAsString whether to convert class references to String
-     *                            class names for exposure as values in the returned Map, instead of Class
-     *                            references which might potentially have to be loaded first
-     * @return a Map of attributes, with the attribute name as key (e.g. "value")
-     * and the defined attribute value as Map value. This return value will be
-     * {@code null} if no matching annotation is defined.
-     */
-    @Nullable
-    default Map<String, Object> getAnnotationAttributes(String annotationName,
-                                                        boolean classValuesAsString) {
-        throw new UnsupportedOperationException();
+        return Optional.ofNullable(getAnnotation(annotationName))
+                .map(retrieveAnnotationAttributesFunction)
+                .orElse(null);
     }
 
 

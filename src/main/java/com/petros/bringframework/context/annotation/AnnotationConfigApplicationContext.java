@@ -3,6 +3,7 @@ package com.petros.bringframework.context.annotation;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
+import com.petros.bringframework.beans.factory.config.ConfigurationClassPostProcessor;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
 import com.petros.bringframework.context.support.AbstractApplicationContext;
@@ -17,6 +18,9 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         super();
         this.scanner = new SimpleClassPathBeanDefinitionScanner(registry);
         scan(packages);
+        ConfigurationClassPostProcessor processor = new ConfigurationClassPostProcessor();
+        processor.postProcessBeanDefinitionRegistry(registry);
+
         this.beanFactory = new DefaultBeanFactory(registry);
         init();
     }

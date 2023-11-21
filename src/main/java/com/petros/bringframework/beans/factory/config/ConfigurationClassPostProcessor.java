@@ -3,8 +3,6 @@ package com.petros.bringframework.beans.factory.config;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.context.annotation.Configuration;
-import com.petros.bringframework.context.annotation.Lazy;
-import com.petros.bringframework.type.reading.MetadataReader;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
@@ -23,11 +21,12 @@ import java.util.Set;
 @Slf4j
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
-    private MetadataReader metadataReader;
-
     private final Set<Integer> registriesPostProcessed = new HashSet<>();
 
     private final Set<Integer> factoriesPostProcessed = new HashSet<>();
+
+    public ConfigurationClassPostProcessor() {
+    }
 
     @Nullable
     private ConfigurationClassBeanDefinitionReader reader;
@@ -52,7 +51,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
         }
 
         // Parse each @Configuration class
-        ConfigurationClassParser parser = new ConfigurationClassParser(this.metadataReader, registry);
+        ConfigurationClassParser parser = new ConfigurationClassParser(registry);
 
         Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
         Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
@@ -81,7 +80,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
                     if (!oldCandidateNames.contains(candidateName)) {
                         BeanDefinition bd = registry.getBeanDefinition(candidateName);
                         if (!alreadyParsedClasses.contains(bd.getBeanClassName())) {
-                            candidates.add(new BeanDefinitionHolder(bd, candidateName));
+//                            if(hasConfigurationAnnotation(bd)){
+                                candidates.add(new BeanDefinitionHolder(bd, candidateName));
+//                            }
                         }
                     }
                 }

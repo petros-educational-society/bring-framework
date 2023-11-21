@@ -39,7 +39,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
         String beanName = null;
         for (var type : types) {
             var attributes = annotationMetadata.getAnnotationAttributes(type);
-            if (attributes != null) {
+            if (attributes != null && !attributes.isEmpty()) {
                 var metaTypes = metaAnnotationTypesCache.computeIfAbsent(type, key -> {
                     var res = annotationMetadata.getMetaAnnotationTypes(key);
                     return res.isEmpty() ? Collections.emptySet() : res;
