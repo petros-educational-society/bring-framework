@@ -2,7 +2,6 @@ package com.petros.bringframework.context.annotation;
 
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
-import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
@@ -52,13 +51,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         this();
         scan(basePackages);
         refresh();
-    }
-
-
-    @Override
-    protected void initBeansPostProcessors() {
-        beanFactory.getBeansOfType(BeanPostProcessor.class)
-                .forEach((name, processor) -> beanFactory.configureBeans(processor));
     }
 
     @Override

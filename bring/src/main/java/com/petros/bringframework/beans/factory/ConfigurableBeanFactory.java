@@ -5,7 +5,6 @@ import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.SingletonBeanRegistry;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
-import com.petros.bringframework.core.type.ResolvableType;
 
 import java.util.List;
 
@@ -46,6 +45,8 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
     }
 
     void addBeanFactoryPostProcessor(BeanFactoryPostProcessor beanFactoryPostProcessor);
+
+    List<BeanPostProcessor> getBeanPostProcessors();
 
     List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors();
 }

@@ -9,8 +9,6 @@ import java.util.Map;
 
 public interface BeanFactory {
 
-    <T> void configureBeans(T t);
-
     Object getBean(String name);
 
     <T> T getBean(Class<T> requiredType);
