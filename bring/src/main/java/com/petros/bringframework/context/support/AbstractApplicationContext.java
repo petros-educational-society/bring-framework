@@ -106,9 +106,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * @param beanFactory the bean factory used by the application context
      */
     protected void prepareBeanFactory(final ConfigurableBeanFactory beanFactory) {
-        beanFactory.addBeanFactoryPostProcessor(new SimpleBeanFactoryPostProcessor(beanFactory));
         beanFactory.addBeanFactoryPostProcessor(new ConfigurationClassPostProcessor());
-
+        beanFactory.addBeanFactoryPostProcessor(new SimpleBeanFactoryPostProcessor(beanFactory));
     }
 
     /**
