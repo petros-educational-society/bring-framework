@@ -2,7 +2,6 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.TypeConverter;
-import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -46,14 +45,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
         super(registry);
-//        this.beanFactoryPostProcessors.putAll(getBeansOfType(BeanFactoryPostProcessor.class));
-//        final Map<? extends Class<?>, List<ReflectionScannedGenericBeanDefinition>> collect =
-//                registry.getBeanDefinitions().entrySet().stream()
-//                        .filter(e -> ReflectionScannedGenericBeanDefinition.class.isInstance(e.getValue()))
-//                        .map(e -> (ReflectionScannedGenericBeanDefinition) e.getValue())
-//                        .collect(Collectors.groupingBy(bd -> ReflectionClassMetadata.class.cast(bd.getMetadata()).getIntrospectedClass()));
-//        this.beanPostProcessors.putAll(getBeansOfType(BeanPostProcessor.class));
-
     }
 
     @Override
@@ -90,14 +81,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         return false;
     }
 
-//    public boolean isTypeMatch(String name, ResolvableType typeToMatch) {
-//        final Object beanInstance = getSingleton(name);
-//        if (beanInstance != null) {
-//            return typeToMatch.isInstance(beanInstance);
-//        }
-//        return false;
-//    }
-
     @Override
     public void destroyBeans() {
         beanCacheByName.clear();
@@ -126,55 +109,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         return result;
     }
 
-    /**
-     * Create a bean instance for the given bean definition.
-     * <p>All bean retrieval methods delegate to this method for actual bean creation.
-     *
-     * @return a new instance of the bean
-     * @throws BeanCreationException if the bean could not be created
-     */
-//    @SneakyThrows
-//    private Object createBean(BeanDefinition bd) throws BeanCreationException {
-//        var clazz = Class.forName(bd.getBeanClassName());
-//        if (clazz.isInterface()) {
-//            throw new BeanCreationException(clazz, "Specified class is an interface");
-//        }
-//
-//        Constructor<?> constructorToUse;
-//        try {
-//            constructorToUse = clazz.getDeclaredConstructor();
-//        } catch (Throwable ex) {
-//            throw new BeanCreationException(clazz, "No default constructor found", ex);
-//        }
-//
-//        Object bean;
-//        try {
-//            bean = constructorToUse.newInstance();
-//        } catch (Throwable e) {
-//            throw new BeanCreationException(constructorToUse.toString(), "Constructor threw exception", e);
-//        }
-//
-//        //we have a lot of checks and autowirings here. maybe will use later
-//        //populateBean(beanName, bd, bean);
-//
-////        invokeCustomInitMethod(bean, bd.getInitMethodName());
-//        return bean;
-//    }
-
-//    private void invokeCustomInitMethod(Object bean, String initMethodName) {
-//
-//        Class<?> beanClass = bean.getClass();
-//        try {
-//            //not sure if it needs. We use org.reflections.ReflectionUtils instead org.springframework.util.ReflectionUtils
-//            //ReflectionUtils.makeAccessible(methodToInvoke);
-//            Method initMethod = beanClass.getMethod(initMethodName);
-//            initMethod.invoke(bean);
-//        } catch (Throwable ex) {
-//            throw new BeanCreationException(beanClass, "Can`t invoke init method", ex);
-//        }
-//    }
-
-
     @Nullable
     private <T> T resolveBean(ResolvableType requiredType, @Nullable Object[] args) {
         NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, args, true);
@@ -192,7 +126,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
         if (candidateNames.length > 1) {
             var autowireCandidates = Arrays.stream(candidateNames)
-                    .filter(this::absentInDefinitionsAndAutowireCandidate).toList();
+                    .filter(this::isAutowireCandidate).toList();
             candidateNames = getNewAutowireCandidatesIfPresent(autowireCandidates, candidateNames);
         }
 
@@ -207,10 +141,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             }
 
             var candidateName = determinePrimaryCandidate(candidates);
-//            if (isNull(candidateName)) {
-//                candidateName = determineHighestPriorityCandidate(candidates);
-//            }
-
             if (nonNull(candidateName)) {
                 var beanInstance = candidates.get(candidateName);
                 if (isNull(beanInstance)) {
@@ -232,6 +162,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     /**
      * Determine the primary candidate in the given set of beans.
+     *
      * @param candidates a Map of candidate names and candidate instances
      * @return the name of the primary candidate, or {@code null} if none found
      */
@@ -239,65 +170,33 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     protected String determinePrimaryCandidate(Map<String, Object> candidates) {
         String primaryBeanName = null;
         for (var candidateBeanName : candidates.keySet()) {
-            if (isPrimary(candidateBeanName)) {
-                if (nonNull(primaryBeanName)) {
-                    boolean candidateLocal = containsBeanDefinition(candidateBeanName);
-                    if (candidateLocal && containsBeanDefinition(primaryBeanName)) {
-                        throw new NoUniqueBeanDefinitionException(candidates.size(),
-                                "more than one 'primary' bean found among candidates: " + candidates.keySet());
-                    }
-                    if (candidateLocal) {
-                        primaryBeanName = candidateBeanName;
-                    }
-                } else {
-                    primaryBeanName = candidateBeanName;
-                }
+            if (!isPrimary(candidateBeanName)) {
+                continue;
+            }
+
+            if (isNull(primaryBeanName)) {
+                primaryBeanName = candidateBeanName;
+                continue;
+            }
+
+            boolean isLocal = containsBeanDefinition(candidateBeanName);
+            boolean isPrimary = containsBeanDefinition(primaryBeanName);
+            if (isLocal && isPrimary) {
+                throw new NoUniqueBeanDefinitionException(candidates.size(),
+                        "more than one 'primary' bean found among candidates: " + candidates.keySet());
+            }
+
+            if (isLocal) {
+                primaryBeanName = candidateBeanName;
             }
         }
         return primaryBeanName;
     }
 
-//    /**
-//     * Determine the candidate with the highest priority in the given set of beans.
-//     * <p>Based on {@code @jakarta.annotation.Priority}. As defined by the related
-//     * the highest priority.
-//     * @param candidates a Map of candidate names and candidate instances
-//     * (or candidate classes if not created yet) that match the required type
-//     * @return the name of the candidate with the highest priority,
-//     * or {@code null} if none found
-//     */
-//    @Nullable
-//    protected String determineHighestPriorityCandidate(Map<String, Object> candidates) {
-//        String highestPriorityBeanName = null;
-//        Integer highestPriority = null;
-//        for (var entry : candidates.entrySet()) {
-//            var candidateBeanName = entry.getKey();
-//            var beanInstance = entry.getValue();
-//            if (nonNull(beanInstance)) {
-//                Integer candidatePriority = getPriority(beanInstance);
-//                if (nonNull(candidatePriority)) {
-//                    if (nonNull(highestPriority)) {
-//                        if (candidatePriority.equals(highestPriority)) {
-//                            throw new NoUniqueBeanDefinitionException(candidates.size(),
-//                                    "Multiple beans found with the same priority ('" + highestPriority +
-//                                            "') among candidates: " + candidates.keySet());
-//                        } else if (candidatePriority < highestPriority) {
-//                            highestPriorityBeanName = candidateBeanName;
-//                            highestPriority = candidatePriority;
-//                        }
-//                    } else {
-//                        highestPriorityBeanName = candidateBeanName;
-//                        highestPriority = candidatePriority;
-//                    }
-//                }
-//            }
-//        }
-//        return highestPriorityBeanName;
-//    }
-
     /**
      * Return whether the bean definition for the given bean name has been
      * marked as a primary bean.
+     *
      * @param beanName the name of the bean
      * @return whether the given bean qualifies as primary
      */
@@ -317,8 +216,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         return !autowireCandidates.isEmpty() ? autowireCandidates.toArray(String[]::new) : oldCandidates;
     }
 
-    private boolean absentInDefinitionsAndAutowireCandidate(String name) {
-        return !containsBeanDefinition(name) || getBeanDefinition(name).isAutowireCandidate();
+    private boolean isAutowireCandidate(String name) {
+        if (containsBeanDefinition(name)) {
+            return getBeanDefinition(name).isAutowireCandidate();
+        }
+        return false;
     }
 
     private boolean containsBeanDefinition(String beanName) {
@@ -353,46 +255,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     public void setConversionService(@Nullable ConversionService conversionService) {
         this.conversionService = conversionService;
     }
-
-    /**
-     * Initialize the given PropertyEditorRegistry with the custom editors
-     * that have been registered with this BeanFactory.
-     * <p>To be called for BeanWrappers that will create and populate bean
-     * instances, and for SimpleTypeConverter used for constructor argument
-     * and factory method type conversion.
-     */
-//    protected void registerCustomEditors(PropertyEditorRegistry registry) {
-//        if (registry instanceof DefaultPropertyEditorRegistry defaultRegistry) {
-//            defaultRegistry.useConfigValueEditors();
-//        }
-//        if (!this.propertyEditorRegistrars.isEmpty()) {
-//            for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
-//                try {
-//                    registrar.registerCustomEditors(registry);
-//                }
-//                catch (BeanCreationException ex) {
-//                    Throwable rootCause = ex.getMostSpecificCause();
-//                    if (rootCause instanceof BeanCurrentlyInCreationException bce) {
-//                        String bceBeanName = bce.getBeanName();
-//                        if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
-//                            if (logger.isDebugEnabled()) {
-//                                logger.debug("PropertyEditorRegistrar [" + registrar.getClass().getName() +
-//                                        "] failed because it tried to obtain currently created bean '" +
-//                                        ex.getBeanName() + "': " + ex.getMessage());
-//                            }
-//                            onSuppressedException(ex);
-//                            continue;
-//                        }
-//                    }
-//                    throw ex;
-//                }
-//            }
-//        }
-//        if (!this.customEditors.isEmpty()) {
-//            this.customEditors.forEach((requiredType, editorClass) ->
-//                    registry.registerCustomEditor(requiredType, BeanUtils.instantiateClass(editorClass)));
-//        }
-//    }
 
     private String[] getBeanNamesForType(Class<?> type) {
         return getBeanNamesForType(type, true);
@@ -434,7 +296,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             }
         }
 
-        return result != null && !result.isEmpty() ? result.toArray(new String[]{}) : new String[]{};
+        return !result.isEmpty() ? result.toArray(new String[]{}) : new String[]{};
     }
 
     @Override
