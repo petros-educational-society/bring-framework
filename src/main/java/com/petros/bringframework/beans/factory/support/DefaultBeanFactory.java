@@ -68,7 +68,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     @Override
     public Object getBean(String name) {
-        return beanCacheByName.get(name);
+        return beanCacheByName.computeIfAbsent(name, super::getBean);
     }
 
     @Override
