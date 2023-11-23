@@ -117,6 +117,18 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
         }
     }
 
+    public String getString(String attributeName) {
+        return getRequiredAttribute(attributeName, String.class);
+    }
+
+    public boolean getBoolean(String attributeName) {
+        return getRequiredAttribute(attributeName, Boolean.class);
+    }
+
+    public <E extends Enum<?>> E getEnum(String attributeName) {
+        return (E) getRequiredAttribute(attributeName, Enum.class);
+    }
+
     @Override
     public String toString() {
         Iterator<Map.Entry<String, Object>> entries = entrySet().iterator();

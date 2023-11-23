@@ -1,5 +1,7 @@
 package com.petros.bringframework.beans.factory.config;
 
+import com.petros.bringframework.context.annotation.BeanMethod;
+
 import javax.annotation.Nullable;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -11,9 +13,10 @@ import static java.util.Objects.requireNonNull;
  *
  * @author "Vasiuk Maryna"
  */
-final class ConfigurationClass {
+public final class ConfigurationClass {
 
     private final AnnotationMetadata metadata;
+    private final Set<BeanMethod> beanMethods = new LinkedHashSet<>();
 
     @Nullable
     private String beanName;
@@ -45,6 +48,18 @@ final class ConfigurationClass {
 
     public void setBeanName(String beanName) {
         this.beanName = beanName;
+    }
+
+    public String getBeanName() {
+        return this.beanName;
+    }
+
+    void addBeanMethod(BeanMethod method) {
+        this.beanMethods.add(method);
+    }
+
+    Set<BeanMethod> getBeanMethods() {
+        return this.beanMethods;
     }
 }
 

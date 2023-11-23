@@ -2,6 +2,7 @@ package com.petros;
 
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
 import com.petros.services.SayHello;
+import com.petros.services.HelloWorld2;
 import com.petros.services.Test;
 import com.petros.configuration.JavaConfig;
 
@@ -25,5 +26,13 @@ public class BringDemo {
         ms.testMerge(arr);
         System.out.println("After: " + Arrays.toString(arr));
 
+
+        var helloWorld = annotationConfigApplicationContext
+                .getBean(HelloWorld.class);
+        helloWorld.print();
+
+        var helloWorld2 = annotationConfigApplicationContext
+                .getBean(HelloWorld2.class);
+        helloWorld2.apply();
     }
 }
