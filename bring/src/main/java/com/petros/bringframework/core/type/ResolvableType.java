@@ -6,7 +6,14 @@ import com.petros.bringframework.util.ObjectUtils;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -390,6 +397,80 @@ public class ResolvableType implements Serializable {
         }
         return null;
     }
+
+    /**
+     * Return this type as a {@link ResolvableType} of the specified class. Searches
+     * {@link #getSuperType() supertype} and {@link #getInterfaces() interface}
+     * hierarchies to find a match, returning {@link #NONE} if this type does not
+     * implement or extend the specified class.
+     * @param type the required type (typically narrowed)
+     * @return a {@link ResolvableType} representing this object as the specified
+     * type, or {@link #NONE} if not resolvable as that type
+     */
+    public ResolvableType as(Class<?> type) {
+        if (this == NONE) {
+            return NONE;
+        }
+        var resolved = resolve();
+        if (resolved == null || resolved == type) {
+            return this;
+        }
+        for (var interfaceType : getInterfaces()) {
+            var interfaceAsType = interfaceType.as(type);
+            if (interfaceAsType != NONE) {
+                return interfaceAsType;
+            }
+        }
+        return getSuperType().as(type);
+    }
+
+    /**
+     * Return a {@link ResolvableType} representing the generic parameter for the
+     * given indexes. Indexes are zero based; for example given the type
+     * {@code Map<Integer, List<String>>}, {@code getGeneric(0)} will access the
+     * {@code Integer}. Nested generics can be accessed by specifying multiple indexes;
+     * for example {@code getGeneric(1, 0)} will access the {@code String} from the
+     * nested {@code List}. For convenience, if no indexes are specified the first
+     * generic is returned.
+     * <p>If no generic is available at the specified indexes {@link #NONE} is returned.
+     * @param indexes the indexes that refer to the generic parameter
+     * (maybe omitted to return the first generic)
+     * @return a {@link ResolvableType} for the specified generic, or {@link #NONE}
+     */
+    public ResolvableType getGeneric(@Nullable int... indexes) {
+        var generics = getGenerics();
+        if (indexes == null || indexes.length == 0) {
+            return (generics.length == 0 ? NONE : generics[0]);
+        }
+        var generic = this;
+        for (int index : indexes) {
+            generics = generic.getGenerics();
+            if (index < 0 || index >= generics.length) {
+                return NONE;
+            }
+            generic = generics[index];
+        }
+        return generic;
+    }
+
+    /**
+     * Convenience method to return this type as a resolvable {@link Collection} type.
+     * <p>Returns {@link #NONE} if this type does not implement or extend
+     * {@link Collection}.
+     */
+    public ResolvableType asCollection() {
+        return as(Collection.class);
+    }
+
+    /**
+     * Convenience method to return this type as a resolvable {@link Map} type.
+     * <p>Returns {@link #NONE} if this type does not implement or extend
+     * {@link Map}.
+     */
+    public ResolvableType asMap() {
+        return as(Map.class);
+    }
+
 
     /**
      * Internal {@link Type} used to represent an empty value.

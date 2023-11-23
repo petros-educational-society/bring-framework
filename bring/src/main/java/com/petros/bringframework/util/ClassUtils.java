@@ -2,21 +2,29 @@ package com.petros.bringframework.util;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.StringTokenizer;
 
 import static com.petros.bringframework.core.AssertUtils.notBlank;
+import static com.petros.bringframework.core.AssertUtils.notNull;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.ArrayUtils.EMPTY_STRING_ARRAY;
+import static org.apache.commons.lang3.ClassUtils.isPrimitiveWrapper;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 public abstract class ClassUtils {
@@ -45,6 +53,12 @@ public abstract class ClassUtils {
      */
     private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new IdentityHashMap<>(9);
 
+    /**
+     * Map with common Java language class name as key and corresponding Class as value.
+     * Primarily for efficient deserialization of remote invocations.
+     */
+    private static final Map<String, Class<?>> commonClassCache = new HashMap<>(64);
+
     {
         primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
         primitiveWrapperTypeMap.put(Byte.class, byte.class);
@@ -66,6 +80,21 @@ public abstract class ClassUtils {
                 double[].class, float[].class, int[].class, long[].class, short[].class);
         for (Class<?> primitiveType : primitiveTypes) {
             primitiveTypeNameMap.put(primitiveType.getName(), primitiveType);
+        }
+
+        registerCommonClasses(Boolean[].class, Byte[].class, Character[].class, Double[].class,
+                Float[].class, Integer[].class, Long[].class, Short[].class);
+        registerCommonClasses(Number.class, Number[].class, String.class, String[].class,
+                Class.class, Class[].class, Object.class, Object[].class);
+        registerCommonClasses(Throwable.class, Exception.class, RuntimeException.class,
+                Error.class, StackTraceElement.class, StackTraceElement[].class);
+        registerCommonClasses(Enum.class, Iterable.class, Iterator.class, Enumeration.class,
+                Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
+    }
+
+    private static void registerCommonClasses(Class<?>... commonClasses) {
+        for (Class<?> clazz : commonClasses) {
+            commonClassCache.put(clazz.getName(), clazz);
         }
     }
 
@@ -147,6 +176,103 @@ public abstract class ClassUtils {
         return sb.toString();
     }
 
+    /**
+     * Return a descriptive name for the given object's type: usually simply
+     * the class name, but component type class name + "[]" for arrays,
+     * and an appended list of implemented interfaces for JDK proxies.
+     * @param value the value to introspect
+     * @return the qualified name of the class
+     */
+    @Nullable
+    public static String getDescriptiveType(@Nullable Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        var clazz = value.getClass();
+        if (Proxy.isProxyClass(clazz)) {
+            var prefix = clazz.getName() + " implementing ";
+            var result = new StringJoiner(",", prefix, "");
+            for (var inter : clazz.getInterfaces()) {
+                result.add(inter.getName());
+            }
+            return result.toString();
+        }
+
+        return clazz.getTypeName();
+    }
+
+    /**
+     * Return the qualified name of the given class: usually simply
+     * the class name, but component type class name + "[]" for arrays.
+     * @param clazz the class
+     * @return the qualified name of the class
+     */
+    public static String getQualifiedName(Class<?> clazz) {
+        notNull(clazz, "Class must not be null");
+        return clazz.getTypeName();
+    }
+
+    /**
+     * Check if the given class represents a primitive (i.e. boolean, byte,
+     * char, short, int, long, float, or double), {@code void}, or a wrapper for
+     * those types (i.e. Boolean, Byte, Character, Short, Integer, Long, Float,
+     * Double, or Void).
+     * @param clazz the class to check
+     * @return {@code true} if the given class represents a primitive, void, or
+     * a wrapper class
+     */
+    public static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        notNull(clazz, "Class must not be null");
+        return (clazz.isPrimitive() || isPrimitiveWrapper(clazz));
+    }
+
+    /**
+     * Determine if the given type is assignable from the given value,
+     * assuming setting by reflection. Considers primitive wrapper classes
+     * as assignable to the corresponding primitive types.
+     * @param type the target type
+     * @param value the value that should be assigned to the type
+     * @return if the type is assignable from the value
+     */
+    public static boolean isAssignableValue(Class<?> type, @Nullable Object value) {
+        notNull(type, "Type must not be null");
+        if (nonNull(value)) {
+            return isAssignableValue(type, value.getClass());
+        }
+        return !type.isPrimitive();
+    }
+
+    /**
+     * Determine whether the given class has a public constructor with the given signature.
+     * <p>Essentially translates {@code NoSuchMethodException} to "false".
+     * @param clazz the clazz to analyze
+     * @param paramTypes the parameter types of the method
+     * @return whether the class has a corresponding constructor
+     */
+    public static boolean hasConstructor(Class<?> clazz, Class<?>... paramTypes) {
+        return nonNull(getConstructorIfAvailable(clazz, paramTypes));
+    }
+
+    /**
+     * Determine whether the given class has a public constructor with the given signature,
+     * and return it if available (else return {@code null}).
+     * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
+     * @param clazz the clazz to analyze
+     * @param paramTypes the parameter types of the method
+     * @return the constructor, or {@code null} if not found
+     */
+    @Nullable
+    public static <T> Constructor<T> getConstructorIfAvailable(Class<T> clazz, Class<?>... paramTypes) {
+        notNull(clazz, "Class must not be null");
+        try {
+            return clazz.getConstructor(paramTypes);
+        }
+        catch (NoSuchMethodException ex) {
+            return null;
+        }
+    }
+
     public static String arrayToDelimitedString(Object[] array, String delimiter) {
         if (array == null || array.length == 0) {
             return "";
@@ -190,6 +316,16 @@ public abstract class ClassUtils {
         return (!isEmpty(collection) ? collection.toArray(EMPTY_STRING_ARRAY) : EMPTY_STRING_ARRAY);
     }
 
+    /**
+     * Resolve the given class name as primitive class, if appropriate,
+     * according to the JVM's naming rules for primitive classes.
+     * <p>Also supports the JVM's internal class names for primitive arrays.
+     * Does <i>not</i> support the "[]" suffix notation for primitive arrays;
+     * this is only supported by {@link #forName(String, ClassLoader)}.
+     * @param name the name of the potentially primitive class
+     * @return the primitive class, or {@code null} if the name does not denote
+     * a primitive class or primitive array class
+     */
     @Nullable
     public static Class<?> resolvePrimitiveClassName(@Nullable String name) {
         Class<?> result = null;
@@ -200,6 +336,19 @@ public abstract class ClassUtils {
         return result;
     }
 
+    /**
+     * Replacement for {@code Class.forName()} that also returns Class instances
+     * for primitives (e.g. "int") and array class names (e.g. "String[]").
+     * Furthermore, it is also capable of resolving nested class names in Java source
+     * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
+     * @param name the name of the Class
+     * @param classLoader the class loader to use
+     * (may be {@code null}, which indicates the default class loader)
+     * @return a class instance for the supplied name
+     * @throws ClassNotFoundException if the class was not found
+     * @throws LinkageError if the class file could not be loaded
+     * @see Class#forName(String, boolean, ClassLoader)
+     */
     public static Class<?> forName(String name, @Nullable ClassLoader classLoader)
             throws ClassNotFoundException, LinkageError {
 

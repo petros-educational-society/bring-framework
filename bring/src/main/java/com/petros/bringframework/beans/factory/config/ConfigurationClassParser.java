@@ -8,13 +8,16 @@ import com.petros.bringframework.context.annotation.AnnotationConfigUtils;
 import com.petros.bringframework.context.annotation.ComponentScan;
 import com.petros.bringframework.context.annotation.ComponentScanAnnotationParser;
 import com.petros.bringframework.type.reading.MetadataReader;
-import com.petros.bringframework.util.ClassUtils;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Parses a Configuration class definition, populating a collection of ConfigurationClass objects (parsing a single Configuration class may result in any number of ConfigurationClass objects because one Configuration class may import another using the Import annotation).

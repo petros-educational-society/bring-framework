@@ -9,7 +9,6 @@ import com.petros.bringframework.context.annotation.ScopeMetadataResolver;
 
 import java.util.Set;
 
-
 public class ConfigurationClassBeanDefinitionReader {
 
     private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();

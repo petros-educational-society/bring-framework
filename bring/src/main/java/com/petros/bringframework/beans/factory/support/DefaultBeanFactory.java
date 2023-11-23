@@ -1,21 +1,31 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
-import com.petros.bringframework.beans.exception.BeanCreationException;
+import com.petros.bringframework.beans.TypeConverter;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.ResolvableType;
+import com.petros.bringframework.core.type.convert.ConversionService;
 import com.petros.bringframework.factory.config.NamedBeanHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * @author "Oleksii Skachkov"
@@ -29,6 +39,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     private final Map<String, BeanPostProcessor> beanPostProcessors = new ConcurrentHashMap<>();
     private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
+
+    @Nullable
+    private TypeConverter typeConverter;
+    @Nullable
+    private ConversionService conversionService;
 
     public DefaultBeanFactory(BeanDefinitionRegistry registry) {
         super(registry);
@@ -45,7 +60,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    public Object getBean(String name) {
+        return beanCacheByName.computeIfAbsent(name, super::getBean);
+    }
+
+    @Override
     public <T> T getBean(Class<T> requiredType) {
         T resolved = resolveBean(ResolvableType.forRawClass(requiredType), null);
         if (resolved == null) {
@@ -86,7 +105,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         String[] beanNames = getBeanNamesForType(type);
         Map<String, T> result = new LinkedHashMap<>(beanNames.length);
         for (String beanName : beanNames) {
-            Object beanInstance = getBean(beanName);
+            var beanInstance = getBean(beanName);
             result.put(beanName, (T) beanInstance);
         }
         return result;
@@ -96,20 +115,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     public List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors() {
         return beanFactoryPostProcessors;
     }
-
-    private void invokeCustomInitMethod(Object bean, String initMethodName) {
-
-        Class<?> beanClass = bean.getClass();
-        try {
-            //not sure if it needs. We use org.reflections.ReflectionUtils instead org.springframework.util.ReflectionUtils
-            //ReflectionUtils.makeAccessible(methodToInvoke);
-            Method initMethod = beanClass.getMethod(initMethodName);
-            initMethod.invoke(bean);
-        } catch (Throwable ex) {
-            throw new BeanCreationException(beanClass, "Can`t invoke init method", ex);
-        }
-    }
-
 
     @Nullable
     private <T> T resolveBean(ResolvableType requiredType, @Nullable Object[] args) {
@@ -121,26 +126,141 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     }
 
     @Nullable
+    @SuppressWarnings("unchecked")
     private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object[] args, boolean throwExceptionIfNonUnique) throws BeansException {
         AssertUtils.notNull(requiredType, "Required type must not be null");
         String[] candidateNames = getBeanNamesForType(requiredType);
 
         if (candidateNames.length > 1) {
-            throw new NotImplementedException("Work with several beans of same type not implemented yet");
+            var autowireCandidates = Arrays.stream(candidateNames)
+                    .filter(this::isAutowireCandidate).toList();
+            candidateNames = getNewAutowireCandidatesIfPresent(autowireCandidates, candidateNames);
         }
 
         if (candidateNames.length == 1) {
-            final String beanName = candidateNames[0];
-            Object bean = getBean(beanName);
-            return new NamedBeanHolder<>(beanName, adaptBeanInstance(beanName, bean, requiredType.toClass()));
-        } else if (candidateNames.length > 1) {
+            return resolveNamedBean(candidateNames[0], requiredType);
+        }
+
+        if (candidateNames.length > 1) {
             Map<String, Object> candidates = new LinkedHashMap<>(candidateNames.length);
+            for (var beanName : candidateNames) {
+                candidates.put(beanName, containsSingleton(beanName) ? getBean(beanName) : getType(beanName));
+            }
+
+            var candidateName = determinePrimaryCandidate(candidates);
+            if (nonNull(candidateName)) {
+                var beanInstance = candidates.get(candidateName);
+                if (isNull(beanInstance)) {
+                    return null;
+                }
+                if (beanInstance instanceof Class) {
+                    return resolveNamedBean(candidateName, requiredType);
+                }
+                return new NamedBeanHolder<>(candidateName, (T) beanInstance);
+            }
+
             if (throwExceptionIfNonUnique) {
                 throw new NoUniqueBeanDefinitionException(candidates.keySet());
             }
         }
 
         return null;
+    }
+
+    /**
+     * Determine the primary candidate in the given set of beans.
+     *
+     * @param candidates a Map of candidate names and candidate instances
+     * @return the name of the primary candidate, or {@code null} if none found
+     */
+    @Nullable
+    protected String determinePrimaryCandidate(Map<String, Object> candidates) {
+        String primaryBeanName = null;
+        for (var candidateBeanName : candidates.keySet()) {
+            if (!isPrimary(candidateBeanName)) {
+                continue;
+            }
+
+            if (isNull(primaryBeanName)) {
+                primaryBeanName = candidateBeanName;
+                continue;
+            }
+
+            boolean isLocal = containsBeanDefinition(candidateBeanName);
+            boolean isPrimary = containsBeanDefinition(primaryBeanName);
+            if (isLocal && isPrimary) {
+                throw new NoUniqueBeanDefinitionException(candidates.size(),
+                        "more than one 'primary' bean found among candidates: " + candidates.keySet());
+            }
+
+            if (isLocal) {
+                primaryBeanName = candidateBeanName;
+            }
+        }
+        return primaryBeanName;
+    }
+
+    /**
+     * Return whether the bean definition for the given bean name has been
+     * marked as a primary bean.
+     *
+     * @param beanName the name of the bean
+     * @return whether the given bean qualifies as primary
+     */
+    private boolean isPrimary(String beanName) {
+        var transBeanName = transformedBeanName(beanName);
+        if (containsBeanDefinition(transBeanName)) {
+            return getBeanDefinition(transBeanName).isPrimary();
+        }
+        return false;
+    }
+
+    private <T> NamedBeanHolder<T> resolveNamedBean(String beanName, ResolvableType requiredType) throws BeansException {
+        return new NamedBeanHolder<>(beanName, adaptBeanInstance(beanName, getBean(beanName), requiredType.toClass()));
+    }
+
+    private String[] getNewAutowireCandidatesIfPresent(List<String> autowireCandidates, String[] oldCandidates) {
+        return !autowireCandidates.isEmpty() ? autowireCandidates.toArray(String[]::new) : oldCandidates;
+    }
+
+    private boolean isAutowireCandidate(String name) {
+        if (containsBeanDefinition(name)) {
+            return getBeanDefinition(name).isAutowireCandidate();
+        }
+        return false;
+    }
+
+    private boolean containsBeanDefinition(String beanName) {
+        return Arrays.stream(registry.getBeanDefinitionNames())
+                .anyMatch(beanName::equalsIgnoreCase);
+    }
+
+    private BeanDefinition getBeanDefinition(String beanName) {
+        return Optional.ofNullable(registry.getBeanDefinition(beanName))
+                .orElseThrow(() -> {
+                    if (log.isTraceEnabled()) log.trace("No bean names '{}' found in {}", beanName, this);
+                    throw new NoSuchBeanDefinitionException(beanName);
+                });
+    }
+
+    @Nullable
+    @Override
+    protected TypeConverter getCustomTypeConverter() {
+        return this.typeConverter;
+    }
+
+    public void setTypeConverter(@Nullable TypeConverter typeConverter) {
+        this.typeConverter = typeConverter;
+    }
+
+    @Override
+    @Nullable
+    protected ConversionService getConversionService() {
+        return this.conversionService;
+    }
+
+    public void setConversionService(@Nullable ConversionService conversionService) {
+        this.conversionService = conversionService;
     }
 
     private String[] getBeanNamesForType(Class<?> type) {
@@ -183,7 +303,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             }
         }
 
-        return result != null && !result.isEmpty() ? result.toArray(new String[]{}) : new String[]{};
+        return !result.isEmpty() ? result.toArray(new String[]{}) : new String[]{};
     }
 
     @Override

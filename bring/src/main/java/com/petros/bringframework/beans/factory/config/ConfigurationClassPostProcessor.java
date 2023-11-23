@@ -6,7 +6,12 @@ import com.petros.bringframework.context.annotation.Configuration;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * BeanFactoryPostProcessor used for bootstrapping processing of @Configuration classes.
