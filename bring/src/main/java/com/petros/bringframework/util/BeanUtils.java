@@ -1,6 +1,6 @@
 package com.petros.bringframework.util;
 
-import com.petros.bringframework.beans.BeanInstantiationException;
+import com.petros.bringframework.beans.exception.BeanInstantiationException;
 import com.petros.bringframework.core.AssertUtils;
 
 import java.lang.reflect.Constructor;
