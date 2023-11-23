@@ -1,6 +1,7 @@
 package com.petros;
 
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
+import com.petros.services.HelloWorld2;
 import com.petros.services.Test;
 import com.petros.services.HelloWorld;
 import com.petros.configuration.JavaConfig;
@@ -26,5 +27,9 @@ public class BringDemo {
         var helloWorld = annotationConfigApplicationContext
                 .getBean(HelloWorld.class);
         helloWorld.print();
+
+        var helloWorld2 = annotationConfigApplicationContext
+                .getBean(HelloWorld2.class);
+        helloWorld2.apply();
     }
 }

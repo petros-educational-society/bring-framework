@@ -320,4 +320,15 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         }
         return introspectedClass;
     }
+
+    @Override
+    public void setFactoryBeanName(@Nullable String factoryBeanName) {
+        this.factoryBeanName = factoryBeanName;
+    }
+
+    @Override
+    @Nullable
+    public String getFactoryBeanName() {
+        return this.factoryBeanName;
+    }
 }

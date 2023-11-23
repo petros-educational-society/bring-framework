@@ -5,6 +5,8 @@ import com.petros.bringframework.beans.factory.support.AnnotationAttributes;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.support.AbstractBeanDefinition;
 import com.petros.bringframework.context.annotation.AnnotationConfigUtils;
+import com.petros.bringframework.context.annotation.Bean;
+import com.petros.bringframework.context.annotation.BeanMethod;
 import com.petros.bringframework.context.annotation.ComponentScan;
 import com.petros.bringframework.context.annotation.ComponentScanAnnotationParser;
 import com.petros.bringframework.type.reading.MetadataReader;
@@ -103,6 +105,10 @@ public class ConfigurationClassParser {
             }
         }
 
+        //Process @Bean methods
+        var beanMethods = retrieveBeanMethodMetadata(sourceClass);
+        beanMethods.forEach(methodMetadata -> configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass)));
+
         //Do we need this logic
         if (sourceClass.getMetadata().hasSuperClass()) {
             String superclass = sourceClass.getMetadata().getSuperClassName();
@@ -115,6 +121,11 @@ public class ConfigurationClassParser {
 
         // No superclass -> processing is complete
         return null;
+    }
+
+    private Set<MethodMetadata> retrieveBeanMethodMetadata(SourceClass sourceClass) {
+        var metadata = sourceClass.getMetadata();
+        return metadata.getAnnotatedMethods(Bean.class.getName());
     }
 
     public Set<ConfigurationClass> getConfigurationClasses() {
