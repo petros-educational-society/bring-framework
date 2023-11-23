@@ -2,8 +2,11 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.BeanFactoryUtils;
+import com.petros.bringframework.beans.factory.BeanAware;
+import com.petros.bringframework.beans.factory.config.AnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.AutowireCapableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
+import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.context.support.ConstructorResolver;
 import com.petros.bringframework.core.type.ResolvableType;
@@ -14,6 +17,8 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -56,13 +61,76 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     protected Object doCreateBean(String beanName, BeanDefinition mbd, Object[] args) {
-
         BeanWrapper instanceWrapper = createBeanInstance(beanName, mbd, args);
 
         Object bean = instanceWrapper.wrappedInstance();
-        Class<?> beanType = instanceWrapper.wrappedClass();
-        //todo implement bean post processors
+
+        invokeAwareMethod(bean);
+
+        configureBean(beanName, bean);
+
         return bean;
+    }
+
+    /**
+     * Configures the given bean before and after initialization, applying specific
+     * post-processing logic if it's not a BeanPostProcessor itself.
+     * It retrieves all post processors that are instances of AnnotationBeanPostProcessor first
+     * and allows them to perform postProcessBeforeInitialization on the bean.
+     * Following this, the method initializes the bean based on the configured
+     * post-processors.
+     *
+     * @param beanName The name of the bean being configured.
+     * @param bean     The instance of the bean to be configured.
+     * @throws BeanCreationException if an error occurs during post-processing
+     *                              or initialization of the bean.
+     */
+    private void configureBean(String beanName, Object bean) {
+        if (!(bean instanceof BeanPostProcessor)) {
+            try {
+                List<BeanPostProcessor> annotationBeanPostProcessors = getBeanPostProcessors()
+                        .stream()
+                        .filter(b -> b instanceof AnnotationBeanPostProcessor)
+                        .toList();
+
+                annotationBeanPostProcessors.forEach(bp -> bp.postProcessBeforeInitialization(bean, beanName));
+                initializeBean(bean, beanName, annotationBeanPostProcessors);
+            } catch (Throwable ex) {
+                throw new BeanCreationException(beanName, "Post-processing for %s failed".formatted(beanName), ex);
+            }
+        }
+    }
+
+    private void initializeBean(Object bean, String beanName, @Nullable List<BeanPostProcessor> annotationBeanPostProcessors) {
+        applyBeanPostProcessorBeforeInitialization(bean, beanName, annotationBeanPostProcessors);
+        invokeInitMethod(bean, beanName);
+        applyBeanPostProcessorAfterInitialization(bean, beanName, annotationBeanPostProcessors);
+    }
+
+    private void applyBeanPostProcessorBeforeInitialization(Object bean, String beanName, @Nullable List<BeanPostProcessor> annotationBeanPostProcessors) {
+        var beanPostProcessors = new ArrayList<>(getBeanPostProcessors());
+        if (annotationBeanPostProcessors != null) {
+            beanPostProcessors.removeAll(annotationBeanPostProcessors);
+        }
+        beanPostProcessors.forEach(b -> b.postProcessBeforeInitialization(bean, beanName));
+    }
+
+    private void applyBeanPostProcessorAfterInitialization(Object bean, String beanName, @Nullable List<BeanPostProcessor> annotationBeanPostProcessors) {
+        var beanPostProcessors = new ArrayList<>(getBeanPostProcessors());
+        if (annotationBeanPostProcessors != null) {
+            beanPostProcessors.removeAll(annotationBeanPostProcessors);
+        }
+        beanPostProcessors.forEach(b -> b.postProcessAfterInitialization(bean, beanName));
+    }
+
+    private void invokeInitMethod(Object bean, String beanName) {
+        //todo: implement
+    }
+
+    private void invokeAwareMethod(Object bean) {
+        if (bean instanceof BeanAware beanAware) {
+            beanAware.setBeanFactory(this);
+        }
     }
 
     @Override
@@ -184,7 +252,7 @@ public abstract class AbstractAutowireCapableBeanFactory
      * Instantiate the given bean using its default constructor.
      *
      * @param beanName the name of the bean
-     * @param mbd      the bean definition for the bean
+     * @param gbd      the bean definition for the bean
      * @return a BeanWrapper for the new instance
      */
     private BeanWrapper instantiateBean(String beanName, GenericBeanDefinition gbd, Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {

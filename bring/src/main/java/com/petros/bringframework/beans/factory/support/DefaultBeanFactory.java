@@ -36,7 +36,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     private final Map<String, Object> beanCacheByName = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> beanCacheByType = new ConcurrentHashMap<>();
     private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = Collections.synchronizedList(new LinkedList<>());
-    private final Map<String, BeanPostProcessor> beanPostProcessors = new ConcurrentHashMap<>();
+    private final List<BeanPostProcessor> beanPostProcessors = Collections.synchronizedList(new LinkedList<>());
     private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
@@ -52,11 +52,6 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     @Override
     public boolean containsBean(String name) {
         return beanCacheByName.containsKey(name);
-    }
-
-    @Override
-    public <T> void configureBeans(T t) {
-        beanPostProcessors.forEach((key, value) -> value.postProcessBeforeInitialization(t, key));
     }
 
     @Override
@@ -109,6 +104,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             result.put(beanName, (T) beanInstance);
         }
         return result;
+    }
+
+    @Override
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return beanPostProcessors;
     }
 
     @Override
@@ -324,14 +324,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     @Override
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-        //todo finish implementation
-//        AssertUtils.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
-//        synchronized (this.beanPostProcessors) {
-//            // Remove from old position, if any
-//            this.beanPostProcessors.remove(beanPostProcessor);
-//            // Add to end of list
-//            this.beanPostProcessors.add(beanPostProcessor);
-//        }
+        AssertUtils.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+        synchronized (this.beanPostProcessors) {
+            this.beanPostProcessors.remove(beanPostProcessor);
+            this.beanPostProcessors.add(beanPostProcessor);
+        }
     }
 
     @Override

@@ -45,5 +45,7 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 
     void addBeanFactoryPostProcessor(BeanFactoryPostProcessor beanFactoryPostProcessor);
 
+    List<BeanPostProcessor> getBeanPostProcessors();
+
     List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors();
 }

@@ -1,6 +1,7 @@
 package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.BeansException;
+import com.petros.bringframework.beans.factory.BeanAware;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.annotation.InjectPlease;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
@@ -28,14 +29,12 @@ import static java.util.stream.Collectors.toMap;
  *
  * @author "Vasiuk Maryna"
  */
-public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
+public class AutowiredAnnotationBeanPostProcessor implements AnnotationBeanPostProcessor, BeanAware {
 
-    private final BeanFactory beanFactory;
+    private BeanFactory beanFactory;
     private Map<String, String> propertiesMap;
 
-    public AutowiredAnnotationBeanPostProcessor(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
+    public AutowiredAnnotationBeanPostProcessor() {}
 
     @SneakyThrows
     private Map<String, String> readProperties() {
@@ -53,7 +52,7 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
                 Object object = findAutowireCandidate(field.getType());
                 field.set(bean, object);
             }
-            else if (field.getAnnotation(Value.class) != null) {
+            else if (field.isAnnotationPresent(Value.class)) {
                 Value annotation = field.getAnnotation(Value.class);
                 propertiesMap = readProperties();
                 String value = annotation.value().isEmpty() ? propertiesMap.get(field.getName()) : propertiesMap.get(annotation.value());
@@ -81,12 +80,6 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         return postProcessPropertyValues(bean);
     }
 
-    @Nullable
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) {
-        return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);
-    }
-
     protected <T> T findAutowireCandidate(Class<T> type) throws BeansException {
         Map<String, T> candidates = new LinkedHashMap<>(4);
         candidates.putAll(beanFactory.getBeansOfType(type));
@@ -100,4 +93,8 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         return candidates.values().iterator().next();
     }
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 }
