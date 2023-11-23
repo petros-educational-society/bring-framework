@@ -1,5 +1,13 @@
 package com.petros.bringframework.beans;
 
+/**
+ * Utility methods for classes that perform bean property access
+ *
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ *
+ */
+
 public abstract class PropertyAccessorUtils {
     public final static String PROPERTY_KEY_PREFIX = "[";
 

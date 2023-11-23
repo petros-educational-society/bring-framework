@@ -15,6 +15,12 @@ import java.util.Map;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+/**
+ * Base implementation of the {@link PropertyEditorRegistry} interface.
+ * Provides management of default editors and custom editors.
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ */
 public class DefaultPropertyEditorRegistry implements PropertyEditorRegistry {
 
     @Nullable

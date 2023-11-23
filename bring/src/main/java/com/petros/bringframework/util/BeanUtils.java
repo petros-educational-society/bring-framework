@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * @author "Maksym Oliinyk"
+ * @author "Viktor Basanets"
  */
 public abstract class BeanUtils {
     public static final Map<Class<?>, Object> DEFAULT_TYPE_VALUES = Map.of(
@@ -24,12 +25,11 @@ public abstract class BeanUtils {
     /**
      * Convenience method to instantiate a class using the given constructor.
      * <p>Note that this method tries to set the constructor accessible if given a
-     * non-accessible (that is, non-public) constructor, and supports Kotlin classes
-     * with optional parameters and default values.
+     * non-accessible (that is, non-public) constructor with optional parameters and default values.
      *
      * @param ctor the constructor to instantiate
      * @param args the constructor arguments to apply (use {@code null} for an unspecified
-     *             parameter, Kotlin optional parameters and Java primitive types are supported)
+     *             parameter and Java primitive types are supported)
      * @return the new instance
      * @throws BeanInstantiationException if the bean cannot be instantiated
      */

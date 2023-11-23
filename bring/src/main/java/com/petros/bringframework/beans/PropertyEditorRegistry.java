@@ -3,8 +3,13 @@ package com.petros.bringframework.beans;
 import javax.annotation.Nullable;
 import java.beans.PropertyEditor;
 
+
 /**
  * Encapsulates methods for registering JavaBeans {@link PropertyEditor PropertyEditors}
+ *
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ *
  */
 public interface PropertyEditorRegistry {
 

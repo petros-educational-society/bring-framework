@@ -7,6 +7,12 @@ import static com.petros.bringframework.util.ClassUtils.getQualifiedName;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 
+/**
+ * Exception thrown on a type mismatch when trying to set a bean property.
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ */
+
 public class TypeMismatchException extends PropertyAccessException {
 
     public static final String ERROR_CODE = "typeMismatch";

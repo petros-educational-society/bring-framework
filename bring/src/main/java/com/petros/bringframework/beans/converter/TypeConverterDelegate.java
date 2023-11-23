@@ -26,6 +26,12 @@ import static com.petros.bringframework.beans.PropertyAccessorUtils.PROPERTY_KEY
 import static com.petros.bringframework.beans.PropertyAccessorUtils.PROPERTY_KEY_SUFFIX;
 import static java.util.Objects.nonNull;
 
+/**
+ * Internal helper class for converting property values to target types.
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ */
+
 @Slf4j
 public class TypeConverterDelegate {
 

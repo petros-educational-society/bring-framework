@@ -9,7 +9,10 @@ import static java.util.Objects.nonNull;
 
 /**
  * Superclass for exceptions related to a property access such as type mismatch or invocation target exception.
+ * @author Viktor Basanets
+ * @Project: bring-framework
  */
+
 @SuppressWarnings("serial")
 public abstract class PropertyAccessException extends BeansException {
 

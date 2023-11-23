@@ -7,6 +7,12 @@ import javax.annotation.Nullable;
 
 import static java.lang.String.format;
 
+/**
+ * Exception to be thrown when an actual type conversion attempt fails.
+ *
+ * @author Viktor Basanets
+ */
+
 @Getter
 public class ConversionFailedException extends ConversionException {
     @Nullable

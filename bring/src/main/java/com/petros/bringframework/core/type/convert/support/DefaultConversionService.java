@@ -7,6 +7,13 @@ import javax.annotation.Nullable;
 
 import static java.util.Objects.isNull;
 
+/**
+ * A specialization of {@link ConversionService} configured by default
+ * with converters appropriate for most environments.
+ *
+ * @author Viktor Basanets
+ */
+
 public class DefaultConversionService implements ConversionService {
 
     @Nullable
@@ -24,19 +31,9 @@ public class DefaultConversionService implements ConversionService {
     }
 
     @Override
-    public boolean canConvert(@Nullable Class<?> sourceType, Class<?> targetType) {
-        return false;
-    }
-
-    @Override
     public boolean canConvert(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
+        //todo: implement method
         return false;
-    }
-
-    @Nullable
-    @Override
-    public <T> T convert(@Nullable Object source, Class<T> targetType) {
-        return null;
     }
 
     @Nullable

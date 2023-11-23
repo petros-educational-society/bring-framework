@@ -20,6 +20,15 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/**
+ * Factory for collections that is aware of common Java collection types.
+ *
+ * <p>Mainly for internal use within the framework.
+ *
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ */
+
 public final class CollectionFactory {
 
     private static final Set<Class<?>> approximableCollectionTypes = Set.of(

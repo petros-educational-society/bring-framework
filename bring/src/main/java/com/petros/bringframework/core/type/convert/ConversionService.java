@@ -4,19 +4,10 @@ import javax.annotation.Nullable;
 
 /**
  * A service interface for type conversion. This is the entry point into the convert system
+ *
+ * @author Viktor Basanets
  */
 public interface ConversionService {
-
-    /**
-     * Return {@code true} if objects of {@code sourceType} can be converted to the {@code targetType}.
-     * <p>If this method returns {@code true}, it means {@link #convert(Object, Class)} is capable
-     * of converting an instance of {@code sourceType} to {@code targetType}.
-     * @param sourceType the source type to convert from (maybe {@code null} if source is {@code null})
-     * @param targetType the target type to convert to (required)
-     * @return {@code true} if a conversion can be performed, {@code false} if not
-     * @throws IllegalArgumentException if {@code targetType} is {@code null}
-     */
-    boolean canConvert(@Nullable Class<?> sourceType, Class<?> targetType);
 
     /**
      * Return {@code true} if objects of {@code sourceType} can be converted to the {@code targetType}.
@@ -32,17 +23,6 @@ public interface ConversionService {
      * @throws IllegalArgumentException if {@code targetType} is {@code null}
      */
     boolean canConvert(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType);
-
-    /**
-     * Convert the given {@code source} to the specified {@code targetType}.
-     * @param source the source object to convert (maybe {@code null})
-     * @param targetType the target type to convert to (required)
-     * @return the converted object, an instance of targetType
-     * @throws ConversionException if a conversion exception occurred
-     * @throws IllegalArgumentException if targetType is {@code null}
-     */
-    @Nullable
-    <T> T convert(@Nullable Object source, Class<T> targetType);
 
     /**
      * Convert the given {@code source} to the specified {@code targetType}.

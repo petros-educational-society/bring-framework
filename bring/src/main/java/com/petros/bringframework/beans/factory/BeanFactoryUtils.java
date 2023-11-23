@@ -7,6 +7,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.petros.bringframework.beans.factory.BeanFactory.FACTORY_BEAN_PREFIX;
 
+/**
+ * Convenience methods operating on bean factories, in particular
+ * on the {@link BeanFactory} interface.
+ *
+ * <p>Returns bean counts, bean names or bean instances,
+ * taking into account the nesting hierarchy of a bean factory.
+ *
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ */
+
 public abstract class BeanFactoryUtils {
 
     /**

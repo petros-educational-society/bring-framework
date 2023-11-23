@@ -5,6 +5,13 @@ import lombok.Getter;
 import javax.annotation.Nullable;
 
 import static java.lang.String.format;
+
+/**
+ * Exception to be thrown when a suitable converter could not be found
+ * in a given conversion service.
+ * @author Viktor Basanets
+ */
+
 @Getter
 public class ConverterNotFoundException extends ConversionException {
 

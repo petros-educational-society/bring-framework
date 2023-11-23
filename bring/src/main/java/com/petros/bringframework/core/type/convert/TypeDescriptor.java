@@ -17,7 +17,16 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.nonNull;
 
-@SuppressWarnings("serial")
+/**
+ * Contextual descriptor about a type to convert from or to.
+ * <p>Capable of representing arrays and generic collection types.
+ *
+ * @author Viktor Basanets
+ *
+ * @see ConversionService#canConvert(TypeDescriptor, TypeDescriptor)
+ * @see ConversionService#convert(Object, TypeDescriptor, TypeDescriptor)
+ */
+
 public class TypeDescriptor implements Serializable {
 
     private static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
