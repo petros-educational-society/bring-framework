@@ -7,7 +7,7 @@ import java.util.Set;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a user-defined {@link Configuration @Configuration} class.
+ * Represents a user-defined {@link @Configuration} class.
  *
  * @author "Vasiuk Maryna"
  */

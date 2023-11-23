@@ -1,6 +1,7 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
+import com.petros.bringframework.beans.factory.BeanFactoryUtils;
 import com.petros.bringframework.beans.factory.BeanAware;
 import com.petros.bringframework.beans.factory.config.AnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -18,6 +19,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -233,6 +235,17 @@ public abstract class AbstractAutowireCapableBeanFactory
     protected BeanWrapper autowireConstructor(
             String beanName, GenericBeanDefinition mbd, Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
         return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
+    }
+
+    /**
+     * Return the bean name, stripping out the factory dereference prefix if necessary,
+     * and resolving aliases to canonical names.
+     * @param name the user-specified name
+     * @return the transformed bean name
+     */
+    protected String transformedBeanName(String name) {
+        var aliases = getAliases(name);
+        return BeanFactoryUtils.transformedBeanName(name);
     }
 
     /**

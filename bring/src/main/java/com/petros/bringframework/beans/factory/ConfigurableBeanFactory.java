@@ -18,7 +18,6 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
      *
      * @throws BeansException if one of the singleton beans could not be created.
      *                        Note: This may have left the factory with some beans already initialized!
-     *                        Call {@link #destroySingletons()} for full cleanup in this case.
      */
     void preInstantiateSingletons() throws BeansException;
 

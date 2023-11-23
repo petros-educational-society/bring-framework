@@ -106,9 +106,6 @@ public class ClassPathResource extends AbstractResource implements Resource {
     /**
      * This implementation opens an {@link InputStream} for the underlying class
      * path resource, if available.
-     * @see ClassLoader#getResourceAsStream(String)
-     * @see Class#getResourceAsStream(String)
-     * @see ClassLoader#getSystemResourceAsStream(String)
      */
     @Override
     public InputStream getInputStream() throws IOException {
@@ -131,8 +128,6 @@ public class ClassPathResource extends AbstractResource implements Resource {
     /**
      * This implementation returns a URL for the underlying class path resource,
      * if available.
-     * @see ClassLoader#getResource(String)
-     * @see Class#getResource(String)
      */
     @Override
     public URL getURL() throws IOException {

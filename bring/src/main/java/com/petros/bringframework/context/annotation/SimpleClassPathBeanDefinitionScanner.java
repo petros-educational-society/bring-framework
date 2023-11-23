@@ -1,6 +1,5 @@
 package com.petros.bringframework.context.annotation;
 
-
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
@@ -35,21 +34,20 @@ public class SimpleClassPathBeanDefinitionScanner {
         AssertUtils.notEmpty(basePackages, "At least one base package must be specified");
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 
-        Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
-        for (BeanDefinition beanDef : candidates) {
-            final String beanName = nameGenerator.generateBeanName(beanDef, registry);
-            ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
+        var candidates = findCandidateComponents(basePackages);
+        for (var beanDef : candidates) {
+            final var beanName = nameGenerator.generateBeanName(beanDef, registry);
+            var scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
             beanDef.setScope(scopeMetadata.scopeName());
             if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
                 AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedBeanDefinition);
             }
-            BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
+            var definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
             beanDefinitions.add(definitionHolder);
             registerBeanDefinition(definitionHolder);
         }
 
         return beanDefinitions;
-
     }
 
     protected Set<BeanDefinition> findCandidateComponents(String... basePackages) {

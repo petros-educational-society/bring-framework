@@ -1,14 +1,21 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
+import com.petros.bringframework.beans.TypeConverter;
+import com.petros.bringframework.beans.converter.SympleTypeConverter;
 import com.petros.bringframework.beans.exception.BeanCreationException;
+import com.petros.bringframework.beans.exception.TypeMismatchException;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.support.AbstractBeanDefinition;
+import com.petros.bringframework.core.type.convert.ConversionService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
+
+import static com.petros.bringframework.util.ClassUtils.getQualifiedName;
+import static java.util.Objects.nonNull;
 
 /**
  * @author "Maksym Oliinyk"
@@ -127,13 +134,38 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         return beanInstance;
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
-        // Check if required type matches the type of the actual bean instance.
-        if (requiredType != null && !requiredType.isInstance(bean)) {
-            throw new NotImplementedException("Work with converters not implemented");
+        if (nonNull(requiredType) && !requiredType.isInstance(bean)) {
+            try {
+                return (T) Optional.ofNullable(getTypeConverter().convertIfNecessary(bean, requiredType))
+                        .orElseThrow(() -> new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass()));
+            } catch (TypeMismatchException ex) {
+                if (log.isTraceEnabled()) {
+                    log.trace("Failed to convert bean '{}' to required type '{}'", name, getQualifiedName(requiredType), ex);
+                }
+                throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+            }
         }
         return (T) bean;
     }
+
+    private TypeConverter getTypeConverter() {
+        var customConverter = getCustomTypeConverter();
+        if (customConverter != null) {
+            return customConverter;
+        }
+
+        var converter = new SympleTypeConverter();
+        converter.setConversionService(getConversionService());
+
+        return converter;
+    }
+    @Nullable
+    protected abstract TypeConverter getCustomTypeConverter();
+
+    @Nullable
+    protected abstract ConversionService getConversionService();
 
     /**
      * Get the object for the given bean instance, either the bean
@@ -172,5 +204,4 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
         return beanClass;
     }
-
 }

@@ -9,6 +9,8 @@ import java.util.Map;
 
 public interface BeanFactory {
 
+    String FACTORY_BEAN_PREFIX = "&";
+
     Object getBean(String name);
 
     <T> T getBean(Class<T> requiredType);
