@@ -33,7 +33,8 @@ public class BeanPostProcessorTest {
 
     @BeforeEach
     void setUp() {
-        processor = new AutowiredAnnotationBeanPostProcessor(beanFactory);
+        processor = new AutowiredAnnotationBeanPostProcessor();
+        processor.setBeanFactory(beanFactory);
     }
 
     @Test
@@ -44,7 +45,7 @@ public class BeanPostProcessorTest {
         Mockito.when(beanFactory.getBeansOfType(AutowiredCandidate.class))
                 .thenReturn(Collections.singletonMap("autowiredCandidateImpl", autowiredCandidateImpl));
 
-        processor.postProcessBeforeInitialization(bean, "testBean");
+        processor.postProcessBeforeInitialization(bean, "injectPleaseAnnotationTestBean");
 
         assertEquals(autowiredCandidateImpl, bean.getAutowiredCandidate());
     }
@@ -55,7 +56,7 @@ public class BeanPostProcessorTest {
 
         NoSuchBeanDefinitionException exception = assertThrows(
                 NoSuchBeanDefinitionException.class,
-                () -> processor.postProcessBeforeInitialization(bean, "testBean")
+                () -> processor.postProcessBeforeInitialization(bean, "injectPleaseAnnotationTestBean")
         );
 
         assertEquals("No bean named 'com.petros.bringframework.beans.config.beans.AutowiredCandidate' available", exception.getMessage());
@@ -73,7 +74,7 @@ public class BeanPostProcessorTest {
 
         NoUniqueBeanDefinitionException exception = assertThrows(
                 NoUniqueBeanDefinitionException.class,
-                () -> processor.postProcessBeforeInitialization(bean, "testBean")
+                () -> processor.postProcessBeforeInitialization(bean, "injectPleaseAnnotationTestBean")
         );
 
         assertTrue(exception.getMessage().contains("Expected single matching bean but found 2"));
@@ -83,7 +84,7 @@ public class BeanPostProcessorTest {
     void postProcessPropertyValuesWithValue() {
         ValueAnnotationTestBean bean = new ValueAnnotationTestBean();
 
-        processor.postProcessBeforeInitialization(bean, "testBean");
+        processor.postProcessBeforeInitialization(bean, "valueAnnotationTestBean");
 
         assertEquals("value", bean.getAutowiredValue());
     }

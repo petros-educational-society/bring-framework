@@ -2,17 +2,17 @@ package com.petros.bringframework.context.annotation;
 
 import com.petros.bringframework.beans.factory.config.BeanDefinitionRole;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Indicates the 'role' hint for a given bean.
  *
  * <p>May be used on any class directly or indirectly annotated with
- * {@link Component} or on methods
- * annotated with {@link Bean}.
- *
- * <p>If this annotation is not present on a Component or Bean definition,
- * the default value of {@link BeanDefinitionRole.ROLE_APPLICATION} will apply.
+ * {@link Component}
  *
  * <p>If Role is present on a {@link Configuration @Configuration} class,
  * this indicates the role of the configuration class bean definition and

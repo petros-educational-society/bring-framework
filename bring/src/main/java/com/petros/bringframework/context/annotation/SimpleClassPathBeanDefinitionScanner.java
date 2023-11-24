@@ -1,10 +1,9 @@
 package com.petros.bringframework.context.annotation;
 
-
 import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanDefinitionHolder;
-import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
+import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.support.AnnotationBeanNameGenerator;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.factory.support.BeanNameGenerator;
@@ -35,21 +34,20 @@ public class SimpleClassPathBeanDefinitionScanner {
         AssertUtils.notEmpty(basePackages, "At least one base package must be specified");
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 
-        Set<BeanDefinition> candidates = findCandidateComponents(basePackages);
-        for (BeanDefinition beanDef : candidates) {
-            final String beanName = nameGenerator.generateBeanName(beanDef, registry);
-            ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
+        var candidates = findCandidateComponents(basePackages);
+        for (var beanDef : candidates) {
+            final var beanName = nameGenerator.generateBeanName(beanDef, registry);
+            var scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
             beanDef.setScope(scopeMetadata.scopeName());
             if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
                 AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedBeanDefinition);
             }
-            BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
+            var definitionHolder = new BeanDefinitionHolder(beanDef, beanName);
             beanDefinitions.add(definitionHolder);
             registerBeanDefinition(definitionHolder);
         }
 
         return beanDefinitions;
-
     }
 
     protected Set<BeanDefinition> findCandidateComponents(String... basePackages) {
@@ -57,8 +55,9 @@ public class SimpleClassPathBeanDefinitionScanner {
         for (String basePackage : basePackages) {
             Reflections scanner = new Reflections(basePackage);
             final Set<Class<?>> sources = scanner.getTypesAnnotatedWith(Component.class);
+            sources.addAll(scanner.getSubTypesOf(BeanPostProcessor.class));
             for (Class<?> source : sources) {
-                if(source.isAnnotation()){
+                if (source.isAnnotation() || source.isInterface()) {
                     continue;
                 }
                 ReflectionMetadataReader metadataReader = new ReflectionMetadataReader(source);

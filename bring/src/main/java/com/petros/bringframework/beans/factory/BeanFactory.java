@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface BeanFactory {
 
-    <T> void configureBeans(T t);
+    String FACTORY_BEAN_PREFIX = "&";
 
     Object getBean(String name);
 

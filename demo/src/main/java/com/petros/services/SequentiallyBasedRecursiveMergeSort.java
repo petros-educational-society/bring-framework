@@ -7,7 +7,7 @@ import static java.lang.System.arraycopy;
 import static java.util.Arrays.copyOfRange;
 
 @Component
-public class MergeSortRecursively implements MergeSort {
+public class SequentiallyBasedRecursiveMergeSort implements MergeSort {
     @Override
     public <T extends Comparable<? super T>> void sort(T[] arr) {
         if (arr.length < 2) {
@@ -30,6 +30,6 @@ public class MergeSortRecursively implements MergeSort {
     }
 
     @InjectPlease
-    public MergeSortRecursively() {
+    public SequentiallyBasedRecursiveMergeSort() {
     }
 }

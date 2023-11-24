@@ -5,7 +5,6 @@ import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.SingletonBeanRegistry;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
-import com.petros.bringframework.core.type.ResolvableType;
 
 import java.util.List;
 
@@ -19,7 +18,6 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
      *
      * @throws BeansException if one of the singleton beans could not be created.
      *                        Note: This may have left the factory with some beans already initialized!
-     *                        Call {@link #destroySingletons()} for full cleanup in this case.
      */
     void preInstantiateSingletons() throws BeansException;
 
@@ -46,6 +44,8 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
     }
 
     void addBeanFactoryPostProcessor(BeanFactoryPostProcessor beanFactoryPostProcessor);
+
+    List<BeanPostProcessor> getBeanPostProcessors();
 
     List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors();
 }

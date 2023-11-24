@@ -90,7 +90,7 @@ final class AttributeMethods {
 
     private void assertAnnotation(Annotation annotation) {
         requireNonNull(annotation, "Annotation must not be null");
-        if (!annotationType.isInstance(annotation)) {
+        if (annotationType != null && !annotationType.isInstance(annotation)) {
             throw new IllegalArgumentException("Annotation is not an instance of the expected type");
         }
     }

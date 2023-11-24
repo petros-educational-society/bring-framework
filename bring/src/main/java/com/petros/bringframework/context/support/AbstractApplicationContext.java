@@ -106,9 +106,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * @param beanFactory the bean factory used by the application context
      */
     protected void prepareBeanFactory(final ConfigurableBeanFactory beanFactory) {
-        beanFactory.addBeanFactoryPostProcessor(new SimpleBeanFactoryPostProcessor(beanFactory));
         beanFactory.addBeanFactoryPostProcessor(new ConfigurationClassPostProcessor());
-
+        beanFactory.addBeanFactoryPostProcessor(new SimpleBeanFactoryPostProcessor(beanFactory));
     }
 
     /**
@@ -135,18 +134,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * @return beanFactory the bean factory used by the application context
      */
     protected abstract ConfigurableBeanFactory getBeanFactory();
-
-    /**
-     * Modify the application context's internal bean factory after its standard
-     * initialization. The initial definition resources will have been loaded but no
-     * post-processors will have run and no derived bean definitions will have been
-     * registered, and most importantly, no beans will have been instantiated yet.
-     * <p>This template method allows for registering special BeanPostProcessors
-     * etc in certain AbstractApplicationContext subclasses.
-     *
-     * @param beanFactory the bean factory used by the application context
-     */
-    protected abstract void initBeansPostProcessors();
 
     /**
      * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
