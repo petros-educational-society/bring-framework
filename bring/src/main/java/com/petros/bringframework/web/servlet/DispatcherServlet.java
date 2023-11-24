@@ -1,25 +1,18 @@
-package com.web.petros.servlet;
-
-import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
-import com.petros.bringframework.web.context.annotation.Controller;
-import com.web.petros.controller.NasaController;
+package com.petros.bringframework.web.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Viktor Basanets
  * @Project: bring-framework
  */
 
-@WebServlet(name = "nasaLargestPictureServlet",
-        urlPatterns = "/api/nasa/photos/*")
-public class NasaLargestPictureServlet extends BasicInitializationContextServlet {
+@WebServlet("/api/nasa/photos/*")
+public class DispatcherServlet extends BasicFrameworkServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var pathInfo = req.getPathInfo();

@@ -1,5 +1,6 @@
 package com.petros.bringframework.core.type;
 
+import com.petros.bringframework.core.MethodParameter;
 import com.petros.bringframework.core.type.provider.TypeProvider;
 import com.petros.bringframework.core.type.resolver.VariableResolver;
 import com.petros.bringframework.util.ObjectUtils;

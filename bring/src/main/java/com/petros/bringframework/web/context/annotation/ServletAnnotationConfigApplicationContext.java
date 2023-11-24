@@ -15,6 +15,10 @@ public class ServletAnnotationConfigApplicationContext extends AnnotationConfigA
         super(componentClasses);
     }
 
+    public ServletAnnotationConfigApplicationContext(String... basePackages) {
+        super(basePackages);
+    }
+
     public List<Object> findControllers() {
         return Arrays.stream(getBeanFactory().getSingletonNames()).collect(Collectors.toList());
     }

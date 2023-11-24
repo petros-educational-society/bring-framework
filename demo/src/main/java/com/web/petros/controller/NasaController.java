@@ -1,7 +1,7 @@
 package com.web.petros.controller;
 
 import com.petros.bringframework.context.annotation.Component;
-import com.web.petros.servlet.RequestMapping;
+import com.petros.bringframework.web.context.annotation.RequestMapping;
 
 /**
  * @author Viktor Basanets

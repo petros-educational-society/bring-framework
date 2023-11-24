@@ -1,8 +1,5 @@
 package com.web.petros;
 
-import com.petros.bringframework.web.context.annotation.ServletAnnotationConfigApplicationContext;
-import com.web.petros.config.BaseServletConfig;
-import com.web.petros.controller.NasaController;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
@@ -13,9 +10,6 @@ import java.net.URISyntaxException;
 
 public class TomcatDemo {
     public static void main(String[] args) throws LifecycleException, URISyntaxException {
-        var servletContext = new ServletAnnotationConfigApplicationContext(BaseServletConfig.class);
-        servletContext.getBean(NasaController.class);
-
         var jarPath = TomcatDemo.class.getProtectionDomain()
                 .getCodeSource()
                 .getLocation()
