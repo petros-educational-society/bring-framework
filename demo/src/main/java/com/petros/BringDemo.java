@@ -1,10 +1,9 @@
 package com.petros;
 
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
+import com.petros.config.JavaConfig;
 import com.petros.services.SayHello;
 import com.petros.services.Test;
-import com.petros.configuration.JavaConfig;
-import com.petros.services.UserController;
 
 import java.util.Arrays;
 
@@ -22,7 +21,7 @@ public class BringDemo {
         System.out.println("Before: " + Arrays.toString(arr));
         ms.testMerge(arr);
         System.out.println("After: " + Arrays.toString(arr));
-        UserController controller = annotationConfigApplicationContext.getBean(UserController.class);
+//        UserController controller = annotationConfigApplicationContext.getBean(UserController.class);
 
         var sayHello = annotationConfigApplicationContext.getBean(SayHello.class);
         sayHello.print();
