@@ -1,8 +1,10 @@
 package com.petros.bringframework.util;
 
 import javax.annotation.Nullable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -398,5 +400,42 @@ public abstract class ClassUtils {
             }
             throw ex;
         }
+    }
+
+    /**
+     * Determine whether the given class is a candidate for carrying the specified annotation
+     * (at type, method or field level).
+     */
+    public static boolean isCandidateClass(Class<?> clazz, Collection<Class<? extends Annotation>> annotationTypes) {
+        for (Class<? extends Annotation> annotationType : annotationTypes) {
+            if (annotationType.getName().startsWith("java.")) {
+                return true;
+            }
+            return !clazz.getName().startsWith("java.");
+        }
+        return false;
+    }
+
+    /**
+     * Return the qualified name of the given method, consisting of
+     * fully qualified interface/class name + "." + method name.
+     * @param method the method
+     * @return the qualified name of the method
+     */
+    public static String getQualifiedMethodName(Method method) {
+        return getQualifiedMethodName(method, null);
+    }
+
+    /**
+     * Return the qualified name of the given method, consisting of
+     * fully qualified interface/class name + "." + method name.
+     * @param method the method
+     * @param clazz the clazz that the method is being invoked on
+     * (may be {@code null} to indicate the method's declaring class)
+     * @return the qualified name of the method
+     */
+    public static String getQualifiedMethodName(Method method, @Nullable Class<?> clazz) {
+        requireNonNull(method, "Method must not be null");
+        return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
     }
 }

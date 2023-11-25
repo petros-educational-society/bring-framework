@@ -36,6 +36,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      */
     public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
         this();
+        registerShutdownHook();
         register(componentClasses);
         refresh();
     }
@@ -49,6 +50,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      */
     public AnnotationConfigApplicationContext(String... basePackages) {
         this();
+        registerShutdownHook();
         scan(basePackages);
         refresh();
     }
@@ -63,6 +65,11 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
     @Override
     protected void destroyBeans() {
         beanFactory.destroyBeans();
+    }
+
+    @Override
+    protected void postProcessBeforeDistraction() {
+        beanFactory.postProcessBeforeDistraction();
     }
 
     @Override

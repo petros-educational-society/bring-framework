@@ -6,6 +6,7 @@ import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
+import com.petros.bringframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.core.type.convert.ConversionService;
@@ -81,6 +82,17 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     @Override
     public void destroyBeans() {
         beanCacheByName.clear();
+    }
+
+    public void postProcessBeforeDistraction() {
+        if (!(beanPostProcessors.isEmpty())) {
+            for (BeanPostProcessor processor : this.beanPostProcessors) {
+                if (processor instanceof DestructionAwareBeanPostProcessor) {
+                    beanCacheByName.forEach((beanName, bean) ->
+                            ((DestructionAwareBeanPostProcessor) processor).postProcessBeforeDestruction(bean, beanName));
+                }
+            }
+        }
     }
 
     @Override
