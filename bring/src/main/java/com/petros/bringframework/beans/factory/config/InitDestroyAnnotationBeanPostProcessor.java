@@ -2,8 +2,6 @@ package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.BeansException;
 import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.factory.BeanAware;
-import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.annotation.DestroyPlease;
 import com.petros.bringframework.beans.factory.annotation.InitPlease;
 import com.petros.bringframework.util.ClassUtils;
@@ -39,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SuppressWarnings("serial")
 @Slf4j
-public class InitDestroyAnnotationBeanPostProcessor implements DestructionAwareBeanPostProcessor, AnnotationBeanPostProcessor, BeanAware, Serializable {
+public class InitDestroyAnnotationBeanPostProcessor implements DestructionAwareBeanPostProcessor, AnnotationBeanPostProcessor, Serializable {
 
     private final transient LifecycleMetadata emptyLifecycleMetadata =
             new LifecycleMetadata(Object.class, Collections.emptyList(), Collections.emptyList()) {
@@ -54,8 +52,6 @@ public class InitDestroyAnnotationBeanPostProcessor implements DestructionAwareB
                     return false;
                 }
             };
-
-    private BeanFactory beanFactory;
 
     @Nullable
     private Class<? extends Annotation> initAnnotationType;
@@ -171,11 +167,6 @@ public class InitDestroyAnnotationBeanPostProcessor implements DestructionAwareB
 
         return (initMethods.isEmpty() && destroyMethods.isEmpty() ? this.emptyLifecycleMetadata :
                 new LifecycleMetadata(clazz, initMethods, destroyMethods));
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
     }
 
     /**
