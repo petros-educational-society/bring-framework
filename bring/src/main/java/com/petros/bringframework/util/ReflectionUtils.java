@@ -2,6 +2,7 @@ package com.petros.bringframework.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 public abstract class ReflectionUtils {
@@ -39,5 +40,38 @@ public abstract class ReflectionUtils {
                 Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
             field.setAccessible(true);
         }
+    }
+
+    /**
+     * Perform the given callback operation on all matching methods of the given
+     * class, as locally declared or equivalent thereof (such as default methods
+     * on Java 8 based interfaces that the given class implements).
+     * @param clazz the class to introspect
+     * @param mc the callback to invoke for each method
+     * @throws IllegalStateException if introspection fails
+     */
+    public static void doWithLocalMethods(Class<?> clazz, MethodCallback mc) {
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            try {
+                mc.doWith(method);
+            }
+            catch (IllegalAccessException ex) {
+                throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
+            }
+        }
+    }
+
+    /**
+     * Action to take on each method.
+     */
+    @FunctionalInterface
+    public interface MethodCallback {
+
+        /**
+         * Perform an operation using the given method.
+         * @param method the method to operate on
+         */
+        void doWith(Method method) throws IllegalArgumentException, IllegalAccessException;
     }
 }

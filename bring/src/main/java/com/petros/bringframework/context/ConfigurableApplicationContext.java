@@ -19,4 +19,10 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      *                               attempts are not supported
      */
     void refresh() throws BeansException, IllegalStateException;
+
+    /**
+     * Register a shutdown hook with the JVM runtime, closing this context
+     * on JVM shutdown unless it has already been closed at that time.
+     */
+    void registerShutdownHook();
 }

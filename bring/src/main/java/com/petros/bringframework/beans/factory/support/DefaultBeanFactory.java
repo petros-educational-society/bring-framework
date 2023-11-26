@@ -6,6 +6,7 @@ import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.config.BeanFactoryPostProcessor;
 import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
+import com.petros.bringframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.core.type.convert.ConversionService;
@@ -14,14 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.isNull;
@@ -81,6 +75,16 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     @Override
     public void destroyBeans() {
         beanCacheByName.clear();
+    }
+
+    public void postProcessBeforeDistraction() {
+        getBeanPostProcessors().stream()
+                .filter(DestructionAwareBeanPostProcessor.class::isInstance)
+                .map(DestructionAwareBeanPostProcessor.class::cast)
+                .forEach(beanPostProcessor -> {
+                    beanCacheByName.forEach((beanName, bean) ->
+                            beanPostProcessor.postProcessBeforeDestruction(bean, beanName));
+                });
     }
 
     @Override

@@ -14,6 +14,9 @@ public class BringDemo {
 //                = new AnnotationConfigApplicationContext( "com.petros");
                 = new AnnotationConfigApplicationContext(JavaConfig.class);
 
+        var sayHello = annotationConfigApplicationContext.getBean(SayHello.class);
+        sayHello.print();
+
         var ms = annotationConfigApplicationContext
                 .getBean(Test.class);
 
@@ -22,8 +25,5 @@ public class BringDemo {
         ms.testMerge(arr);
         System.out.println("After: " + Arrays.toString(arr));
 
-
-        var sayHello = annotationConfigApplicationContext.getBean(SayHello.class);
-        sayHello.print();
     }
 }
