@@ -11,6 +11,10 @@ import com.petros.bringframework.context.annotation.Component;
 @Component("worldHello")
 public class HelloWorld {
 
+    public HelloWorld() {
+        System.out.println("HelloWorld constructor");
+    }
+
     @InitPlease
     public void init() {
         System.out.println("To begin, let me say:");

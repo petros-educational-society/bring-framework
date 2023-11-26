@@ -1,8 +1,11 @@
 package com.petros.bringframework.beans.factory.annotation;
 
-import java.lang.annotation.*;
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * The <code>DestroyPlease</code> annotation is used on a method as a
@@ -13,9 +16,8 @@ import static java.lang.annotation.RetentionPolicy.*;
  *
  * @author "Vasiuk Maryna"
  */
-
 @Documented
-@Retention (RUNTIME)
+@Retention(RUNTIME)
 @Target(METHOD)
 public @interface DestroyPlease {
 }

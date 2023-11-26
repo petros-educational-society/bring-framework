@@ -14,12 +14,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,16 +32,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SuppressWarnings("serial")
 @Slf4j
-public class InitDestroyAnnotationBeanPostProcessor implements DestructionAwareBeanPostProcessor, AnnotationBeanPostProcessor, Serializable {
+public class InitDestroyAnnotationBeanPostProcessor
+        implements DestructionAwareBeanPostProcessor, Serializable {
 
     private final transient LifecycleMetadata emptyLifecycleMetadata =
             new LifecycleMetadata(Object.class, Collections.emptyList(), Collections.emptyList()) {
                 @Override
                 public void invokeInitMethods(Object target, String beanName) {
                 }
+
                 @Override
                 public void invokeDestroyMethods(Object target, String beanName) {
                 }
+
                 @Override
                 public boolean hasDestroyMethods() {
                     return false;
@@ -89,11 +87,9 @@ public class InitDestroyAnnotationBeanPostProcessor implements DestructionAwareB
         LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
         try {
             metadata.invokeInitMethods(bean, beanName);
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             throw new BeanCreationException(beanName, "Invocation of init method failed", ex.getTargetException());
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
             throw new BeanCreationException(beanName, "Failed to invoke init method", ex);
         }
         return bean;
@@ -104,12 +100,10 @@ public class InitDestroyAnnotationBeanPostProcessor implements DestructionAwareB
         LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
         try {
             metadata.invokeDestroyMethods(bean, beanName);
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             String msg = "Destroy method on bean with name '" + beanName + "' threw an exception";
             log.warn(msg, ex.getTargetException());
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
             log.warn("Failed to invoke destroy method on bean with name '" + beanName + "'", ex);
         }
     }

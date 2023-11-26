@@ -15,14 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.isNull;
@@ -85,14 +78,13 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
     }
 
     public void postProcessBeforeDistraction() {
-        if (!(beanPostProcessors.isEmpty())) {
-            for (BeanPostProcessor processor : this.beanPostProcessors) {
-                if (processor instanceof DestructionAwareBeanPostProcessor) {
+        getBeanPostProcessors().stream()
+                .filter(DestructionAwareBeanPostProcessor.class::isInstance)
+                .map(DestructionAwareBeanPostProcessor.class::cast)
+                .forEach(beanPostProcessor -> {
                     beanCacheByName.forEach((beanName, bean) ->
-                            ((DestructionAwareBeanPostProcessor) processor).postProcessBeforeDestruction(bean, beanName));
-                }
-            }
-        }
+                            beanPostProcessor.postProcessBeforeDestruction(bean, beanName));
+                });
     }
 
     @Override
