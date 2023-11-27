@@ -1,6 +1,6 @@
-package com.petros;
+package com.petros.bringframework.web.servlet.support;
 
-import com.petros.utils.Http;
+import com.petros.bringframework.web.servlet.support.utils.Http;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,12 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestHandler {
-    private final Object controllerBeanDummy = Main.controllerBeanDummy;
+    private final Object controllerBeanDummy;
     private final Method method;
     private final Object[] invocationArguments;
     private final MethodParameters parameters;
 
     public RequestHandler(Method method, MethodParameters parameters, List<String> pathVariables) {
+        //todo: injection is required
+        this.controllerBeanDummy = null;
         this.method = method;
         this.parameters = parameters;
         this.invocationArguments = new Object[method.getParameterCount()];
@@ -48,9 +50,7 @@ public class RequestHandler {
         Object result;
         try {
             result = method.invoke(controllerBeanDummy, invocationArguments);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
 

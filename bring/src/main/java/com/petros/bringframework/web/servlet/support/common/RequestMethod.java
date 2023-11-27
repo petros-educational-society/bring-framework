@@ -1,4 +1,4 @@
-package com.petros.common;
+package com.petros.bringframework.web.servlet.support.common;
 
 public enum RequestMethod {
     GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS, TRACE;

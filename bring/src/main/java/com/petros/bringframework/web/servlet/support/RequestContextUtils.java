@@ -16,7 +16,7 @@ public class RequestContextUtils {
 
     /**
      * Return the LocaleResolver that has been bound to the request by the
-     * DispatcherServlet.
+     * .........
      * @param request current HTTP request
      * @return the current LocaleResolver, or {@code null} if not found
      */

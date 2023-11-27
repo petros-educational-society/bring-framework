@@ -1,6 +1,4 @@
-package com.petros.annotation;
-
-import com.petros.common.RequestMethod;
+package com.petros.bringframework.web.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,8 +10,7 @@ import java.lang.annotation.Target;
  * @Project: bring-framework
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface RequestMapping {
-    String path();
-    RequestMethod method();
+@Target(ElementType.PARAMETER)
+public @interface RequestHeader {
+    String name();
 }

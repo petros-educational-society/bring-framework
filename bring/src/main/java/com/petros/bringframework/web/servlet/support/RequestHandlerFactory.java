@@ -1,12 +1,12 @@
-package com.petros;
+package com.petros.bringframework.web.servlet.support;
 
-import com.petros.annotation.PathVariable;
-import com.petros.annotation.RequestBody;
-import com.petros.annotation.RequestHeader;
-import com.petros.annotation.RequestMapping;
-import com.petros.annotation.RequestParam;
-import com.petros.common.RequestMethod;
-import com.petros.utils.RequestMappingParser;
+import com.petros.bringframework.web.context.annotation.PathVariable;
+import com.petros.bringframework.web.context.annotation.RequestBody;
+import com.petros.bringframework.web.context.annotation.RequestHeader;
+import com.petros.bringframework.web.context.annotation.RequestMapping;
+import com.petros.bringframework.web.context.annotation.RequestParam;
+import com.petros.bringframework.web.servlet.support.common.RequestMethod;
+import com.petros.bringframework.web.servlet.support.utils.RequestMappingParser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

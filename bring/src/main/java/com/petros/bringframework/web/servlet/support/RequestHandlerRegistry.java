@@ -1,6 +1,6 @@
-package com.petros;
+package com.petros.bringframework.web.servlet.support;
 
-import com.petros.common.RequestMethod;
+import com.petros.bringframework.web.servlet.support.common.RequestMethod;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;

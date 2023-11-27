@@ -1,28 +1,64 @@
 package com.petros.bringframework.web.servlet;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
+
+import com.petros.bringframework.web.context.WebAppContext;
+import com.petros.bringframework.web.servlet.support.RequestHandlerRegistry;
+import com.petros.bringframework.web.servlet.support.common.RequestMethod;
+import com.petros.bringframework.web.servlet.support.utils.Http;
+
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
-/**
- * @author Viktor Basanets
- * @Project: bring-framework
- */
-
-@WebServlet("/api/nasa/photos/*")
+//todo: finish the implementation
 public class DispatcherServlet extends BasicFrameworkServlet {
+
+    public final RequestHandlerRegistry requestHandlerRegistry;
+
+    /**
+     * Create a new {@code DispatcherServlet} with the given web application context. This
+     * constructor is useful in Servlet environments where instance-based registration
+     * of servlets is possible through the {@link ServletContext#addServlet} API.
+     * @param webAppContext the context to use
+     */
+    public DispatcherServlet(WebAppContext webAppContext) {
+        super(webAppContext);
+        this.requestHandlerRegistry = new RequestHandlerRegistry();
+    }
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doHead(HttpServletRequest req, HttpServletResponse resp) {
+
         var pathInfo = req.getPathInfo();
-        var parameterMap = req.getParameterMap();
-        var method = req.getMethod();
-        var cachedPath = method + " " + pathInfo;
-        var m = methodCache.get(cachedPath);
+        var controllerMethodHandler = requestHandlerRegistry.getHandler(RequestMethod.HEAD, pathInfo);
 
-        System.out.println();
+        controllerMethodHandler.ifPresentOrElse(
+                requestHandler -> requestHandler.invoke(req, resp),
+                () -> Http.sendBadRequest(resp)
+        );
+    }
 
-        resp.getWriter().println();
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+
+        var pathInfo = req.getPathInfo();
+        var controllerMethodHandler = requestHandlerRegistry.getHandler(RequestMethod.GET, pathInfo);
+
+        controllerMethodHandler.ifPresentOrElse(
+                requestHandler -> requestHandler.invoke(req, resp),
+                () -> Http.sendBadRequest(resp)
+        );
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+
+        var pathInfo = req.getPathInfo();
+        var controllerMethodHandler = requestHandlerRegistry.getHandler(RequestMethod.POST, pathInfo);
+
+        controllerMethodHandler.ifPresentOrElse(
+                requestHandler -> requestHandler.invoke(req, resp),
+                () -> Http.sendBadRequest(resp)
+        );
     }
 }

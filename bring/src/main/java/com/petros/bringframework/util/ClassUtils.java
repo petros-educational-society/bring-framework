@@ -1,10 +1,15 @@
 package com.petros.bringframework.util;
 
 import javax.annotation.Nullable;
+import java.beans.Introspector;
+import java.io.Closeable;
+import java.io.Externalizable;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -59,7 +64,13 @@ public abstract class ClassUtils {
      */
     private static final Map<String, Class<?>> commonClassCache = new HashMap<>(64);
 
-    {
+    /**
+     * Common Java language interfaces which are supposed to be ignored
+     * when searching for 'primary' user-level interfaces.
+     */
+    private static final Set<Class<?>> javaLanguageInterfaces;
+
+    static {
         primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
         primitiveWrapperTypeMap.put(Byte.class, byte.class);
         primitiveWrapperTypeMap.put(Character.class, char.class);
@@ -90,6 +101,12 @@ public abstract class ClassUtils {
                 Error.class, StackTraceElement.class, StackTraceElement[].class);
         registerCommonClasses(Enum.class, Iterable.class, Iterator.class, Enumeration.class,
                 Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
+
+        Class<?>[] javaLanguageInterfaceArray = {Serializable.class, Externalizable.class, Closeable.class,
+                AutoCloseable.class, Cloneable.class, Comparable.class
+        };
+        registerCommonClasses(javaLanguageInterfaceArray);
+        javaLanguageInterfaces = new HashSet<>(Arrays.asList(javaLanguageInterfaceArray));
     }
 
     private static void registerCommonClasses(Class<?>... commonClasses) {
@@ -126,6 +143,15 @@ public abstract class ClassUtils {
 
         return className.substring(lastDotIndex + 1, nameEndIndex)
                 .replace(INNER_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
+    }
+
+    /**
+     * Get the class name without the qualified package name.
+     * @param clazz the class to get the short name for
+     * @return the class name of the class without the package name
+     */
+    public static String getShortName(Class<?> clazz) {
+        return getShortName(getQualifiedName(clazz));
     }
 
     public static ClassLoader getDefaultClassLoader() {
@@ -398,5 +424,28 @@ public abstract class ClassUtils {
             }
             throw ex;
         }
+    }
+
+
+    /**
+     * Return the short string name of a Java class.
+     * @param clazz the class
+     * @return the short name in property format
+     */
+    public static String getShortNameAsProperty(Class<?> clazz) {
+        var shortName = getShortName(clazz);
+        int dotIndex = shortName.lastIndexOf(PACKAGE_SEPARATOR);
+        shortName = dotIndex != -1 ? shortName.substring(dotIndex + 1) : shortName;
+        return Introspector.decapitalize(shortName);
+    }
+
+    /**
+     * Determine whether the given interface is a common Java language interface:
+     * {@link Serializable}, {@link Externalizable}, {@link Closeable}, {@link AutoCloseable},
+     * {@link Cloneable}, {@link Comparable}.
+     * @param ifc the interface to check
+     */
+    public static boolean isJavaLanguageInterface(Class<?> ifc) {
+        return javaLanguageInterfaces.contains(ifc);
     }
 }

@@ -1,4 +1,4 @@
-package com.petros.annotation;
+package com.petros.bringframework.web.context.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

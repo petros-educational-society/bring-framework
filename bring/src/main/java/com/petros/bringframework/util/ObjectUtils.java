@@ -156,7 +156,11 @@ public class ObjectUtils {
      * @param array the array to check
      */
     public static boolean isEmpty(@Nullable Object[] array) {
-        return (array == null || array.length == 0);
+        return array == null || array.length == 0;
+    }
+
+    public static boolean isNotEmpty(@Nullable Object[] array) {
+        return !isEmpty(array);
     }
 
     /**

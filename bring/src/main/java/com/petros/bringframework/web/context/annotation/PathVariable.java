@@ -1,4 +1,4 @@
-package com.petros.annotation;
+package com.petros.bringframework.web.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
  * @Project: bring-framework
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface RestController {
+@Target(ElementType.PARAMETER)
+public @interface PathVariable {
+    String name();
 }

@@ -8,5 +8,5 @@ import com.petros.bringframework.context.annotation.Configuration;
  */
 @ComponentScan(basePackages = {"com.web.petros", "com.petros"})
 @Configuration
-public class BaseServletConfig {
+public class DefaultAppConfig {
 }

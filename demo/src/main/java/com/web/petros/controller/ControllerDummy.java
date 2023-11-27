@@ -1,12 +1,12 @@
-package com.petros.controller;
+package com.web.petros.controller;
 
-import com.petros.annotation.RequestBody;
-import com.petros.annotation.RequestHeader;
-import com.petros.annotation.RequestMapping;
-import com.petros.annotation.RequestParam;
-import com.petros.annotation.PathVariable;
-import com.petros.annotation.RestController;
-import com.petros.common.RequestMethod;
+import com.petros.bringframework.web.context.annotation.PathVariable;
+import com.petros.bringframework.web.context.annotation.RequestBody;
+import com.petros.bringframework.web.context.annotation.RequestHeader;
+import com.petros.bringframework.web.context.annotation.RequestMapping;
+import com.petros.bringframework.web.context.annotation.RequestParam;
+import com.petros.bringframework.web.context.annotation.RestController;
+import com.petros.bringframework.web.servlet.support.common.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

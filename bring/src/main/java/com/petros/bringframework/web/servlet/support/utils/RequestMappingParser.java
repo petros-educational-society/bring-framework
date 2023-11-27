@@ -1,4 +1,4 @@
-package com.petros.utils;
+package com.petros.bringframework.web.servlet.support.utils;
 
 import java.util.HashMap;
 import java.util.Map;

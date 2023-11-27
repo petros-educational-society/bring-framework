@@ -1,4 +1,4 @@
-package com.petros.utils;
+package com.petros.bringframework.web.servlet.support.utils;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 
 public class Http {
 
-    // made by ChatGPT
     public static String getBodyAsString(HttpServletRequest request){
         StringBuilder stringBuilder = new StringBuilder();
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8))) {
