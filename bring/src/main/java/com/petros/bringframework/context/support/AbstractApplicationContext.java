@@ -8,11 +8,23 @@ import com.petros.bringframework.beans.factory.config.ConfigurationClassPostProc
 import com.petros.bringframework.beans.factory.config.SimpleBeanFactoryPostProcessor;
 import com.petros.bringframework.context.ConfigurableApplicationContext;
 import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Nullable;
 
 @Slf4j
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
 
     private final Object startupShutdownMonitor = new Object();
+
+    /** Reference to the JVM shutdown hook, if registered. */
+    @Nullable
+    private Thread shutdownHook;
+
+    /**
+     * {@link Thread#getName() Name} of the {@linkplain #registerShutdownHook()
+     * shutdown hook} thread: {@value}.
+     * @see #registerShutdownHook()
+     */
+    String SHUTDOWN_HOOK_THREAD_NAME = "BringContextShutdownHook";
 
     @Override
     public void init()
@@ -69,6 +81,39 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             // might not ever need metadata for singleton beans anymore...
             resetCommonCaches();
         }
+    }
+
+    /**
+     * Register a shutdown hook {@linkplain Thread#getName() named}
+     * {@code BringContextShutdownHook} with the JVM runtime, closing this
+     * context on JVM shutdown unless it has already been closed at that time.
+     * <p>Delegates to {@code doClose()} for the actual closing procedure.
+     */
+    @Override
+    public void registerShutdownHook() {
+        if (this.shutdownHook == null) {
+            // No shutdown hook registered yet.
+            this.shutdownHook = new Thread(SHUTDOWN_HOOK_THREAD_NAME) {
+                @Override
+                public void run() {
+                    synchronized (startupShutdownMonitor) {
+                        doClose();
+                    }
+                }
+            };
+            Runtime.getRuntime().addShutdownHook(this.shutdownHook);
+        }
+    }
+
+    /**
+     * Actually performs context closing: invokes postProcessBeforeDestruction methods and
+     * destroys the singletons in the bean factory of this application context.
+     * @see #registerShutdownHook()
+     */
+    protected void doClose() {
+        postProcessBeforeDistraction();
+
+        destroyBeans();
     }
 
     /**
@@ -143,5 +188,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     protected abstract void invokeBeanFactoryPostProcessors(BeanFactory beanFactory);
 
     protected abstract void destroyBeans();
+
+    protected abstract void postProcessBeforeDistraction();
 
 }

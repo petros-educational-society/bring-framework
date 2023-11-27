@@ -21,7 +21,6 @@ public class BringDemo {
         System.out.println("Before: " + Arrays.toString(arr));
         ms.testMerge(arr);
         System.out.println("After: " + Arrays.toString(arr));
-//        UserController controller = annotationConfigApplicationContext.getBean(UserController.class);
 
         var sayHello = annotationConfigApplicationContext.getBean(SayHello.class);
         sayHello.print();

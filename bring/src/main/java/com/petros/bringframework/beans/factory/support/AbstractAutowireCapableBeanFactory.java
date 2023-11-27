@@ -90,7 +90,7 @@ public abstract class AbstractAutowireCapableBeanFactory
             try {
                 List<BeanPostProcessor> annotationBeanPostProcessors = getBeanPostProcessors()
                         .stream()
-                        .filter(b -> b instanceof AnnotationBeanPostProcessor)
+                        .filter(AnnotationBeanPostProcessor.class::isInstance)
                         .toList();
 
                 annotationBeanPostProcessors.forEach(bp -> bp.postProcessBeforeInitialization(bean, beanName));
