@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Registry of all RequestHandlerFactories each per requestMapping
+ * Finds needed handler for request method and path
+ * @author Serhii Dorodko
+ */
 public class RequestHandlerRegistry {
     private final Set<RequestHandlerFactory> factorySet = new HashSet<>();
 

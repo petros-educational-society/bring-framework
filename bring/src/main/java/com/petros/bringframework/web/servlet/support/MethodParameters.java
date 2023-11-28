@@ -3,6 +3,10 @@ package com.petros.bringframework.web.servlet.support;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class holder for controller method parameters, categorised by role
+ * @author Serhii Dorodko
+ */
 public class MethodParameters {
     private Integer requestBodyParamPosition = null;
     private Integer servletRequestPosition = null;

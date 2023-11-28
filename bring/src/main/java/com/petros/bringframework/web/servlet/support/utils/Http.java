@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+
+/**
+ * Util class with static methods to work with HttpServlet request/response
+ * @author Serhii Dorodko
+ */
 public class Http {
 
     public static String getBodyAsString(HttpServletRequest request){

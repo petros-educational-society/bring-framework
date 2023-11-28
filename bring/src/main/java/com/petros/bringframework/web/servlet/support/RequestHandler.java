@@ -9,6 +9,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Produced by RequestHandlerFactory and is aimed to invoke corresponding method with arguments extracted from the web request
+ * @author Serhii Dorodko
+ */
 public class RequestHandler {
     private final Object controllerBean;
     private final Method method;

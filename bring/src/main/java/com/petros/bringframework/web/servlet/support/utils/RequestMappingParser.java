@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @author Serhii Dorodko
+ */
 public class RequestMappingParser {
     private static final String PLACE_HOLDER_PATTERN = "\\{(.+?)\\}";
 

@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * Represents a method within the Controller that processes a particular RequestMapping
+ * @author Serhii Dorodko
+ */
 public class RequestHandlerFactory {
     private final Method controllerMethod;
     private final Object controllerBean;
