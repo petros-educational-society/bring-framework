@@ -1,6 +1,6 @@
 package com.petros.bringframework.beans.factory.config;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author "Maksym Oliinyk"
  */
-@Slf4j
+@Log4j2
 public class ReflectionMethodMetadata implements MethodMetadata {
 
     private final Method introspectedMethod;
