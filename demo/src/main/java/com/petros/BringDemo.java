@@ -4,6 +4,7 @@ import com.petros.bringframework.context.annotation.AnnotationConfigApplicationC
 import com.petros.services.SayHello;
 import com.petros.services.HelloWorld2;
 import com.petros.services.Test;
+import com.petros.services.HelloWorld;
 import com.petros.configuration.JavaConfig;
 
 import java.util.Arrays;
