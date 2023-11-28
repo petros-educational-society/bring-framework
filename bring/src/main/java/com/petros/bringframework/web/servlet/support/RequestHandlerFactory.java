@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 public class RequestHandlerFactory {
     private final Method controllerMethod;
+    private final Object controllerBean;
     private final RequestMethod requestMethod;
     private final String requestMapping;
     private final Pattern pattern;
@@ -28,11 +29,12 @@ public class RequestHandlerFactory {
         return requestMethod == this.requestMethod && matcher.matches();
     }
 
-    public RequestHandlerFactory(Method controllerMethod) {
+    public RequestHandlerFactory(Method controllerMethod, Object controllerBean) {
         if (!controllerMethod.isAnnotationPresent(RequestMapping.class)) throw new IllegalArgumentException();
         var methodAnnotation = controllerMethod.getAnnotation(RequestMapping.class);
 
         this.requestMethod = methodAnnotation.method();
+        this.controllerBean = controllerBean;
         this.requestMapping = methodAnnotation.path();
         this.controllerMethod = controllerMethod;
         this.pattern = Pattern.compile(RequestMappingParser.replacePlaceHolders(requestMapping));
@@ -63,7 +65,7 @@ public class RequestHandlerFactory {
 
 
     public RequestHandler getHandler(String path) {
-        return new RequestHandler(controllerMethod, methodParameters, extractPathVariables(path));
+        return new RequestHandler(controllerMethod, methodParameters, extractPathVariables(path), controllerBean);
     }
 
     private List<String> extractPathVariables(String path){

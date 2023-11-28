@@ -57,6 +57,12 @@ public class ServletAnnotationConfigApplicationContext extends AnnotationConfigA
 
     protected void initRequestHandlerRegistry() {
         requestHandlerRegistry = new RequestHandlerRegistry();
+        for (Map.Entry<Class<?>, Object> entry : controllerMap.entrySet()) {
+            var methods = Arrays.stream(entry.getKey().getDeclaredMethods())
+                    .filter(method -> method.isAnnotationPresent(RequestMapping.class))
+                    .toList();
+            requestHandlerRegistry.registerHandlerList(methods, entry.getValue());
+        }
 
     }
 

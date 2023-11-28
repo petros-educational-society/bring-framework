@@ -3,7 +3,6 @@ package com.petros.bringframework.web.servlet;
 
 import com.petros.bringframework.web.context.WebAppContext;
 import com.petros.bringframework.web.context.annotation.ServletAnnotationConfigApplicationContext;
-import com.petros.bringframework.web.servlet.support.RequestHandlerRegistry;
 import com.petros.bringframework.web.servlet.support.common.RequestMethod;
 import com.petros.bringframework.web.servlet.support.utils.Http;
 
@@ -26,40 +25,27 @@ public class SimpleDispatcherServlet extends BasicFrameworkServlet {
 
     @Override
     protected void doHead(HttpServletRequest req, HttpServletResponse resp) {
-
-        var pathInfo = req.getPathInfo();
-        var servletPath = req.getServletPath();
-//        var controllerMethodHandler = requestHandlerRegistry.getHandler(RequestMethod.HEAD, servletPath);
-
-//        controllerMethodHandler.ifPresentOrElse(
-//                requestHandler -> requestHandler.invoke(req, resp),
-//                () -> Http.sendBadRequest(resp)
-//        );
+        handleRequest(req, resp, RequestMethod.HEAD);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        handleRequest(req, resp, RequestMethod.GET);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        handleRequest(req, resp, RequestMethod.POST);
+    }
+
+    private void handleRequest(HttpServletRequest req, HttpServletResponse resp, RequestMethod requestMethod){
         var ctx = (ServletAnnotationConfigApplicationContext) webAppContext;
-//        ctx.initControllers();
         var servletPath = req.getServletPath();
-        var pathInfo = req.getPathInfo();
-        var controllerMethodHandler = ctx.getRequestHandlerRegistry().getHandler(RequestMethod.GET, servletPath);
+        var controllerMethodHandler = ctx.getRequestHandlerRegistry().getHandler(requestMethod, servletPath);
 
         controllerMethodHandler.ifPresentOrElse(
                 requestHandler -> requestHandler.invoke(req, resp),
                 () -> Http.sendBadRequest(resp)
         );
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-
-//        var pathInfo = req.getPathInfo();
-//        var controllerMethodHandler = requestHandlerRegistry.getHandler(RequestMethod.POST, pathInfo);
-//
-//        controllerMethodHandler.ifPresentOrElse(
-//                requestHandler -> requestHandler.invoke(req, resp),
-//                () -> Http.sendBadRequest(resp)
-//        );
     }
 }

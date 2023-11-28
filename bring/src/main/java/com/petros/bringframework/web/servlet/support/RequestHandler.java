@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestHandler {
-    private final Object controllerBeanDummy;
+    private final Object controllerBean;
     private final Method method;
     private final Object[] invocationArguments;
     private final MethodParameters parameters;
 
-    public RequestHandler(Method method, MethodParameters parameters, List<String> pathVariables) {
-        //todo: injection is required
-        this.controllerBeanDummy = null;
+    public RequestHandler(Method method, MethodParameters parameters, List<String> pathVariables, Object controllerBean) {
+        this.controllerBean = controllerBean;
         this.method = method;
         this.parameters = parameters;
         this.invocationArguments = new Object[method.getParameterCount()];
@@ -49,11 +48,12 @@ public class RequestHandler {
 
         Object result;
         try {
-            result = method.invoke(controllerBeanDummy, invocationArguments);
+            result = method.invoke(controllerBean, invocationArguments);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
 
+        // TODO Add support of custom classes and mapping to json/xml
         if (result instanceof String){
             Http.writeResultString((String)result, resp);
         }
