@@ -34,48 +34,8 @@ public abstract class AbstractDispatcherServletInitializer implements WebAppInit
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-//        registerContextLoaderListener(servletContext);
         registerDispatcherServlet(servletContext);
     }
-
-//    /**
-//     * Register a {@link ContextLoaderListener} against the given servlet context. The
-//     * {@code ContextLoaderListener} is initialized with the application context returned
-//     * from the {@link #createRootApplicationContext()} template method.
-//     * @param servletContext the servlet context to register the listener against
-//     */
-//    protected void registerContextLoaderListener(ServletContext servletContext) {
-//        var rootAppContext = createRootApplicationContext();
-//        if (rootAppContext != null) {
-//            ContextLoaderListener listener = new ContextLoaderListener(rootAppContext);
-//            listener.setContextInitializers(getRootApplicationContextInitializers());
-//            servletContext.addListener(listener);
-//        } else {
-//            log.debug("No ContextLoaderListener registered, as " +
-//                    "createRootApplicationContext() did not return an application context");
-//        }
-//    }
-
-//    /**
-//     * Specify application context initializers to be applied to the root application
-//     */
-//    @Nullable
-//    protected ApplicationContextInitializer<?>[] getRootApplicationContextInitializers() {
-//        //todo: refactor this
-//        return null;
-//    }
-//
-//    /**
-//     * <p>This implementation creates an {@link AbstractDispatcherServletInitializer},
-//     * providing it the annotated classes returned by {@link #getRootConfigClasses()}.
-//     * Returns {@code null} if {@link #getRootConfigClasses()} returns {@code null}.
-//     */
-//    @Nullable
-//    protected WebAppContext createRootApplicationContext() {
-//        return Optional.ofNullable(getRootConfigClasses())
-//                .map(ServletAnnotationConfigApplicationContext::new)
-//                .orElse(null);
-//    }
 
     /**
      * Specify {@code @Configuration} and/or {@code @Component} classes for the

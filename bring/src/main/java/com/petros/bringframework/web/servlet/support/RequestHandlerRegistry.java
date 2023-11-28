@@ -16,10 +16,6 @@ import java.util.Set;
 public class RequestHandlerRegistry {
     private final Set<RequestHandlerFactory> factorySet = new HashSet<>();
 
-    public Boolean registerHandler(Method method, Object controllerBean){
-        return factorySet.add(new RequestHandlerFactory(method, controllerBean));
-    }
-
     public void registerHandlerList(List<Method> methodList, Object controllerBean){
         for (Method method : methodList) {
             factorySet.add(new RequestHandlerFactory(method, controllerBean));

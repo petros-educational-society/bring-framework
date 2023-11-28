@@ -5,6 +5,7 @@ import com.petros.bringframework.web.context.request.NativeWebRequest;
 
 import javax.annotation.Nullable;
 
+//todo: remove this interface on the next review if it wasn't use
 /**
  * Interface for resolving method parameters into argument values in
  * the context of a given request
@@ -29,5 +30,4 @@ public interface HandlerMethodArgumentResolver {
      */
     @Nullable
     Object resolveArgument(MethodParameter parameter, NativeWebRequest webRequest) throws Exception;
-
 }

@@ -21,7 +21,6 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
     @Nullable
     private Locale defaultLocale;
 
-
     /**
      * Configure supported locales to check against the requested locales
      * determined.

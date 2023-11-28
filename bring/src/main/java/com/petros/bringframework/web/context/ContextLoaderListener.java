@@ -24,14 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.petros.bringframework.web.context.WebAppContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE;
 import static java.util.Objects.nonNull;
 
-
 /**
  * Bootstrap listener to start up and shut down Brings root {@link WebAppContext}.
  *
  * @author Viktor Basanets
  * @Project: bring-framework
  */
-
+//todo: remove this class on the next review
 @Slf4j
 public class ContextLoaderListener implements ServletContextListener {
 
@@ -142,8 +141,6 @@ public class ContextLoaderListener implements ServletContextListener {
 
         long startTime = System.currentTimeMillis();
         try {
-            // Store context in local instance variable, to guarantee that
-            // it is available on ServletContext shutdown.
             if (this.context == null) {
                 this.context = createWebApplicationContext(ctx);
             }

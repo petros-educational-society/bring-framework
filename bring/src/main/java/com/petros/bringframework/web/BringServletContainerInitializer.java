@@ -42,7 +42,7 @@ public class BringServletContainerInitializer implements ServletContainerInitial
      * <p>If no {@code WebAppInitializer} implementations are found on the classpath,
      * this method is effectively a no-op. An INFO-level log message will be issued notifying
      * the user that the {@code ServletContainerInitializer} has indeed been invoked but that
-     * no {@code WebApplicationInitializer} implementations were found.
+     * no {@code WebAppInitializer} implementations were found.
      * @param initializerClasses all implementations of
      * {@link WebAppInitializer} found on the application classpath
      * @param ctx the servlet context to be initialized

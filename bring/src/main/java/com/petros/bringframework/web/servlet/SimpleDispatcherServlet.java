@@ -1,6 +1,5 @@
 package com.petros.bringframework.web.servlet;
 
-
 import com.petros.bringframework.web.context.WebAppContext;
 import com.petros.bringframework.web.context.annotation.ServletAnnotationConfigApplicationContext;
 import com.petros.bringframework.web.servlet.support.common.RequestMethod;
@@ -10,7 +9,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-//todo: finish the implementation
 public class SimpleDispatcherServlet extends BasicFrameworkServlet {
 
     /**
