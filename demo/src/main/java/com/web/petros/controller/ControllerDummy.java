@@ -1,5 +1,6 @@
 package com.web.petros.controller;
 
+import com.petros.bringframework.context.annotation.Component;
 import com.petros.bringframework.web.context.annotation.PathVariable;
 import com.petros.bringframework.web.context.annotation.RequestBody;
 import com.petros.bringframework.web.context.annotation.RequestHeader;
@@ -11,6 +12,7 @@ import com.petros.bringframework.web.servlet.support.common.RequestMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Component
 @RestController
 public class ControllerDummy {
 

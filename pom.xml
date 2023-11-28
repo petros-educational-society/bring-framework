@@ -10,7 +10,6 @@
     <modules>
         <module>demo</module>
         <module>bring</module>
-        <module>web</module>
     </modules>
 
     <properties>

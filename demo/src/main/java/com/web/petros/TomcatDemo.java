@@ -6,10 +6,13 @@ import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.StandardRoot;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class TomcatDemo {
-    public static void main(String[] args) throws LifecycleException, URISyntaxException {
+    public static void main(String[] args) throws LifecycleException, URISyntaxException, IOException {
         var jarPath = TomcatDemo.class.getProtectionDomain()
                 .getCodeSource()
                 .getLocation()
@@ -20,6 +23,7 @@ public class TomcatDemo {
         var docBase = new File(jarPath.substring(0, jarPath.lastIndexOf("/target/")));
 
         var tomcat = new Tomcat();
+        tomcat.setBaseDir(Files.createTempDirectory("embedded_tomcat").toString());
         tomcat.getConnector();
 
         var ctx = tomcat.addWebapp("", docBase.getAbsolutePath());

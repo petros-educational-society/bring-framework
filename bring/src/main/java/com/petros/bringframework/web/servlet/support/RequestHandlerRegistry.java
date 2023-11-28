@@ -17,6 +17,7 @@ public class RequestHandlerRegistry {
     public Optional<RequestHandler> getHandler(RequestMethod requestMethod, String path){
         return factorySet.stream()
                 .filter(factory -> factory.isMatching(requestMethod, path))
-                .findFirst().map(handler -> handler.getHandler(path));
+                .findFirst()
+                .map(handler -> handler.getHandler(path));
     }
 }
