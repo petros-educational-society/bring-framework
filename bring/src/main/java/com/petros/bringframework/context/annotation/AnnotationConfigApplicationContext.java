@@ -8,7 +8,9 @@ import com.petros.bringframework.beans.factory.support.DefaultBeanFactory;
 import com.petros.bringframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import com.petros.bringframework.context.support.AbstractApplicationContext;
 import com.petros.bringframework.core.AssertUtils;
+import lombok.Getter;
 
+@Getter
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
     private final BeanDefinitionRegistry registry;
     private final DefaultBeanFactory beanFactory;
