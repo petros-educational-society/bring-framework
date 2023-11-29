@@ -12,6 +12,14 @@ public abstract class StringUtils {
 
     private static final String[] EMPTY_STRING_ARRAY = {};
 
+    /**
+     * Check that the given {@code String} is neither {@code null} nor of length 0.
+     * <p>Note: this method returns {@code true} for a {@code String} that
+     * purely consists of whitespace.
+     */
+    public static boolean hasLength(@Nullable String str) {
+        return (str != null && !str.isEmpty());
+    }
 
     /**
      * Convert a comma delimited list (e.g., a row from a CSV file) into an

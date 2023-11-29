@@ -1,4 +1,4 @@
-package com.petros.configuration;
+package com.web.petros.config;
 
 import com.petros.bringframework.context.annotation.ComponentScan;
 import com.petros.bringframework.context.annotation.Configuration;
@@ -6,7 +6,7 @@ import com.petros.bringframework.context.annotation.Configuration;
 /**
  * @author "Maksym Oliinyk"
  */
-@ComponentScan(basePackages = "com.petros")
+@ComponentScan(basePackages = {"com.web.petros", "com.petros"})
 @Configuration
-public class JavaConfig {
+public class DefaultAppConfig {
 }

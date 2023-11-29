@@ -1,7 +1,7 @@
 package com.petros;
 
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
-import com.petros.configuration.JavaConfig;
+import com.petros.config.JavaConfig;
 import com.petros.services.SayHello;
 import com.petros.services.Test;
 import lombok.extern.log4j.Log4j2;
@@ -16,9 +16,6 @@ public class BringDemo {
 //                = new AnnotationConfigApplicationContext( "com.petros");
                 = new AnnotationConfigApplicationContext(JavaConfig.class);
 
-        var sayHello = annotationConfigApplicationContext.getBean(SayHello.class);
-        sayHello.print();
-
         var ms = annotationConfigApplicationContext
                 .getBean(Test.class);
 
@@ -27,5 +24,7 @@ public class BringDemo {
         ms.testMerge(arr);
         log.info("After: {}", Arrays.toString(arr));
 
+        var sayHello = annotationConfigApplicationContext.getBean(SayHello.class);
+        sayHello.print();
     }
 }
