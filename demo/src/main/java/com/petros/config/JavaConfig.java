@@ -1,4 +1,4 @@
-package com.petros.configuration;
+package com.petros.config;
 
 import com.petros.bringframework.context.annotation.Bean;
 import com.petros.bringframework.context.annotation.ComponentScan;

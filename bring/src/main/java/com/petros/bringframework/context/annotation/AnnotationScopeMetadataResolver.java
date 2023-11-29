@@ -4,12 +4,14 @@ import com.petros.bringframework.beans.factory.config.AnnotatedBeanDefinition;
 import com.petros.bringframework.beans.factory.config.AnnotationMetadata;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.core.AssertUtils;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.Map;
 
 /**
  * @author "Maksym Oliinyk"
  */
+@Log4j2
 public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
 
     private static final String DEFAULT_SCOPE_NAME = "singleton";
@@ -27,7 +29,7 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
             if (isAnnotated) {
                 final Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(annotationName);
                 if (annotationAttributes != null) {
-                    System.out.println(annotationAttributes);
+                    log.debug(annotationAttributes);
                 }
             }
         }

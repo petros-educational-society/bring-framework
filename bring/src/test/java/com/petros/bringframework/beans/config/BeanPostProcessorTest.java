@@ -12,7 +12,6 @@ import com.petros.bringframework.beans.factory.config.AutowiredAnnotationBeanPos
 import com.petros.bringframework.beans.factory.config.InitDestroyAnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionException;
 import com.petros.bringframework.beans.factory.support.NoUniqueBeanDefinitionException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,37 +19,29 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class BeanPostProcessorTest {
+class BeanPostProcessorTest {
 
     @Mock
     private BeanFactory beanFactory;
 
     private AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor;
     private InitDestroyAnnotationBeanPostProcessor initDestroyAnnotationBeanPostProcessor;
-    private final PrintStream originalOut = System.out;
-    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     @BeforeEach
     void setUp() {
         autowiredAnnotationBeanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
         initDestroyAnnotationBeanPostProcessor = new InitDestroyAnnotationBeanPostProcessor();
         autowiredAnnotationBeanPostProcessor.setBeanFactory(beanFactory);
-        System.setOut(new PrintStream(outputStreamCaptor));
-    }
-
-    @AfterEach
-    public void tearDown() {
-        System.setOut(originalOut);
     }
 
     @Test
@@ -107,20 +98,20 @@ public class BeanPostProcessorTest {
 
     @Test
     void postProcessWithInitPleaseAnnotation() {
-        InitPleaseAnnotationTestBean bean = new InitPleaseAnnotationTestBean();
+        InitPleaseAnnotationTestBean bean = Mockito.spy(new InitPleaseAnnotationTestBean());
 
         initDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(bean, "initPleaseAnnotationTestBean");
 
-        assertTrue(outputStreamCaptor.toString().trim().contains("To begin, let me say:"));
+        verify(bean, times(1)).init();
     }
 
     @Test
     void postProcessWithDestroyPleaseAnnotation() {
-        DestroyPleaseAnnotationTestBean bean = new DestroyPleaseAnnotationTestBean();
+        DestroyPleaseAnnotationTestBean bean = Mockito.spy(new DestroyPleaseAnnotationTestBean());
 
         initDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction(bean, "destroyPleaseAnnotationTestBean");
 
-        assertTrue(outputStreamCaptor.toString().trim().contains("Good bye! Keep safe!"));
+        verify(bean).after();
     }
 }
 
