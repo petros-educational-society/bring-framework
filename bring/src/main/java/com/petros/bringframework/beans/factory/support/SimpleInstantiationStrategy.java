@@ -7,6 +7,7 @@ import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.util.BeanUtils;
 import com.petros.bringframework.util.ReflectionUtils;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,6 +18,16 @@ import java.lang.reflect.Method;
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
     private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
+
+    /**
+     * Return the factory method currently being invoked or {@code null} if none.
+     * <p>Allows factory method implementations to determine whether the current
+     * caller is the container itself as opposed to user code.
+     */
+    @Nullable
+    public static Method getCurrentlyInvokedFactoryMethod() {
+        return currentlyInvokedFactoryMethod.get();
+    }
 
     @Override
     public Object instantiate(GenericBeanDefinition gbd, String beanName, Constructor<?>[] ctors, Object[] explicitArgs) {
@@ -48,14 +59,11 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
             return ctorToUse.newInstance(argsWithDefaultValues);
         } catch (InstantiationException ex) {
             throw new BeanInstantiationException(ctorToUse.getName(), "Is it an abstract class?", ex);
-        }
-        catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException ex) {
             throw new BeanInstantiationException(ctorToUse.getName(), "Is the constructor accessible?", ex);
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             throw new BeanInstantiationException(ctorToUse.getName(), "Illegal arguments for constructor", ex);
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             throw new BeanInstantiationException(ctorToUse.getName(), "Constructor threw exception", ex.getTargetException());
         }
     }
@@ -82,12 +90,10 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
                     result = new NullBean();
                 }
                 return result;
-            }
-            finally {
+            } finally {
                 if (priorInvokedFactoryMethod != null) {
                     currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
-                }
-                else {
+                } else {
                     currentlyInvokedFactoryMethod.remove();
                 }
             }
@@ -95,24 +101,5 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
             // TODO
             throw new RuntimeException(ex);
         }
-        /*catch (IllegalArgumentException ex) {
-            throw new BeanInstantiationException(factoryMethod,
-                    "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
-                            "args: " + StringUtils.arrayToCommaDelimitedString(args), ex);
-        }
-        catch (IllegalAccessException ex) {
-            throw new BeanInstantiationException(factoryMethod,
-                    "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
-        }
-        catch (InvocationTargetException ex) {
-            String msg = "Factory method '" + factoryMethod.getName() + "' threw exception with message: " +
-                    ex.getTargetException().getMessage();
-            if (bd.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory cbf &&
-                    cbf.isCurrentlyInCreation(bd.getFactoryBeanName())) {
-                msg = "Circular reference involving containing bean '" + bd.getFactoryBeanName() + "' - consider " +
-                        "declaring the factory method as static for independence from its containing instance. " + msg;
-            }
-            throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
-        }*/
     }
 }

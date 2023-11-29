@@ -1,5 +1,7 @@
 package com.petros.bringframework.util;
 
+import com.petros.bringframework.core.AssertUtils;
+
 import javax.annotation.Nullable;
 import java.beans.Introspector;
 import java.io.Closeable;
@@ -265,10 +267,7 @@ public abstract class ClassUtils {
      */
     public static boolean isAssignableValue(Class<?> type, @Nullable Object value) {
         notNull(type, "Type must not be null");
-        if (nonNull(value)) {
-            return isAssignableValue(type, value.getClass());
-        }
-        return !type.isPrimitive();
+        return (value != null ? isAssignable(type, value.getClass()) : !type.isPrimitive());
     }
 
     /**
