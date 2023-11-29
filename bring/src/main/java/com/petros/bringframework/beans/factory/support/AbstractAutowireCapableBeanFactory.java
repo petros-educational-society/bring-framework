@@ -1,6 +1,7 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
+import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.BeanFactoryUtils;
 import com.petros.bringframework.beans.factory.BeanAware;
 import com.petros.bringframework.beans.factory.config.AnnotationBeanPostProcessor;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,6 +177,10 @@ public abstract class AbstractAutowireCapableBeanFactory
                 throw new BeanCreationException(beanName, "Bean class isn't public: " + beanClass.getName());
             }
 
+            if (mbd.getFactoryMethodName() != null) {
+                return instantiateUsingFactoryMethod(beanName, (GenericBeanDefinition) mbd, args);
+            }
+
             // Shortcut when re-creating the same bean...
             boolean resolved = false;
             boolean autowireNecessary = false;
@@ -207,6 +213,10 @@ public abstract class AbstractAutowireCapableBeanFactory
                 }
             }
         }
+    }
+
+    private BeanWrapper instantiateUsingFactoryMethod(String beanName, GenericBeanDefinition mbd, Object[] args) {
+        return new ConstructorResolver(this).instantiateUsingFactoryMethod(beanName, mbd, args);
     }
 
     private static Object[] getArgss(GenericBeanDefinition gbd) {
@@ -257,6 +267,12 @@ public abstract class AbstractAutowireCapableBeanFactory
      */
     private BeanWrapper instantiateBean(String beanName, GenericBeanDefinition gbd, Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
         Object instance = instantiationStrategy.instantiate(gbd, beanName, ctors, explicitArgs);
+        return new BeanWrapper(instance, instance.getClass());
+    }
+
+    public BeanWrapper instantiateBean(GenericBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
+                                        @Nullable Object factoryBean, final Method factoryMethod, Object[] args) {
+        Object instance = instantiationStrategy.instantiate(bd, beanName, owner, factoryBean, factoryMethod, args);
         return new BeanWrapper(instance, instance.getClass());
     }
 

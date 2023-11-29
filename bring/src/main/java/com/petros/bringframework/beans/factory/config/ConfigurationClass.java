@@ -29,6 +29,12 @@ public final class ConfigurationClass {
         this.beanName = beanName;
     }
 
+    public ConfigurationClass(AnnotationMetadata metadata, String beanName) {
+        requireNonNull(beanName, "Bean name must not be null");
+        this.metadata = metadata;
+        this.beanName = beanName;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationClass: beanName '" + this.beanName;

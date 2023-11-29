@@ -14,7 +14,12 @@ public class JavaConfig {
 
     @Bean
     public HelloWorld2 getHelloWorld2() {
-        return new HelloWorld2();
+        return new HelloWorld2("first");
     }
+
+    /*@Bean
+    public HelloWorld2 getHelloWorld22() {
+        return new HelloWorld2("second");
+    }*/
 
 }

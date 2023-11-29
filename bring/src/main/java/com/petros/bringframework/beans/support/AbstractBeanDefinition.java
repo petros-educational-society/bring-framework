@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private String description;
 
     private int role = BeanDefinitionRole.ROLE_APPLICATION.getRole();
+
+    private volatile Method factoryMethodToIntrospect;
 
     //todo implement qualifiers
     //private final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
@@ -330,5 +333,23 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     @Nullable
     public String getFactoryBeanName() {
         return this.factoryBeanName;
+    }
+
+    /**
+     * Set a resolved Java Method for the factory method on this bean definition.
+     * @param method the resolved factory method, or {@code null} to reset it
+     * @since 5.2
+     */
+    public void setResolvedFactoryMethod(@Nullable Method method) {
+        this.factoryMethodToIntrospect = method;
+    }
+
+    /**
+     * Return the resolved factory method as a Java Method object, if available.
+     * @return the factory method, or {@code null} if not found or not resolved yet
+     */
+    @Nullable
+    public Method getResolvedFactoryMethod() {
+        return this.factoryMethodToIntrospect;
     }
 }

@@ -438,4 +438,21 @@ public abstract class ClassUtils {
         requireNonNull(method, "Method must not be null");
         return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
     }
+
+    /**
+     * Return the user-defined class for the given class: usually simply the given
+     * class, but the original class in case of a CGLIB-generated subclass.
+     * @param clazz the class to check
+     * @return the user-defined class
+     * @see #CGLIB_CLASS_SEPARATOR
+     */
+    public static Class<?> getUserClass(Class<?> clazz) {
+        if (clazz.getName().contains(CGLIB_CLASS_SEPARATOR)) {
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass != null && superclass != Object.class) {
+                return superclass;
+            }
+        }
+        return clazz;
+    }
 }

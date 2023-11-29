@@ -77,18 +77,12 @@ public class ConfigurationClassBeanDefinitionReader {
         List<String> names = new ArrayList<>(Arrays.asList(annotationAttributes.getStringArray("name")));
         String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
 
-        // todo :: register names/alias
-
         ConfigurationClassBeanDefinition configBeanDef = new ConfigurationClassBeanDefinition(configClass, metadata, beanName);
-
-        if (metadata.isStatic()) {
-            // todo :: ???
-        } else {
-            configBeanDef.setFactoryBeanName(configClass.getBeanName());
-        }
+        //configBeanDef.setBeanClassName(metadata.getIntrospectedMethod().getReturnType().getName());
+        configBeanDef.setFactoryBeanName(configClass.getBeanName());
         configBeanDef.setFactoryMethodName(methodName);
-
         configBeanDef.setAutowireMode(AUTOWIRE_CONSTRUCTOR);
+        configBeanDef.setResolvedFactoryMethod(metadata.getIntrospectedMethod());
         AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
 
         configBeanDef.setAutowireCandidate(annotationAttributes.getBoolean("autowireCandidate"));
@@ -125,7 +119,7 @@ public class ConfigurationClassBeanDefinitionReader {
         this.registry.registerBeanDefinition(beanName, beanDefToRegister);
     }
 
-    private static class ConfigurationClassBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
+    static class ConfigurationClassBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
         private final AnnotationMetadata annotationMetadata;
         private final MethodMetadata factoryMethodMetadata;
         private final String derivedBeanName;

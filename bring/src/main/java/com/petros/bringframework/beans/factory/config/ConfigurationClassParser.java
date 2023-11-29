@@ -4,6 +4,7 @@ import com.petros.bringframework.beans.factory.BeanDefinitionStoreException;
 import com.petros.bringframework.beans.factory.support.AnnotationAttributes;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.support.AbstractBeanDefinition;
+import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.context.annotation.AnnotationConfigUtils;
 import com.petros.bringframework.context.annotation.Bean;
 import com.petros.bringframework.context.annotation.BeanMethod;
@@ -44,7 +45,12 @@ public class ConfigurationClassParser {
             BeanDefinition bd = holder.getBeanDefinition();
             try {
                 if (bd instanceof AbstractBeanDefinition abd) {
-                    parse(abd.getBeanClass(), holder.getBeanName());
+                    if (null != abd.getFactoryMethodName() ) {
+                        ConfigurationClassBeanDefinitionReader.ConfigurationClassBeanDefinition cbd = (ConfigurationClassBeanDefinitionReader.ConfigurationClassBeanDefinition) bd;
+                        parse(cbd.getMetadata(), holder.getBeanName());
+                    } else {
+                        parse(abd.getBeanClass(), holder.getBeanName());
+                    }
                 } else {
                     throw new NotImplementedException("Not implemented, should be AbstractBeanDefinition");
                 }
@@ -60,6 +66,10 @@ public class ConfigurationClassParser {
     protected final void parse(Class<?> clazz, String beanName) throws IOException {
         processConfigurationClass(new ConfigurationClass(clazz, beanName));
     }
+    protected final void parse(AnnotationMetadata metadata, String beanName) throws IOException {
+        processConfigurationClass(new ConfigurationClass(metadata, beanName));
+    }
+
     protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
         ConfigurationClass existingClass = this.configurationClasses.get(configClass);
         if (existingClass != null) {

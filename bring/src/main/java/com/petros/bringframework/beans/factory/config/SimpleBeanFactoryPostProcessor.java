@@ -31,6 +31,9 @@ public class SimpleBeanFactoryPostProcessor implements BeanFactoryPostProcessor{
     }
 
     private void updateBeanDefinitionConstructor(String name, BeanDefinition bd) {
+        if (bd.getFactoryMethodName() != null) {
+            return;
+        }
         Map<Boolean, Constructor<?>> constructors = AutowireClassUtils.determineCandidateConstructors(name, bd);
         Constructor<?> autowiredConstructor = constructors.get(Boolean.TRUE);
         GenericBeanDefinition beanDefinition = (GenericBeanDefinition)bd;

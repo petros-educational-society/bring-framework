@@ -2,15 +2,19 @@ package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
+import com.petros.bringframework.beans.support.AbstractBeanDefinition;
 import com.petros.bringframework.context.annotation.Configuration;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.cglib.proxy.Enhancer;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -110,6 +114,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     @Override
     public void postProcessBeanFactory(BeanFactory beanFactory) {
         postProcessBeanDefinitionRegistry(beanFactory.getBeanDefinitionRegistry());
+        //enhanceConfigurationClasses(beanFactory);
     }
 
     private boolean hasConfigurationAnnotation(BeanDefinition beanDef) {
@@ -118,5 +123,42 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             return metadata.isAnnotated(Configuration.class.getName());
         }
         return false;
+    }
+
+    private void enhanceConfigurationClasses(BeanFactory beanFactory) {
+        Map<String, AbstractBeanDefinition> configBeanDefs = new LinkedHashMap<>();
+        BeanDefinitionRegistry registry = beanFactory.getBeanDefinitionRegistry();
+        for (String beanName : registry.getBeanDefinitionNames()) {
+            BeanDefinition bd = registry.getBeanDefinition(beanName);
+            AnnotationMetadata annotationMetadata = null;
+            MethodMetadata methodMetadata = null;
+            if (bd instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+                annotationMetadata = annotatedBeanDefinition.getMetadata();
+                methodMetadata = annotatedBeanDefinition.getFactoryMethodMetadata();
+            }
+            if (annotationMetadata.isAnnotated(Configuration.class.getName()) && methodMetadata == null) {
+                if (bd instanceof AbstractBeanDefinition abd) {
+                    configBeanDefs.put(beanName, abd);
+                }
+            }
+        }
+        if (configBeanDefs.isEmpty()) {
+            return;
+        }
+
+        for (Map.Entry<String, AbstractBeanDefinition> entry : configBeanDefs.entrySet()) {
+            AbstractBeanDefinition beanDef = entry.getValue();
+            Class<?> configClass = beanDef.getBeanClass();
+
+            Enhancer enhancer = new Enhancer();
+            enhancer.setSuperclass(configClass);
+            //enhancer.setCallbackFilter();
+            //enhancer.setCallbackTypes();
+
+        }
+
+
+        // TODO :: enhance candidates
+
     }
 }
