@@ -1,6 +1,7 @@
 package com.web.petros.controller;
 
 import com.petros.bringframework.beans.factory.annotation.InjectPlease;
+import com.petros.bringframework.context.annotation.Component;
 import com.petros.bringframework.web.context.annotation.RequestMapping;
 import com.petros.bringframework.web.context.annotation.RequestParam;
 import com.petros.bringframework.web.context.annotation.RestController;
@@ -12,6 +13,7 @@ import com.web.petros.service.PictureService;
  * @author Viktor Basanets
  * @Project: bring-framework
  */
+@Component
 @RestController
 public class PictureController {
     @InjectPlease
