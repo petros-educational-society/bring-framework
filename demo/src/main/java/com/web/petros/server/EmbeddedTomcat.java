@@ -11,6 +11,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 
+/**
+ * Implementation of {@link ServletContainer} based on the built-in Tomcat
+ * @author Viktor Basanets
+ * @Project: bring-framework
+ */
 class EmbeddedTomcat implements ServletContainer {
 
     private static final String BASE_DIR_NAME = "embedded_tomcat";
