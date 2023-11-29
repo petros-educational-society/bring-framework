@@ -67,5 +67,16 @@ public final class ConfigurationClass {
     Set<BeanMethod> getBeanMethods() {
         return this.beanMethods;
     }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        return (this == other || (other instanceof ConfigurationClass that &&
+                getMetadata().getClassName().equals(that.getMetadata().getClassName())));
+    }
+
+    @Override
+    public int hashCode() {
+        return getMetadata().getClassName().hashCode();
+    }
 }
 

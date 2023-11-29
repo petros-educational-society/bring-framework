@@ -1,5 +1,8 @@
 package com.petros.services;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class HelloWorld2 {
 
     private final String name;
@@ -10,7 +13,7 @@ public class HelloWorld2 {
 
 
     public void apply() {
-        System.out.println("Hello" + name + " from HelloWorld2");
+        log.info("Hello {} from HelloWorld2", name);
     }
 
 }

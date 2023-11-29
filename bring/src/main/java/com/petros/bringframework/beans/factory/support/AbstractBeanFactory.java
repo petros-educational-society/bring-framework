@@ -195,7 +195,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (mbd instanceof AbstractBeanDefinition && mbd.getFactoryMethodName() == null) {
             beanClass = ((AbstractBeanDefinition) mbd).getBeanClass();
         }
-        if (beanClass == null) {
+        if (beanClass == null && mbd.getBeanClassName() != null) {
             try {
                 beanClass = Class.forName(mbd.getBeanClassName());
             } catch (ClassNotFoundException e) {

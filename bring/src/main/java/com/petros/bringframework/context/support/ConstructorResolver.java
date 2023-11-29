@@ -2,6 +2,7 @@ package com.petros.bringframework.context.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.exception.BeanInstantiationException;
+import com.petros.bringframework.beans.factory.BeanDefinitionStoreException;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanWrapper;
@@ -89,18 +90,24 @@ public class ConstructorResolver {
         boolean isStatic;
 
         String factoryBeanName = mbd.getFactoryBeanName();
-        factoryBean = this.beanFactory.getBean(factoryBeanName);
         if (factoryBeanName != null) {
-            //factoryBean = this.beanFactory.getBean(factoryBeanName);
-            //factoryBean = this.beanFactory.getBean(factoryBeanName);
+            if (factoryBeanName.equals(beanName)) {
+                throw new BeanDefinitionStoreException(mbd.getResourceDescription(), beanName,
+                        "factory-bean reference points back to the same bean definition");
+            }
+
+            factoryBean = this.beanFactory.getBean(factoryBeanName);  //should return config proxy
+
             if (mbd.isSingleton() && this.beanFactory.containsSingleton(beanName)) {
                 // TODO :: add exception
                 throw new RuntimeException();
             }
+
             this.beanFactory.registerDependentBean(factoryBeanName, beanName);
             factoryClass = factoryBean.getClass();
             isStatic = false;
         } else {
+            factoryBean = null;
             factoryClass = mbd.getBeanClass();
         }
 
@@ -117,11 +124,11 @@ public class ConstructorResolver {
 
         factoryMethodToUse = mbd.getResolvedFactoryMethod();
 
-        beanFactory.instantiateBean(mbd, beanName, this.beanFactory, factoryBean, factoryMethodToUse, explicitArgs);
+        return beanFactory.instantiateBean(mbd, beanName, this.beanFactory, factoryBean, factoryMethodToUse, explicitArgs);
 
 
 
-        return null;
+//        return null;
     }
 
     private static class ArgumentsHolder {

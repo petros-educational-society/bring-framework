@@ -4,14 +4,7 @@ import com.petros.bringframework.beans.factory.support.AnnotationAttributes;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.beans.support.ReflectionBeanDefinition;
-import com.petros.bringframework.context.annotation.AnnotationConfigUtils;
-import com.petros.bringframework.context.annotation.AnnotationScopeMetadataResolver;
-import com.petros.bringframework.context.annotation.Bean;
-import com.petros.bringframework.context.annotation.BeanMethod;
-import com.petros.bringframework.context.annotation.Scope;
-import com.petros.bringframework.context.annotation.ScopeMetadata;
-import com.petros.bringframework.context.annotation.ScopeMetadataResolver;
-import com.petros.bringframework.context.annotation.ScopedProxyMode;
+import com.petros.bringframework.context.annotation.*;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -78,8 +71,12 @@ public class ConfigurationClassBeanDefinitionReader {
         String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
 
         ConfigurationClassBeanDefinition configBeanDef = new ConfigurationClassBeanDefinition(configClass, metadata, beanName);
-        //configBeanDef.setBeanClassName(metadata.getIntrospectedMethod().getReturnType().getName());
-        configBeanDef.setFactoryBeanName(configClass.getBeanName());
+        if (metadata.isStatic()) {
+            //todo throw exception not supported
+            configBeanDef.setBeanClassName(configClass.getMetadata().getClassName());
+        } else {
+            configBeanDef.setFactoryBeanName(configClass.getBeanName());
+        }
         configBeanDef.setFactoryMethodName(methodName);
         configBeanDef.setAutowireMode(AUTOWIRE_CONSTRUCTOR);
         configBeanDef.setResolvedFactoryMethod(metadata.getIntrospectedMethod());

@@ -40,7 +40,6 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private String[] dependsOn;
 
     @Nullable
-    @Setter
     @Getter
     private String factoryBeanName;
 

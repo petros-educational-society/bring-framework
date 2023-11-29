@@ -2,6 +2,7 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.factory.BeanAware;
+import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.BeanFactoryUtils;
 import com.petros.bringframework.beans.factory.config.AnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.AutowireCapableBeanFactory;

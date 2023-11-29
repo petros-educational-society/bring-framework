@@ -2,6 +2,7 @@ package com.petros;
 
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
 import com.petros.config.JavaConfig;
+import com.petros.services.HelloWorld2;
 import com.petros.services.SayHello;
 import com.petros.services.Test;
 import lombok.extern.log4j.Log4j2;
@@ -26,5 +27,8 @@ public class BringDemo {
 
         var sayHello = annotationConfigApplicationContext.getBean(SayHello.class);
         sayHello.print();
+
+        var helloWorld2 = annotationConfigApplicationContext.getBean(HelloWorld2.class);
+        helloWorld2.apply();
     }
 }
