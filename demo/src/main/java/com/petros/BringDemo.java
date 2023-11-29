@@ -30,5 +30,8 @@ public class BringDemo {
 
         var helloWorld2 = annotationConfigApplicationContext.getBean(HelloWorld2.class);
         helloWorld2.apply();
+
+        JavaConfig bean = annotationConfigApplicationContext.getBean(JavaConfig.class);
+        System.out.println();
     }
 }

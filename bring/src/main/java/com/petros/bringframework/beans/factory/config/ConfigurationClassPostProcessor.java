@@ -1,11 +1,16 @@
 package com.petros.bringframework.beans.factory.config;
 
+import com.petros.bringframework.beans.factory.BeanAware;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.support.AbstractBeanDefinition;
 import com.petros.bringframework.context.annotation.Configuration;
 import lombok.extern.log4j.Log4j2;
-import net.sf.cglib.proxy.Enhancer;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatchers;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -114,7 +119,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     @Override
     public void postProcessBeanFactory(BeanFactory beanFactory) {
         postProcessBeanDefinitionRegistry(beanFactory.getBeanDefinitionRegistry());
-        //enhanceConfigurationClasses(beanFactory);
+        enhanceConfigurationClasses(beanFactory);
     }
 
     private boolean hasConfigurationAnnotation(BeanDefinition beanDef) {
@@ -150,11 +155,20 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             AbstractBeanDefinition beanDef = entry.getValue();
             Class<?> configClass = beanDef.getBeanClass();
 
-            Enhancer enhancer = new Enhancer();
-            enhancer.setSuperclass(configClass);
-            //enhancer.setCallbackFilter();
-            //enhancer.setCallbackTypes();
+            Class<?> dynamicType = new ByteBuddy()
+                    .subclass(configClass)
+                    .implement(BeanAware.class)
+                    .defineField("beanFactory", BeanFactory.class)
+                    .method(ElementMatchers.named("setBeanFactory"))
+                    .intercept(MethodDelegation.to(BeanFactorAweaMethodIntercaptor.class))
 
+//                    .defineMethod("setBeanFactory", BeanFactory.class)
+                    .method(ElementMatchers.isPublic())
+                    .intercept(MethodDelegation.to(MethodInterceptor.class))
+                    .make()
+                    .load(configClass.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
+            beanDef.setBeanClassName(dynamicType.getName());
         }
 
 
