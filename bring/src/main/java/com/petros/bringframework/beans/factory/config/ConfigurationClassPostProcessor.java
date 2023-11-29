@@ -3,7 +3,7 @@ package com.petros.bringframework.beans.factory.config;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.context.annotation.Configuration;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.Set;
  * @author "Vasiuk Maryna"
  * @author "Maksym Oliinyk"
  */
-@Slf4j
+@Log4j2
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
     private final Set<Integer> registriesPostProcessed = new HashSet<>();

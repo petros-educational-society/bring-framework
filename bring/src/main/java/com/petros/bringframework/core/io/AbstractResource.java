@@ -1,6 +1,6 @@
 package com.petros.bringframework.core.io;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -14,7 +14,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.function.Supplier;
 
-@Slf4j
+@Log4j2
 public abstract class AbstractResource implements Resource {
     @Override
     public boolean exists() {
