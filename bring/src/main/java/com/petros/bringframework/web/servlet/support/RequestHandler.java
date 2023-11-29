@@ -1,5 +1,6 @@
 package com.petros.bringframework.web.servlet.support;
 
+import com.google.gson.JsonObject;
 import com.petros.bringframework.web.servlet.support.utils.Http;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,7 +60,12 @@ public class RequestHandler {
 
         // TODO Add support of custom classes and mapping to json/xml
         if (result instanceof String){
-            Http.writeResultString((String)result, resp);
+            Http.writeResult((String)result, resp);
+            return;
+        }
+
+        if (result instanceof JsonObject json) {
+            Http.writeResult(json.toString(), resp);
         }
     }
 }

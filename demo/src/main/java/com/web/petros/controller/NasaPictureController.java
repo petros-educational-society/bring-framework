@@ -5,9 +5,10 @@ import com.petros.bringframework.context.annotation.Component;
 import com.petros.bringframework.web.context.annotation.RequestMapping;
 import com.petros.bringframework.web.context.annotation.RequestParam;
 import com.petros.bringframework.web.context.annotation.RestController;
-import com.petros.bringframework.web.http.ResponseEntity;
 import com.petros.bringframework.web.servlet.support.common.RequestMethod;
-import com.web.petros.service.PictureService;
+import com.web.petros.service.NasaApiService;
+
+import static java.lang.String.format;
 
 /**
  * @author Viktor Basanets
@@ -15,12 +16,15 @@ import com.web.petros.service.PictureService;
  */
 @Component
 @RestController
-public class PictureController {
-    @InjectPlease
-    private PictureService pictureService;
+public class NasaPictureController {
 
-    @RequestMapping(path = "/api/nasa/photos/largest", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> getLargest(@RequestParam(name = "sol") int sol) {
-        return pictureService.getLargestPhoto(sol);
+    @InjectPlease
+    private NasaApiService service;
+
+    @RequestMapping(path = "/api/nasa/photos", method = RequestMethod.GET)
+    public String getLargestPhoto(@RequestParam(name = "sol") String sol) {
+        var url = format("https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=%s&api_key=hKfg7MJKtyIf7kiPZ6fHrlkw7yKh3BRZQdLgHxBR", sol);
+        var response = service.getLargestPicture(url);
+        return response.body();
     }
 }

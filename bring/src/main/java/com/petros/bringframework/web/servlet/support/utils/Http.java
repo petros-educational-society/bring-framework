@@ -4,9 +4,12 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Util class with static methods to work with HttpServlet request/response
@@ -35,7 +38,7 @@ public class Http {
         }
     }
 
-    public static void writeResultString(String data, HttpServletResponse response){
+    public static void writeResult(String data, HttpServletResponse response){
         try {
             ServletOutputStream out = response.getOutputStream();
             out.write(data.getBytes());
