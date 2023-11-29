@@ -1,6 +1,12 @@
 package com.petros.bringframework.beans.config;
 
-import com.petros.bringframework.beans.config.beans.*;
+import com.petros.bringframework.beans.config.beans.AutowiredCandidate;
+import com.petros.bringframework.beans.config.beans.AutowiredCandidateImpl;
+import com.petros.bringframework.beans.config.beans.AutowiredCandidateImpl2;
+import com.petros.bringframework.beans.config.beans.DestroyPleaseAnnotationTestBean;
+import com.petros.bringframework.beans.config.beans.InitPleaseAnnotationTestBean;
+import com.petros.bringframework.beans.config.beans.InjectPleaseAnnotationTestBean;
+import com.petros.bringframework.beans.config.beans.ValueAnnotationTestBean;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.config.AutowiredAnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.InitDestroyAnnotationBeanPostProcessor;
