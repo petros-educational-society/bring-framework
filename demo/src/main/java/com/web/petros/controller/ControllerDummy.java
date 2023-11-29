@@ -12,6 +12,8 @@ import com.petros.bringframework.web.servlet.support.common.RequestMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static com.petros.bringframework.util.StringUtils.hasLength;
+
 @Component
 @RestController
 public class ControllerDummy {
@@ -24,8 +26,24 @@ public class ControllerDummy {
     @RequestMapping(path = "/user/{id}", method = RequestMethod.GET)
     public String getUser(@RequestParam(name = "name") String name,
                           @RequestHeader(name = "location") String location,
-                          @PathVariable(name = "id") String id){
-        return "Received parameter is " + name + "; Received header is " + location + "; Received path variable " + id;
+                          @PathVariable(name = "id") String id) {
+        var respBuilder = new StringBuilder();
+        if (hasLength(name)) {
+            respBuilder.append("Received parameter is ")
+                    .append(name)
+                    .append(";\n");
+        }
+        if (hasLength(location)) {
+            respBuilder.append("Received header is ")
+                    .append(location)
+                    .append(";\n");
+        }
+        if (hasLength(id)) {
+            respBuilder.append("Received path variable ")
+                    .append(id)
+                    .append(";\n");
+        }
+        return respBuilder.toString();
     }
 
     @RequestMapping(path = "/user/{id}/post/{postId}", method = RequestMethod.GET)
