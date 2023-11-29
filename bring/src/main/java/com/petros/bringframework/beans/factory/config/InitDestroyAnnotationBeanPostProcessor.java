@@ -6,7 +6,7 @@ import com.petros.bringframework.beans.factory.annotation.DestroyPlease;
 import com.petros.bringframework.beans.factory.annotation.InitPlease;
 import com.petros.bringframework.util.ClassUtils;
 import com.petros.bringframework.util.ReflectionUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author "Vasiuk Maryna"
  */
 @SuppressWarnings("serial")
-@Slf4j
+@Log4j2
 public class InitDestroyAnnotationBeanPostProcessor
         implements DestructionAwareBeanPostProcessor, Serializable {
 

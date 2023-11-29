@@ -11,7 +11,7 @@ import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.core.type.convert.ConversionService;
 import com.petros.bringframework.factory.config.NamedBeanHolder;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ import static java.util.Objects.nonNull;
  * @author "Oleksii Skachkov"
  * @author "Marina Vasiuk"
  */
-@Slf4j
+@Log4j2
 public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory {
     private final Map<String, Object> beanCacheByName = new ConcurrentHashMap<>();
     private final Map<Class<?>, Object> beanCacheByType = new ConcurrentHashMap<>();

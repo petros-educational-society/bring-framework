@@ -1,8 +1,8 @@
 package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.exception.BeanCreationException;
-import com.petros.bringframework.beans.factory.BeanFactoryUtils;
 import com.petros.bringframework.beans.factory.BeanAware;
+import com.petros.bringframework.beans.factory.BeanFactoryUtils;
 import com.petros.bringframework.beans.factory.config.AnnotationBeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.AutowireCapableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
@@ -11,7 +11,7 @@ import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.context.support.ConstructorResolver;
 import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.util.AutowireClassUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -19,7 +19,6 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -29,7 +28,7 @@ import java.util.stream.Stream;
  *
  * @author "Maksym Oliinyk"
  */
-@Slf4j
+@Log4j2
 public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
