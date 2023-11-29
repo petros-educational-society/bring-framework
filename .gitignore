@@ -2,6 +2,8 @@ db-data/
 keycloak-data/
 HELP.md
 */target
+*/server.log
+/logs
 
 ### IntelliJ IDEA ###
 .idea

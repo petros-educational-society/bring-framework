@@ -7,10 +7,11 @@ import com.petros.bringframework.beans.factory.config.BeanPostProcessor;
 import com.petros.bringframework.beans.factory.config.ConfigurationClassPostProcessor;
 import com.petros.bringframework.beans.factory.config.SimpleBeanFactoryPostProcessor;
 import com.petros.bringframework.context.ConfigurableApplicationContext;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
+
 import javax.annotation.Nullable;
 
-@Slf4j
+@Log4j2
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
 
     private final Object startupShutdownMonitor = new Object();

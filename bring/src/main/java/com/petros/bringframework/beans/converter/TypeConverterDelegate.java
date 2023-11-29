@@ -1,15 +1,15 @@
 package com.petros.bringframework.beans.converter;
 
-import com.petros.bringframework.util.BeanUtils;
 import com.petros.bringframework.beans.DefaultPropertyEditorRegistry;
 import com.petros.bringframework.core.CollectionFactory;
 import com.petros.bringframework.core.type.convert.ConversionFailedException;
 import com.petros.bringframework.core.type.convert.TypeDescriptor;
+import com.petros.bringframework.util.BeanUtils;
 import com.petros.bringframework.util.ClassUtils;
 import com.petros.bringframework.util.NumberUtils;
 import com.petros.bringframework.util.ReflectionUtils;
 import com.petros.bringframework.util.StringUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.beans.PropertyEditor;
@@ -32,7 +32,7 @@ import static java.util.Objects.nonNull;
  * @Project: bring-framework
  */
 
-@Slf4j
+@Log4j2
 public class TypeConverterDelegate {
 
     private final DefaultPropertyEditorRegistry propertyEditorRegistry;

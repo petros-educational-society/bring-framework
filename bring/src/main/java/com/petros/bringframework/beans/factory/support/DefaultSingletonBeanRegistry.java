@@ -4,7 +4,7 @@ import com.petros.bringframework.beans.exception.BeanCreationException;
 import com.petros.bringframework.beans.exception.BeanCurrentlyInCreationException;
 import com.petros.bringframework.beans.factory.config.SingletonBeanRegistry;
 import com.petros.bringframework.core.AssertUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author "Maksym Oliinyk"
  */
-@Slf4j
+@Log4j2
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
     /**

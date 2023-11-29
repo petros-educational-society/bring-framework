@@ -1,7 +1,7 @@
 package com.petros.bringframework.beans.factory.config;
 
 import com.petros.bringframework.core.AssertUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * @author "Maksym Oliinyk"
  */
-@Slf4j
+@Log4j2
 public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implements AnnotationMetadata {
     private final Set<Annotation> annotations;
 

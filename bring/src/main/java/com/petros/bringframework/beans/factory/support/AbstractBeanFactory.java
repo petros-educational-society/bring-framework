@@ -9,7 +9,7 @@ import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.support.AbstractBeanDefinition;
 import com.petros.bringframework.core.type.convert.ConversionService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -20,7 +20,7 @@ import static java.util.Objects.nonNull;
 /**
  * @author "Maksym Oliinyk"
  */
-@Slf4j
+@Log4j2
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
 
     protected final BeanDefinitionRegistry registry;
