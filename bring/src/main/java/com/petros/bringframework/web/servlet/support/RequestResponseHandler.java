@@ -1,6 +1,7 @@
 package com.petros.bringframework.web.servlet.support;
 
 import com.petros.bringframework.web.servlet.support.utils.Http;
+import lombok.extern.log4j.Log4j2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import java.util.Map;
  * Produced by RequestHandlerFactory and is aimed to invoke corresponding method with arguments extracted from the web request
  * @author Serhii Dorodko
  */
+@Log4j2
 public class RequestResponseHandler {
     private final Object controllerBean;
     private final Method method;
@@ -54,6 +56,7 @@ public class RequestResponseHandler {
         try {
             result = method.invoke(controllerBean, invocationArguments);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            log.debug("Exception occurred while invoking method: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
 

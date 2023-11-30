@@ -54,6 +54,7 @@ public class ContextLoaderListener implements ServletContextListener {
             defaultStrategies = loadProperties(resource);
         }
         catch (IOException ex) {
+            log.debug("Could not load 'ContextLoader.properties': {}", ex.getMessage());
             throw new IllegalStateException("Could not load 'ContextLoader.properties': " + ex.getMessage());
         }
     }
@@ -199,6 +200,7 @@ public class ContextLoaderListener implements ServletContextListener {
                 return ClassUtils.forName(contextClassName, this.getClass().getClassLoader());
             }
             catch (ClassNotFoundException ex) {
+                log.debug("Failed to load default context class [{}]", contextClassName, ex);
                 throw new ApplicationContextException(
                         "Failed to load default context class [" + contextClassName + "]", ex);
             }

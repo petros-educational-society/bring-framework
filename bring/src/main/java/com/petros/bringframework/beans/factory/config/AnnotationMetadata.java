@@ -9,6 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Interface that defines abstract access to the annotations of a specific class,
+ * in a form that does not require that class to be loaded yet.
+ *
  * @author "Maksym Oliinyk"
  */
 public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata {

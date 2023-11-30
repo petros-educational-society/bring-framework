@@ -8,6 +8,7 @@ import com.petros.bringframework.core.AssertUtils;
 import com.petros.bringframework.core.type.convert.ConverterNotFoundException;
 import com.petros.bringframework.core.type.convert.TypeDescriptor;
 import com.petros.bringframework.core.type.convert.ConversionException;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 
@@ -23,6 +24,7 @@ import static java.util.Objects.nonNull;
  * @Project: bring-framework
  */
 
+@Log4j2
 public class SympleTypeConverter extends DefaultPropertyEditorRegistry implements TypeConverter {
 
     private final TypeConverterDelegate typeConverterDelegate;
@@ -46,8 +48,10 @@ public class SympleTypeConverter extends DefaultPropertyEditorRegistry implement
         try {
             return typeConverterDelegate.convertIfNecessary(null, null, value, type, descriptor);
         } catch (ConverterNotFoundException | IllegalStateException ex) {
+            log.debug("Conversion not supported: Value={}, Type={}", value, type, ex);
             throw new ConversionNotSupportedException(value, type, ex);
         } catch (ConversionException | IllegalArgumentException ex) {
+            log.debug("Type mismatch occurred: Value={}, Type={}", value, type, ex);
             throw new TypeMismatchException(value, type, ex);
         }
     }

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Utility class to assist in handling annotations related to bean methods.
+ *
  * @author "Maksym Oliinyk"
  */
 @Log4j2
@@ -17,6 +19,12 @@ public abstract class BeanAnnotationHelper {
 
     private static final Map<Method, Boolean> scopedProxyCache = new ConcurrentHashMap<>();
 
+    /**
+     * Determines the bean name for the given bean method.
+     *
+     * @param beanMethod The method annotated with {@link com.petros.bringframework.context.annotation.Bean}.
+     * @return The determined bean name.
+     */
     public static String determineBeanNameFor(Method beanMethod) {
         String beanName = beanNameCache.get(beanMethod);
         if (beanName == null) {
@@ -35,6 +43,12 @@ public abstract class BeanAnnotationHelper {
         return beanName;
     }
 
+    /**
+     * Checks if the given bean method is a scoped proxy.
+     *
+     * @param beanMethod The method annotated with @Bean.
+     * @return True if the bean method is a scoped proxy
+     */
     public static boolean isScopedProxy(Method beanMethod) {
         Boolean scopedProxy = scopedProxyCache.get(beanMethod);
         if (scopedProxy == null) {

@@ -29,6 +29,10 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
+ * This class represents a DefaultBeanFactory that extends AbstractAutowireCapableBeanFactory
+ * and implements ConfigurableBeanFactory. It manages beans in a container,
+ * providing methods to retrieve, cache, and process beans during their lifecycle.
+ *
  * @author "Oleksii Skachkov"
  * @author "Marina Vasiuk"
  */
@@ -92,6 +96,10 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         beanCacheByName.clear();
     }
 
+    /**
+     * Triggers the post-processing before bean destruction for all DestructionAwareBeanPostProcessors
+     * registered within the bean factory.
+     */
     public void postProcessBeforeDistraction() {
         getBeanPostProcessors().stream()
                 .filter(DestructionAwareBeanPostProcessor.class::isInstance)
@@ -145,6 +153,9 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         return null;
     }
 
+    /**
+     * Resolves a named bean based on the given required type and arguments.
+     */
     @Nullable
     @SuppressWarnings("unchecked")
     private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object[] args, boolean throwExceptionIfNonUnique) throws BeansException {
@@ -259,7 +270,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
                 .anyMatch(beanName::equalsIgnoreCase);
     }
 
-    private BeanDefinition getBeanDefinition(String beanName) {
+    protected BeanDefinition getBeanDefinition(String beanName) {
         return Optional.ofNullable(registry.getBeanDefinition(beanName))
                 .orElseThrow(() -> {
                     if (log.isTraceEnabled()) log.trace("No bean names '{}' found in {}", beanName, this);
@@ -346,6 +357,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         }
     }
 
+    /**
+     * Adds a BeanPostProcessor to the list of post-processors.
+     *
+     * @param beanPostProcessor the BeanPostProcessor to add
+     */
     @Override
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
         AssertUtils.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
@@ -355,6 +371,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         }
     }
 
+    /**
+     * Adds a BeanFactoryPostProcessor to the list of post-processors.
+     *
+     * @param beanFactoryPostProcessor the BeanFactoryPostProcessor to add
+     */
     @Override
     public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor beanFactoryPostProcessor) {
         synchronized (this.beanFactoryPostProcessors) {

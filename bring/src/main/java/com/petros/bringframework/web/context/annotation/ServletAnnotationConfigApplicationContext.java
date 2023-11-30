@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 import static com.petros.bringframework.util.StringUtils.hasLength;
 
 /**
+ * Extension of AnnotationConfigApplicationContext customized for Servlet-based environments.
+ * Manages the initialization of controller mappings and request handling.
+ *
  * @author Viktor Basanets
  * @Project: bring-framework
  */
@@ -22,35 +25,65 @@ public class ServletAnnotationConfigApplicationContext extends AnnotationConfigA
     private Map<Class<?>, Object> controllerMap;
     private RequestHandlerRegistry requestHandlerRegistry;
 
+    /**
+     * Constructs a ServletAnnotationConfigApplicationContext without any initial components.
+     */
     public ServletAnnotationConfigApplicationContext() {
         super();
         doInit();
     }
 
+    /**
+     * Constructs a ServletAnnotationConfigApplicationContext with the provided component classes.
+     *
+     * @param componentClasses Component classes for context initialization
+     */
     public ServletAnnotationConfigApplicationContext(Class<?>... componentClasses) {
         super(componentClasses);
         doInit();
     }
 
+    /**
+     * Constructs a ServletAnnotationConfigApplicationContext with the provided base packages.
+     *
+     * @param basePackages Base packages for component scanning
+     */
     public ServletAnnotationConfigApplicationContext(String... basePackages) {
         super(basePackages);
         doInit();
     }
 
+    /**
+     * Retrieves the ServletContext associated with this application context.
+     *
+     * @return The ServletContext associated with this context
+     */
     @Nullable
     @Override
     public ServletContext getServletContext() {
         return null;
     }
 
+    /**
+     * Retrieves the RequestHandlerRegistry associated with this context.
+     *
+     * @return The RequestHandlerRegistry for managing request handlers
+     */
     public RequestHandlerRegistry getRequestHandlerRegistry() {
         return requestHandlerRegistry;
     }
 
+    /**
+     * Initializes the context by setting up controllers and the request handler registry.
+     */
     protected void doInit() {
         initControllers();
         initRequestHandlerRegistry();
     }
+
+    /**
+     * Initializes the controller map by collecting beans annotated as RestController.
+     */
     private void initControllers() {
         this.controllerMap = getBeanFactory().getBeanDefinitionRegistry()
                 .getBeanDefinitions().values()
@@ -60,6 +93,9 @@ public class ServletAnnotationConfigApplicationContext extends AnnotationConfigA
                 .collect(Collectors.toMap(c -> c, c -> getBeanFactory().getBean(c)));
     }
 
+    /**
+     * Initializes the request handler registry by registering methods annotated with RequestMapping within controllers.
+     */
     private void initRequestHandlerRegistry() {
         requestHandlerRegistry = new RequestHandlerRegistry();
         for (Map.Entry<Class<?>, Object> entry : controllerMap.entrySet()) {
@@ -70,6 +106,12 @@ public class ServletAnnotationConfigApplicationContext extends AnnotationConfigA
         }
     }
 
+    /**
+     * Checks if a given BeanDefinition is annotated as RestController.
+     *
+     * @param bd The BeanDefinition to check
+     * @return True if the BeanDefinition is annotated as RestController
+     */
     private boolean isRestController(BeanDefinition bd) {
         try {
             var beanClassName = bd.getBeanClassName();
@@ -85,6 +127,12 @@ public class ServletAnnotationConfigApplicationContext extends AnnotationConfigA
         }
     }
 
+    /**
+     * Retrieves the Class from a given BeanDefinition.
+     *
+     * @param bd The BeanDefinition
+     * @return The corresponding Class for the BeanDefinition
+     */
     private Class<?> toBeanClass(BeanDefinition bd) {
         try {
             return Class.forName(bd.getBeanClassName());

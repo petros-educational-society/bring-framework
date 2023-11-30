@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
  * A convenience annotation that is itself annotated with
  * Types that carry this annotation are treated as controllers where
  * {@link ResponseBody @ResponseBody} semantics by default.
+ *
  * @author Viktor Basanets
  */
 

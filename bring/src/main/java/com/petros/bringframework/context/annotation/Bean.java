@@ -7,8 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * Indicates that a method produces a bean to be managed by the Bring container.
+ *
+* @author "Vadym Vovk"
  */
-
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Bean {

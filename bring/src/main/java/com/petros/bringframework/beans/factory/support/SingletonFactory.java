@@ -2,6 +2,9 @@ package com.petros.bringframework.beans.factory.support;
 
 import com.petros.bringframework.beans.BeansException;
 
+/**
+ * @author "Maksym Oliinyk"
+ */
 @FunctionalInterface
 public interface SingletonFactory<T> {
 

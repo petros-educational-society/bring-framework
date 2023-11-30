@@ -18,15 +18,9 @@ import java.util.stream.Collectors;
  * or {@link MethodMetadata method}), in a form that does not necessarily require the
  * class-loading.
  *
- * @author Juergen Hoeller
- * @author Mark Fisher
- * @author Mark Pollack
- * @author Chris Beams
- * @author Phillip Webb
- * @author Sam Brannen
+ * @author "Maksym Oliinyk"
  * @see AnnotationMetadata
  * @see MethodMetadata
- * @since 4.0
  */
 public interface AnnotatedTypeMetadata {
 

@@ -94,7 +94,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
                 try {
                     singletonObject = singletonFactory.getObject();
                 } catch (BeanCreationException ex) {
-                    log.error("Couldn't create bean '" + beanName + "'", ex);
+                    log.debug("Couldn't create bean '" + beanName + "'", ex);
                     throw ex;
                 } finally {
                     afterSingletonCreation(beanName);

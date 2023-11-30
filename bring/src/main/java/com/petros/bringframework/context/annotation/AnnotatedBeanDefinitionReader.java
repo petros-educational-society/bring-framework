@@ -8,7 +8,10 @@ import com.petros.bringframework.type.reading.ReflectionMetadataReader;
 import lombok.Getter;
 
 /**
+ * Convenient adapter for programmatic registration of bean classes.
+ *
  * @author "Maksym Oliinyk"
+ * @see AnnotationConfigApplicationContext#register
  */
 public class AnnotatedBeanDefinitionReader {
 

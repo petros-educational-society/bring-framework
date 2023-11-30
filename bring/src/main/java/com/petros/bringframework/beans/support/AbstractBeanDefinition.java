@@ -18,6 +18,9 @@ import static com.petros.bringframework.beans.factory.config.AutowireMode.AUTOWI
 import static com.petros.bringframework.beans.factory.config.AutowireMode.AUTOWIRE_CONSTRUCTOR;
 
 /**
+ * Abstract implementation of the {@link BeanDefinition} interface providing basic functionality for bean definitions.
+ * This class represents a bean definition containing metadata and attributes for a bean instance.
+ *
  * @author "Maksym Oliinyk"
  */
 public abstract class AbstractBeanDefinition implements BeanDefinition {

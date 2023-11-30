@@ -19,6 +19,14 @@ import java.util.Set;
 import static com.petros.bringframework.beans.factory.config.AutowireMode.AUTOWIRE_CONSTRUCTOR;
 import static java.util.Objects.nonNull;
 
+/**
+ * A class responsible for reading and processing configuration class bean definitions.
+ * This class provides methods to load and register bean definitions based on configuration classes.
+ * It uses the provided {@link BeanDefinitionRegistry} to register the bean definitions.
+ *
+ * @author "Maksym Oliinyk"
+ * @author "Vadym Vovk"
+ */
 @Log4j2
 public class ConfigurationClassBeanDefinitionReader {
 
