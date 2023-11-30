@@ -5,6 +5,8 @@ import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import java.lang.reflect.Constructor;
 
 /**
+ * Interface responsible for creating instances corresponding to a bean definition.
+ *
  * @author "Maksym Oliinyk"
  */
 public interface InstantiationStrategy {

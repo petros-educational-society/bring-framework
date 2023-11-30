@@ -11,6 +11,28 @@ import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 
+/**
+ * Abstract base class implementing the {@link ConfigurableApplicationContext} interface,
+ * providing common functionality for concrete application context implementations.
+ * This class manages the lifecycle of an application context, including initialization,
+ * configuration, and resource management.
+ * <p>
+ * The class defines core methods for initializing and refreshing the application context,
+ * registering shutdown hooks, and managing the lifecycle of beans within the context.
+ * <p>
+ * This class employs synchronization mechanisms to ensure thread-safe startup and shutdown
+ * operations of the context. It also integrates with the JVM shutdown process to perform
+ * clean-up activities upon JVM termination.
+ * <p>
+ * Subclasses of this abstract class are responsible for implementing specific behavior
+ * related to obtaining and managing the underlying bean factory, as well as handling the
+ * lifecycle phases of the application context.
+ *
+ * @see ConfigurableApplicationContext
+ * @author "Viktor Basanets"
+ * @author "Maksym Oliinyk"
+ * @author "Vasiuk Maryna"
+ */
 @Log4j2
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
 
@@ -43,43 +65,42 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
     }
 
+    /**
+     * Perform a fresh start-up of the context, initializing and configuring the underlying BeanFactory.
+     * Prepare the bean factory for use in this context.
+     * Allows post-processing of the bean factory in context subclasses.
+     * Invoke factory processors registered as beans in the context.
+     * Register bean processors that intercept bean creation.
+     * Instantiate all remaining (non-lazy-init) singletons.
+     * Destroy already created singletons to avoid dangling resources.
+     * @throws BeansException if initialization fails
+     * @throws IllegalStateException if the context has already been refreshed
+     */
     @Override
     public void refresh() throws BeansException, IllegalStateException {
         ConfigurableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-        // Prepare the bean factory for use in this context.
         prepareBeanFactory(beanFactory);
 
         try {
-            // Allows post-processing of the bean factory in context subclasses.
             postProcessBeanFactory(beanFactory);
 
-            // Invoke factory processors registered as beans in the context.
             invokeBeanFactoryPostProcessors(beanFactory);
 
-            // Register bean processors that intercept bean creation.
             registerBeanPostProcessors(beanFactory);
 
-            // Instantiate all remaining (non-lazy-init) singletons.
             finishBeanFactoryInitialization(beanFactory);
 
         } catch (BeansException ex) {
             if (log.isWarnEnabled()) {
                 log.warn("Exception encountered during context initialization - " +
-                         "cancelling refresh attempt: " + ex);
+                        "cancelling refresh attempt: " + ex);
             }
 
-            // Destroy already created singletons to avoid dangling resources.
             destroyBeans();
 
-            // Reset 'active' flag.
-            //            cancelRefresh(ex);
-
-            // Propagate exception to caller.
             throw ex;
         } finally {
-            // Reset common introspection caches, since we
-            // might not ever need metadata for singleton beans anymore...
             resetCommonCaches();
         }
     }
@@ -188,8 +209,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     protected abstract void invokeBeanFactoryPostProcessors(BeanFactory beanFactory);
 
+    /**
+     * Destroy all beans in the application context, releasing their resources.
+     */
     protected abstract void destroyBeans();
 
+    /**
+     * Perform post-processing before destruction of the context.
+     */
     protected abstract void postProcessBeforeDistraction();
 
 }

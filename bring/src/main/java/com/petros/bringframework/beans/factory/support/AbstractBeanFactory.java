@@ -18,6 +18,22 @@ import static com.petros.bringframework.util.ClassUtils.getQualifiedName;
 import static java.util.Objects.nonNull;
 
 /**
+ * Abstract base class for {@link com.petros.bringframework.beans.factory.BeanFactory}
+ * implementations, providing the full capabilities of the
+ * {@link com.petros.bringframework.beans.factory.ConfigurableBeanFactory}.
+ *
+ * <p>This class provides a singleton cache through its base class
+ * {@link com.petros.bringframework.beans.factory.support.DefaultSingletonBeanRegistry},
+ * providing essential functionality for bean creation, retrieval, and adaptation based on bean definitions.
+ *
+ * <p>The main template methods to be implemented by subclasses are
+ * {@link DefaultBeanFactory#getBeanDefinition} and {@link AbstractAutowireCapableBeanFactory#createBean}, retrieving a bean definition
+ * for a given bean name and creating a bean instance for a given bean definition,
+ * respectively. Default implementations of those operations can be found in
+ * {@link AbstractAutowireCapableBeanFactory}.
+ *
+ * @see AbstractAutowireCapableBeanFactory#createBean
+ * @see DefaultBeanFactory#getBeanDefinition
  * @author "Maksym Oliinyk"
  */
 @Log4j2

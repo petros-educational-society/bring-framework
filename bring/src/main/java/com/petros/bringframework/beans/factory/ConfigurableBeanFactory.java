@@ -9,6 +9,13 @@ import com.petros.bringframework.beans.factory.support.NoSuchBeanDefinitionExcep
 import java.util.List;
 
 /**
+ * Configuration interface to be implemented by most bean factories. Provides
+ * facilities to configure a bean factory, in addition to the bean factory
+ * client methods in the {@link com.petros.bringframework.beans.factory.BeanFactory}
+ * interface.
+ *
+ * @see com.petros.bringframework.beans.factory.BeanFactory
+ * @see com.petros.bringframework.beans.factory.config.SingletonBeanRegistry
  * @author "Maksym Oliinyk"
  */
 public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegistry {

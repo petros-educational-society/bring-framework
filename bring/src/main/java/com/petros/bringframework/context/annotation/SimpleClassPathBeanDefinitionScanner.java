@@ -15,6 +15,16 @@ import org.reflections.Reflections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Scans a given set of base packages in the classpath for classes annotated with
+ * {@link com.petros.bringframework.context.annotation.Component} and its subtypes, registering them
+ * as bean definitions in the provided {@link BeanDefinitionRegistry}.
+ *
+ * @author "Viktor Basanets"
+ * @author "Maksym Oliinyk"
+ * @see AnnotationConfigApplicationContext#scan
+ * @see Component
+ */
 public class SimpleClassPathBeanDefinitionScanner {
 
     private final BeanDefinitionRegistry registry;
@@ -25,11 +35,25 @@ public class SimpleClassPathBeanDefinitionScanner {
         this.registry = registry;
     }
 
+    /**
+     * Scans the provided base packages for classes annotated with @Component and its subtypes,
+     * generating and registering bean definitions for each discovered class.
+     *
+     * @param basePackages The base packages to scan for component classes.
+     * @return The count of bean definitions registered during the scan.
+     */
     public int scan(String... basePackages) {
         final Set<BeanDefinitionHolder> candidates = doScan(basePackages);
         return candidates.size();
     }
 
+    /**
+     * Scans the provided base packages for candidate components and generates BeanDefinitionHolders
+     * for each discovered component class.
+     *
+     * @param basePackages The base packages to scan for candidate components.
+     * @return A set of BeanDefinitionHolder instances for the discovered candidate components.
+     */
     protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
         AssertUtils.notEmpty(basePackages, "At least one base package must be specified");
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
@@ -50,6 +74,12 @@ public class SimpleClassPathBeanDefinitionScanner {
         return beanDefinitions;
     }
 
+    /**
+     * Finds candidate components within the specified base packages and returns them as BeanDefinition instances.
+     *
+     * @param basePackages The base packages to scan for candidate components.
+     * @return A set of BeanDefinition instances representing the discovered candidate components.
+     */
     protected Set<BeanDefinition> findCandidateComponents(String... basePackages) {
         final Set<BeanDefinition> candidates = new LinkedHashSet<>();
         for (String basePackage : basePackages) {
@@ -68,6 +98,11 @@ public class SimpleClassPathBeanDefinitionScanner {
         return candidates;
     }
 
+    /**
+     * Registers the provided BeanDefinitionHolder in the BeanDefinitionRegistry.
+     *
+     * @param beanDef The BeanDefinitionHolder to be registered.
+     */
     private void registerBeanDefinition(BeanDefinitionHolder beanDef) {
         String beanName = beanDef.getBeanName();
         registry.registerBeanDefinition(beanName, beanDef.getBeanDefinition());

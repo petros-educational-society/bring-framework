@@ -8,7 +8,14 @@ import lombok.ToString;
 import javax.annotation.Nullable;
 
 /**
- * @author "Maksym Oliinyk"
+ * Holder for a BeanDefinition with name and aliases.
+ * Can be registered as a placeholder for an inner bean.
+ *
+ * <p>Can also be used for programmatic registration of inner bean
+ * definitions.
+ *
+ * @see BeanDefinition
+ * @author @author "Maksym Oliinyk"
  */
 @EqualsAndHashCode
 @ToString

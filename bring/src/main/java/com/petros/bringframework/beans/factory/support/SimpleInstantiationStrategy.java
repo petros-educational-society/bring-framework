@@ -9,6 +9,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
+ * Simple object instantiation strategy for use in a BeanFactory.
+ *
  * @author "Maksym Oliinyk"
  */
 public class SimpleInstantiationStrategy implements InstantiationStrategy {

@@ -11,6 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Holds information about constructor argument values, allowing indexed and generic argument values
+ * to be added and retrieved.
+ *
+ * @author "Maksym Oliinyk"
+ */
 public class SimpleConstructorArgumentValues {
     @Getter
     private final Map<Integer, ValueHolder> indexedArgumentValues = new HashMap<>();

@@ -15,6 +15,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Implementation of the {@link AnnotationMetadata} interface that provides metadata
+ * information about annotations and annotated methods for a given introspected class
+ * using reflection.
+ * <p>
+ * Extends {@link ReflectionClassMetadata} to handle class-level metadata using reflection.
+ *
+ * @see AnnotationMetadata
+ * @see ReflectionClassMetadata
  * @author "Maksym Oliinyk"
  */
 @Log4j2
@@ -27,6 +35,11 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
         annotations = Arrays.stream(introspectedClass.getDeclaredAnnotations()).collect(Collectors.toSet());
     }
 
+    /**
+     * Retrieves a set of annotation types present on the introspected class.
+     *
+     * @return a set containing the names of all annotations present on the class
+     */
     @Override
     public Set<String> getAnnotationTypes() {
         Set<String> annotationTypes = new HashSet<>();
@@ -37,12 +50,24 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
         return annotationTypes;
     }
 
+    /**
+     * Checks if the introspected class has the specified annotation type.
+     *
+     * @param annotationType the name of the annotation type to check for
+     * @return true if the class has the specified annotation
+     */
     @Override
     public boolean hasAnnotation(String annotationType) {
         return annotations.stream()
                 .anyMatch(annotation -> annotation.annotationType().getName().equals(annotationType));
     }
 
+    /**
+     * Checks if the introspected class has a meta-annotation of the specified name.
+     *
+     * @param metaAnnotationName the name of the meta-annotation to check for
+     * @return true if the class has the specified meta-annotation
+     */
     @Override
     public boolean hasMetaAnnotation(String metaAnnotationName) {
         return getAnnotations().stream().map(annotation -> annotation.annotationType())
@@ -54,17 +79,34 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
 
     }
 
+    /**
+     * Checks if the introspected class has methods annotated with the specified annotation.
+     *
+     * @param annotationName the name of the annotation to check for on methods
+     * @return true if any method in the class is annotated with the specified annotation
+     */
     @Override
     public boolean hasAnnotatedMethods(String annotationName) {
         return getDeclaredMethods().stream().anyMatch(methodMetadata -> methodMetadata.isAnnotated(annotationName));
     }
 
+    /**
+     * Retrieves a set of method metadata objects for methods annotated with the specified annotation.
+     *
+     * @param annotationName the name of the annotation to filter annotated methods
+     * @return a set of method metadata for methods annotated with the specified annotation
+     */
     @Override
     public Set<MethodMetadata> getAnnotatedMethods(String annotationName) {
         return getDeclaredMethods().stream().filter(methodMetadata -> methodMetadata.isAnnotated(annotationName))
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Retrieves a set of method metadata objects for all declared methods in the introspected class.
+     *
+     * @return a set of method metadata for all declared methods in the class
+     */
     @Override
     public Set<MethodMetadata> getDeclaredMethods() {
         final Method[] declaredMethods = introspectedClass.getDeclaredMethods();
@@ -73,11 +115,23 @@ public class ReflectionAnnotationMetadata extends ReflectionClassMetadata implem
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Retrieves a set of annotations present on the introspected class.
+     *
+     * @return a set containing all annotations present on the class
+     */
     @Override
     public Set<Annotation> getAnnotations() {
         return annotations;
     }
 
+    /**
+     * Retrieves the attributes of the specified annotation from the introspected class.
+     * Logs an error if the attributes cannot be retrieved.
+     *
+     * @param annotationName the name of the annotation to retrieve attributes for
+     * @return a map containing the attributes of the specified annotation, or null if not found
+     */
     @Nullable
     @Override
     public Map<String, Object> getAnnotationAttributes(String annotationName) {

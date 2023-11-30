@@ -9,6 +9,20 @@ import com.petros.bringframework.beans.factory.support.SimpleBeanDefinitionRegis
 import com.petros.bringframework.context.support.AbstractApplicationContext;
 import com.petros.bringframework.core.AssertUtils;
 
+/**
+ * Standalone application context allows for registering classes one by one using {@link #register(Class...)}
+ * as well as for classpath scanning using {@link #scan(String...)} and automatically refreshing the context.
+ *
+ * @see #register
+ * @see #scan
+ * @see BeanDefinitionRegistry
+ * @see DefaultBeanFactory
+ * @see AnnotatedBeanDefinitionReader
+ * @see SimpleClassPathBeanDefinitionScanner
+ * @author "Viktor Basanets"
+ * @author "Maksym Oliinyk"
+ * @author "Oleksii Skachkov"
+ */
 public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
     private final BeanDefinitionRegistry registry;
     private final DefaultBeanFactory beanFactory;

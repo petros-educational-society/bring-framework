@@ -4,7 +4,13 @@ import com.petros.bringframework.beans.BeansException;
 
 import javax.annotation.Nullable;
 
-//todo: find if needed more details about this bean type
+/**
+ * Exception thrown when a {@code BeanFactory} is asked for a bean instance for which it
+ * cannot find a definition. This may point to a non-existing bean, a non-unique bean,
+ * or a manually registered singleton instance without an associated bean definition.
+ *
+ * @author "Viktor Basanets"
+ */
 public class NoSuchBeanDefinitionException extends BeansException {
     @Nullable
     private final String beanName;

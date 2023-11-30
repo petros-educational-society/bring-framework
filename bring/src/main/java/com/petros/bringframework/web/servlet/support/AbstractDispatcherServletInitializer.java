@@ -6,7 +6,6 @@ import com.petros.bringframework.web.context.WebAppContext;
 import com.petros.bringframework.web.context.annotation.ServletAnnotationConfigApplicationContext;
 import com.petros.bringframework.web.servlet.BasicFrameworkServlet;
 import com.petros.bringframework.web.servlet.SimpleDispatcherServlet;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
@@ -29,7 +28,6 @@ import static java.util.Objects.isNull;
  * @author Viktor Basanets
  * @Project: bring-framework
  */
-@Slf4j
 public abstract class AbstractDispatcherServletInitializer implements WebAppInitializer {
 
     @Override

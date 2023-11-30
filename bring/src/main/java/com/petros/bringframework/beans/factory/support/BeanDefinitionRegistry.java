@@ -5,8 +5,16 @@ import com.petros.bringframework.beans.factory.config.BeanDefinition;
 
 import java.util.Map;
 
+/**
+ * Interface that encapsulates <i>registration</i> of bean definitions.
+ * Known implementors within the is {@link com.petros.bringframework.beans.factory.support.SimpleBeanDefinitionRegistry}
+ *
+ * @author "Viktor Basanets"
+ * @author "Vadym Vovk"
+ * @see BeanDefinition
+ * @see SimpleBeanDefinitionRegistry
+ */
 public interface BeanDefinitionRegistry {
-
 
     /**
      * Register a new bean definition with this registry
