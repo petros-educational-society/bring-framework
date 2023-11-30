@@ -1,4 +1,4 @@
-package com.web.petros.service;
+package com.web.petros.http.client;
 
 import com.google.gson.JsonObject;
 import retrofit2.Call;

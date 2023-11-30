@@ -26,7 +26,7 @@ public class MarsApiClientTest {
     @Test
     public void test() {
         var client = marsApiClient(directUrl);
-        var call = client.getRawPhoto(directUrl, 0);
+        var call = client.getRawPhoto(directUrl);
         var response = retryOneTimeIfThrows(call);
         assertNotNull(response);
         assertTrue(Response.class.isAssignableFrom(response.getClass()));

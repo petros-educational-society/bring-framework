@@ -3,6 +3,7 @@ package com.web.petros.service;
 import com.google.gson.JsonObject;
 import com.petros.bringframework.context.annotation.Component;
 import com.web.petros.data.PhotoInfo;
+import com.web.petros.http.client.MarsApiClient;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.HttpException;
@@ -13,8 +14,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.web.petros.config.DefaultAppConfig.marsApiClient;
-import static com.web.petros.config.DefaultAppConfig.nasaApiClient;
+import static com.web.petros.service.ClientFactory.marsApiClient;
+import static com.web.petros.service.ClientFactory.nasaApiClient;
 import static java.util.Objects.nonNull;
 
 /**
@@ -41,7 +42,7 @@ public class RetrofitNasaApiService implements NasaApiService {
                 .reduce((info1, info2) -> info1.contentLength() > info2.contentLength() ? info1 : info2)
                 .orElseThrow();
 
-        var response = retryOneTimeIfThrows(marsApiClient(largestPhotoInfo.url()).getRawPhoto(largestPhotoInfo.url(), 0));
+        var response = retryOneTimeIfThrows(marsApiClient(largestPhotoInfo.url()).getRawPhoto(largestPhotoInfo.url()));
         return response.body();
     }
 

@@ -1,11 +1,9 @@
-package com.web.petros.service;
+package com.web.petros.http.client;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.HEAD;
-import retrofit2.http.Header;
-import retrofit2.http.Headers;
 import retrofit2.http.Url;
 
 /**
@@ -16,7 +14,7 @@ public interface MarsApiClient {
     @HEAD
     Call<Void> getPhotoInfo(@Url String url);
 
-    @Headers("Content-Type: application/json; charset=utf-8")
+//    @Headers("Content-Type: application/json; charset=utf-8")
     @GET
-    Call<ResponseBody> getRawPhoto(@Url String url, @Header("Content-Length") long contentLength);
+    Call<ResponseBody> getRawPhoto(@Url String url/*, @Header("Content-Length") long contentLength*/);
 }
