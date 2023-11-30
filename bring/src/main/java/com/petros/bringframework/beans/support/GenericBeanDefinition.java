@@ -9,6 +9,10 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Executable;
 
 /**
+ * Abstract bean definition providing basic functionality for generic bean definitions.
+ * Extends {@link AbstractBeanDefinition}.
+ * This class represents a bean definition containing metadata and attributes for a generic bean instance.
+ *
  * @author "Maksym Oliinyk"
  */
 @Getter
