@@ -6,6 +6,7 @@ import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.util.BeanUtils;
 import com.petros.bringframework.util.ReflectionUtils;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -17,6 +18,7 @@ import java.lang.reflect.Method;
  *
  * @author "Maksym Oliinyk"
  */
+@Log4j2
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
     private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
@@ -91,6 +93,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
                 if (result == null) {
                     result = new NullBean();
                 }
+                log.debug("Instantiated bean '{}' using factory method '{}'", beanName, factoryMethod.getName());
                 return result;
             } finally {
                 if (priorInvokedFactoryMethod != null) {
@@ -100,7 +103,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
                 }
             }
         } catch (Exception ex) {
-            // TODO
+            log.debug("Failed to instantiate bean '{}' using factory method '{}'", beanName, factoryMethod.getName(), ex);
             throw new RuntimeException(ex);
         }
     }

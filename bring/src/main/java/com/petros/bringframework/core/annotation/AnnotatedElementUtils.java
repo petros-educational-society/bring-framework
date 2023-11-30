@@ -11,11 +11,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * Utility class for retrieving annotation attributes from annotated elements, such as methods.
+ *
  * @author "Maksym Oliinyk"
  */
 @Log4j2
 public abstract class AnnotatedElementUtils {
 
+    /**
+     * Retrieves annotation attributes from the provided method based on the specified annotation type.
+     *
+     * @param beanMethod      The method from which to retrieve annotation attributes.
+     * @param annotationType  The type of annotation for attribute retrieval.
+     * @return                Annotation attributes as {@link AnnotationAttributes} if found; otherwise, null.
+     */
     public static AnnotationAttributes getAnnotationAttributes(Method beanMethod, Class<?> annotationType) {
         final Function<Annotation, Map<String, Object>> retrieveAnnotationAttributesFunction
                 = annotation -> Arrays.stream(annotation.annotationType().getDeclaredMethods())

@@ -14,9 +14,23 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+/**
+ * Interceptor for enhancing bean methods.
+ *
+ * @author "Maksym Oliinyk"
+ */
 @Log4j2
 public class BeanMethodInterceptor {
 
+    /**
+     * Intercepts the invocation of bean methods.
+     *
+     * @param enhancedConfigInstance The enhanced configuration instance
+     * @param beanMethod             The method being invoked
+     * @param args                   The arguments passed to the method
+     * @param superMethod            The super method
+     * @return The result of the method invocation
+     */
     @RuntimeType
     public static Object intercept(@This Object enhancedConfigInstance,
                                    @Origin Method beanMethod,
@@ -55,6 +69,17 @@ public class BeanMethodInterceptor {
         return resolveBeanReference(beanMethod, args, beanFactory, beanName);
     }
 
+    /**
+     * Resolves a reference to a bean.
+     *
+     * @param beanMethod   The method being invoked
+     * @param args         The arguments passed to the method
+     * @param beanFactory  The bean factory instance
+     * @param beanName     The name of the bean
+     * @return The resolved bean instance
+     * @throws UnsupportedOperationException Thrown if arguments are specified, overriding specified default arguments in the bean definition
+     * @throws IllegalStateException        Thrown if the bean instance does not match the return type of the method
+     */
     private static Object resolveBeanReference(Method beanMethod, Object[] args,
                                                DefaultBeanFactory beanFactory, String beanName) {
         boolean useArgs = !ObjectUtils.isEmpty(args);
@@ -93,7 +118,12 @@ public class BeanMethodInterceptor {
 
     }
 
-
+    /**
+     * Retrieves the bean factory from the enhanced configuration instance.
+     *
+     * @param enhancedConfigInstance The enhanced configuration instance
+     * @return The bean factory
+     */
     @SneakyThrows
     private static DefaultBeanFactory getBeanFactory(Object enhancedConfigInstance) {
         final Field field = enhancedConfigInstance.getClass().getDeclaredField("beanFactory");

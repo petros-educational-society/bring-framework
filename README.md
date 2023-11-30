@@ -45,23 +45,23 @@ Bring Framework can be used as dependency. It will ensure the start of your Java
 <h2 id="dictionary-id" style="text-align: center; line-height: 4" >4. Dictionary</h2>
 
 - @Component - Indicates that an annotated class is a "component". Such classes are considered as candidates for auto-detection when using annotation-based configuration and classpath scanning.
-- @Configuration - 
+- @Configuration - Indicating that an object is a source of bean definitions.
 - @ComponentScan - Configures component scanning directives for use with @Configuration classes.
-- @Bean -
+- @Bean - Indicates that a method produces a bean to be managed by the Bring container.
 - @DestroyPlease - Used on a method as a  callback notification to signal that the instance is in the  process of being removed by the container.
 - @InitPlease - Used on a method that needs to be executed after dependency injection is done to perform any initialization.
 - @InjectPlease - Marks a constructor, field, setter method, or config method as to be autowired by framework's dependency injection facilities.
 - @Value - Used at the field or method/constructor parameter level that indicates a default value expression for the annotated element.
 - @DependsOn - Beans on which the current bean depends.
-- @Description - Adds a textual description to bean definitions derived from
-- @Primary -
+- @Description - Adds a textual description to bean definitions derived from.
+- @Primary - Indicates that a bean should be given preference when multiple candidates are qualified.
 - @Role - Indicates the 'role' hint for a given bean.
 - @Scope - Indicates the name of a scope to use for instances of the annotated type
-- @PathVariable -
-- @RequestBody -
-- @RequestHeader -
-- @RequestMapping -
-- @RequestParam -
+- @PathVariable - Marks a method parameter as being bound to a URI template variable.
+- @RequestBody - Marks a method parameter as being bound to the body of the HTTP request. This annotation indicates that the method parameter should be populated with the contents of the HTTP request body.
+- @RequestHeader - Marks a method parameter as being bound to a specific header of the HTTP request. This annotation indicates that the method parameter should be populated with the value of the specified header from the HTTP request.
+- @RequestMapping - An annotation for mapping web requests onto methods in request-handling classes. Used to specify the path and HTTP request method for handling a particular request.
+- @RequestParam - Annotation used to bind web request parameters to method parameters. Indicates that a method parameter should be bound to a web request parameter.
 - @ResponseBody - Indicates a method return value should be bound to the web response body.
 - @RestController - A convenience annotation that is itself annotated with Types that carry this annotation are treated as controllers where @ResponseBody semantics by default.
 - BeanDefinition - Describes a bean instance, which has property values, constructor argument values, and further information supplied by concrete implementations.
