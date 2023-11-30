@@ -56,8 +56,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             try {
                 refresh();
             } catch (BeansException ex) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}", ex.getMessage(), ex);
+                if (log.isDebugEnabled()) {
+                    log.debug("Exception encountered during context initialization - cancelling refresh attempt: {}", ex.getMessage(), ex);
                 }
                 destroyBeans();
                 throw ex;
@@ -92,8 +92,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             finishBeanFactoryInitialization(beanFactory);
 
         } catch (BeansException ex) {
-            if (log.isWarnEnabled()) {
-                log.warn("Exception encountered during context initialization - " +
+            if (log.isDebugEnabled()) {
+                log.debug("Exception encountered during context initialization - " +
                         "cancelling refresh attempt: " + ex);
             }
 
