@@ -42,6 +42,13 @@ public abstract class ReflectionUtils {
         }
     }
 
+    public static void makeAccessible(Method method) {
+        if ((!Modifier.isPublic(method.getModifiers()) ||
+                !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+            method.setAccessible(true);
+        }
+    }
+
     /**
      * Perform the given callback operation on all matching methods of the given
      * class, as locally declared or equivalent thereof (such as default methods

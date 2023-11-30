@@ -79,6 +79,11 @@ public class ReflectionMethodMetadata implements MethodMetadata {
     }
 
     @Override
+    public Method getIntrospectedMethod() {
+        return introspectedMethod;
+    }
+
+    @Override
     public boolean equals(@Nullable Object other) {
         return (this == other || (other instanceof ReflectionMethodMetadata that &&
                 this.introspectedMethod.equals(that.introspectedMethod)));

@@ -1,5 +1,7 @@
 package com.petros.bringframework.beans.factory.config;
 
+import java.lang.reflect.Method;
+
 /**
  * @author "Maksym Oliinyk"
  */
@@ -45,4 +47,6 @@ public interface MethodMetadata extends AnnotatedTypeMetadata {
      * i.e. not marked as static, final, or private.
      */
     boolean isOverridable();
+
+    Method getIntrospectedMethod();
 }
