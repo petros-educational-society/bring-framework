@@ -3,6 +3,7 @@ package com.web.petros.service;
 import com.google.gson.JsonObject;
 import com.petros.bringframework.context.annotation.Component;
 import com.web.petros.data.PhotoInfo;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.HttpException;
 import retrofit2.Response;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.web.petros.config.DefaultAppConfig.marsApiClient;
+import static com.web.petros.config.DefaultAppConfig.nasaApiClient;
 import static java.util.Objects.nonNull;
 
 /**
@@ -22,8 +24,8 @@ import static java.util.Objects.nonNull;
 @Component
 public class RetrofitNasaApiService implements NasaApiService {
     @Override
-    public Response<String> getLargestPicture(String apiUrl) {
-        var body = retryOneTimeIfThrows(marsApiClient(apiUrl).getRoot(apiUrl)).body();
+    public ResponseBody getLargestPicture(int sol, String apiKey) {
+        var body = retryOneTimeIfThrows(nasaApiClient().getRoot(sol, apiKey)).body();
         List<String> sources = new ArrayList<>();
         if (nonNull(body)) {
             for (var photo : body.getAsJsonArray("photos")) {
@@ -33,18 +35,19 @@ public class RetrofitNasaApiService implements NasaApiService {
             }
         }
 
-        var client = marsApiClient(sources.get(0));
         var largestPhotoInfo = sources.parallelStream()
-                .map(url -> getPhotoInfo(url, client))
+                .map(url -> getPhotoInfo(url, marsApiClient(url)))
                 .filter(Objects::nonNull)
-                .reduce((photoInfo1, photoInfo2) -> photoInfo1.contentLength() > photoInfo2.contentLength() ? photoInfo1 : photoInfo2)
+                .reduce((info1, info2) -> info1.contentLength() > info2.contentLength() ? info1 : info2)
                 .orElseThrow();
 
-        return retryOneTimeIfThrows(client.getRawPhoto(largestPhotoInfo.url()));
+        var response = retryOneTimeIfThrows(marsApiClient(largestPhotoInfo.url()).getRawPhoto(largestPhotoInfo.url(), 0));
+        return response.body();
     }
 
     private PhotoInfo getPhotoInfo(String url, MarsApiClient client) {
-        var contentLengthStr = retryOneTimeIfThrows(client.getPhotoInfo(url))
+        var response = retryOneTimeIfThrows(client.getPhotoInfo(url));
+        var contentLengthStr = response
                 .headers()
                 .get("content-length");
 

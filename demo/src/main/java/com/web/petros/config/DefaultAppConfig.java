@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.petros.bringframework.context.annotation.ComponentScan;
 import com.petros.bringframework.context.annotation.Configuration;
 import com.web.petros.service.MarsApiClient;
+import com.web.petros.service.NasaApiClient;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -22,6 +23,25 @@ import static java.util.Objects.isNull;
 @ComponentScan(basePackages = {"com.web.petros", "com.petros"})
 @Configuration
 public class DefaultAppConfig {
+
+    public static NasaApiClient nasaApiClient() {
+        return new Retrofit.Builder()
+                .baseUrl("https://api.nasa.gov")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(new OkHttpClient.Builder()
+                        .connectionPool(CONNECTION_POOL)
+                        .addInterceptor(chain -> chain
+                                .withConnectTimeout(120, TimeUnit.SECONDS)
+                                .withWriteTimeout(120, TimeUnit.SECONDS)
+                                .withReadTimeout(120, TimeUnit.SECONDS)
+                                .proceed(chain.request()
+                                        .newBuilder()
+                                        .addHeader("Content-Type", "application/json; charset=utf-8")
+                                        .build()))
+                        .build())
+                .build()
+                .create(NasaApiClient.class);
+    }
 
     public static MarsApiClient marsApiClient(String url) {
         return new Retrofit.Builder()
@@ -46,7 +66,6 @@ public class DefaultAppConfig {
                                             .scheme(baseUrl.scheme())
                                             .host(baseUrl.host())
                                             .build())
-                                    .addHeader("Content-Type", "application/json; charset=utf-8")
                                     .build());
                         })
                         .build())

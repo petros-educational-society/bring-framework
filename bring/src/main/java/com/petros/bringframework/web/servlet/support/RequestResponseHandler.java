@@ -1,6 +1,5 @@
 package com.petros.bringframework.web.servlet.support;
 
-import com.google.gson.JsonObject;
 import com.petros.bringframework.web.servlet.support.utils.Http;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,13 +13,13 @@ import java.util.Map;
  * Produced by RequestHandlerFactory and is aimed to invoke corresponding method with arguments extracted from the web request
  * @author Serhii Dorodko
  */
-public class RequestHandler {
+public class RequestResponseHandler {
     private final Object controllerBean;
     private final Method method;
     private final Object[] invocationArguments;
     private final MethodParameters parameters;
 
-    public RequestHandler(Method method, MethodParameters parameters, List<String> pathVariables, Object controllerBean) {
+    public RequestResponseHandler(Method method, MethodParameters parameters, List<String> pathVariables, Object controllerBean) {
         this.controllerBean = controllerBean;
         this.method = method;
         this.parameters = parameters;
@@ -59,13 +58,13 @@ public class RequestHandler {
         }
 
         // TODO Add support of custom classes and mapping to json/xml
-        if (result instanceof String){
-            Http.writeResult((String)result, resp);
+        if (result instanceof String str){
+            Http.writeResult(str, resp);
             return;
         }
 
-        if (result instanceof JsonObject json) {
-            Http.writeResult(json.toString(), resp);
+        if (result instanceof byte[] bytes) {
+            Http.writeResult(bytes, resp);
         }
     }
 }

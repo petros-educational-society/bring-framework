@@ -1,9 +1,11 @@
 package com.web.petros.service;
 
-import com.google.gson.JsonObject;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.HEAD;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.Url;
 
 /**
@@ -11,12 +13,10 @@ import retrofit2.http.Url;
  * @Project: bring-framework
  */
 public interface MarsApiClient {
-    @GET
-    Call<JsonObject> getRoot(@Url String url);
-
     @HEAD
     Call<Void> getPhotoInfo(@Url String url);
 
+    @Headers("Content-Type: application/json; charset=utf-8")
     @GET
-    Call<String> getRawPhoto(@Url String url);
+    Call<ResponseBody> getRawPhoto(@Url String url, @Header("Content-Length") long contentLength);
 }

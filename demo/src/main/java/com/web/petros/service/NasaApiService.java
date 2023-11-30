@@ -1,5 +1,6 @@
 package com.web.petros.service;
 
+import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 /**
@@ -7,5 +8,5 @@ import retrofit2.Response;
  * @Project: bring-framework
  */
 public interface NasaApiService {
-    Response<String> getLargestPicture(String url);
+    ResponseBody getLargestPicture(int sol, String apiKey);
 }

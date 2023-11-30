@@ -1,5 +1,7 @@
 package com.petros.bringframework.web.servlet.support.utils;
 
+import com.google.gson.Gson;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +44,17 @@ public class Http {
         try {
             ServletOutputStream out = response.getOutputStream();
             out.write(data.getBytes());
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void writeResult(byte[] bytes, HttpServletResponse response){
+        try {
+            ServletOutputStream out = response.getOutputStream();
+            out.write(bytes);
             out.flush();
             out.close();
         } catch (IOException e) {
