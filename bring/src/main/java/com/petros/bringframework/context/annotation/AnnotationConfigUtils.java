@@ -93,4 +93,14 @@ public abstract class AnnotationConfigUtils {
     public static void validateAnnotation(Annotation annotation) {
         AttributeMethods.forAnnotationType(annotation.annotationType()).validate(annotation);
     }
+
+    @Nullable
+    public static AnnotationAttributes attributesFor(AnnotatedTypeMetadata metadata, Class<?> annotationClass) {
+        return attributesFor(metadata, annotationClass.getName());
+    }
+
+    @Nullable
+    static AnnotationAttributes attributesFor(AnnotatedTypeMetadata metadata, String annotationClassName) {
+        return AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(annotationClassName));
+    }
 }
