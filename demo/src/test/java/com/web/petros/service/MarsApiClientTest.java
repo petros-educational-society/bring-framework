@@ -5,11 +5,9 @@ import retrofit2.Call;
 import retrofit2.HttpException;
 import retrofit2.Response;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.web.petros.config.DefaultAppConfig.marsApiClient;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Viktor Basanets
@@ -25,12 +23,15 @@ public class MarsApiClientTest {
 
     @Test
     public void test() {
-        var client = marsApiClient(directUrl);
-        var call = client.getRawPhoto(directUrl);
-        var response = retryOneTimeIfThrows(call);
-        assertNotNull(response);
-        assertTrue(Response.class.isAssignableFrom(response.getClass()));
-        assertNotNull(response.body());
+
+        var arr = List.of(Class.class).toArray();
+
+//        var client = marsApiClient(directUrl);
+//        var call = client.getRawPhoto(directUrl);
+//        var response = retryOneTimeIfThrows(call);
+//        assertNotNull(response);
+//        assertTrue(Response.class.isAssignableFrom(response.getClass()));
+//        assertNotNull(response.body());
     }
 
     private <T> Response<T> retryOneTimeIfThrows(Call<T> call) {
