@@ -40,7 +40,7 @@ public class Http {
         }
     }
 
-    public static void writeResultString(String data, HttpServletResponse response){
+    public static void writeResult(String data, HttpServletResponse response){
         try {
             ServletOutputStream out = response.getOutputStream();
             out.write(data.getBytes());
@@ -48,6 +48,17 @@ public class Http {
             out.close();
         } catch (IOException e) {
             log.debug("An exception occurred while writing to the servlet output stream: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void writeResult(byte[] bytes, HttpServletResponse response){
+        try {
+            ServletOutputStream out = response.getOutputStream();
+            out.write(bytes);
+            out.flush();
+            out.close();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

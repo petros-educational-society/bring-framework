@@ -69,8 +69,8 @@ public class RequestHandlerFactory {
     }
 
 
-    public RequestHandler getHandler(String path) {
-        return new RequestHandler(controllerMethod, methodParameters, extractPathVariables(path), controllerBean);
+    public RequestResponseHandler getHandler(String path) {
+        return new RequestResponseHandler(controllerMethod, methodParameters, extractPathVariables(path), controllerBean);
     }
 
     private List<String> extractPathVariables(String path){

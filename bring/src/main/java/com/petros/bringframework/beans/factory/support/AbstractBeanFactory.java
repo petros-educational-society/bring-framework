@@ -8,6 +8,8 @@ import com.petros.bringframework.beans.exception.TypeMismatchException;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.support.AbstractBeanDefinition;
+import com.petros.bringframework.beans.support.GenericBeanDefinition;
+import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.core.type.convert.ConversionService;
 import lombok.extern.log4j.Log4j2;
 
@@ -211,11 +213,18 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (mbd instanceof AbstractBeanDefinition && mbd.getFactoryMethodName() == null) {
             beanClass = ((AbstractBeanDefinition) mbd).getBeanClass();
         }
-        if (beanClass == null && mbd.getBeanClassName() != null) {
-            try {
-                beanClass = Class.forName(mbd.getBeanClassName());
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Couldn't return the class object associated with the bean " + beanName, e);
+        if (beanClass == null) {
+            if(mbd.getBeanClassName() != null){
+                try {
+                    beanClass = Class.forName(mbd.getBeanClassName());
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Couldn't return the class object associated with the bean " + beanName, e);
+                }
+            } else if (mbd.getFactoryMethodName() != null) {
+                beanClass = Optional.of(mbd)
+                                    .filter(GenericBeanDefinition.class::isInstance).map(GenericBeanDefinition.class::cast)
+                                    .map(GenericBeanDefinition::getTargetType).map(ResolvableType::resolve)
+                                    .orElseThrow(() -> new RuntimeException("Couldn't return the class object associated with the bean " + beanName));
             }
         }
         return beanClass;
