@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.petros.bringframework.util.StringUtils.hasLength;
+
 /**
  * Extension of AnnotationConfigApplicationContext customized for Servlet-based environments.
  * Manages the initialization of controller mappings and request handling.
@@ -112,10 +114,16 @@ public class ServletAnnotationConfigApplicationContext extends AnnotationConfigA
      */
     private boolean isRestController(BeanDefinition bd) {
         try {
+            var beanClassName = bd.getBeanClassName();
+            if (!hasLength(beanClassName)) {
+                return false;
+            }
             return Arrays.stream(Class.forName(bd.getBeanClassName()).getAnnotations())
                     .anyMatch(a -> a.annotationType().isAssignableFrom(RestController.class));
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
+        } catch (Throwable th) {
+            throw new RuntimeException(th.getMessage());
         }
     }
 

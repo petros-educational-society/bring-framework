@@ -15,13 +15,13 @@ import java.util.Map;
  * @author Serhii Dorodko
  */
 @Log4j2
-public class RequestHandler {
+public class RequestResponseHandler {
     private final Object controllerBean;
     private final Method method;
     private final Object[] invocationArguments;
     private final MethodParameters parameters;
 
-    public RequestHandler(Method method, MethodParameters parameters, List<String> pathVariables, Object controllerBean) {
+    public RequestResponseHandler(Method method, MethodParameters parameters, List<String> pathVariables, Object controllerBean) {
         this.controllerBean = controllerBean;
         this.method = method;
         this.parameters = parameters;
@@ -61,8 +61,13 @@ public class RequestHandler {
         }
 
         // TODO Add support of custom classes and mapping to json/xml
-        if (result instanceof String){
-            Http.writeResultString((String)result, resp);
+        if (result instanceof String str){
+            Http.writeResult(str, resp);
+            return;
+        }
+
+        if (result instanceof byte[] bytes) {
+            Http.writeResult(bytes, resp);
         }
     }
 }

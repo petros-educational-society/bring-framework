@@ -15,7 +15,14 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.isNull;
@@ -54,7 +61,15 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     @Override
     public Object getBean(String name) {
-        return beanCacheByName.computeIfAbsent(name, super::getBean);
+        var value = beanCacheByName.get(name);
+        if (isNull(value)) {
+            var bean = super.getBean(name);
+            if (nonNull(bean)) {
+                beanCacheByName.put(name, bean);
+                return bean;
+            }
+        }
+        return value;
     }
 
     @Override
@@ -97,7 +112,8 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
 
     @Override
     public Class<?> getType(String name) {
-        return getBean(name).getClass();
+        var obj = getBean(name);
+        return obj.getClass();
     }
 
     @Override
@@ -159,7 +175,11 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         if (candidateNames.length > 1) {
             Map<String, Object> candidates = new LinkedHashMap<>(candidateNames.length);
             for (var beanName : candidateNames) {
-                candidates.put(beanName, containsSingleton(beanName) ? getBean(beanName) : getType(beanName));
+                if (containsSingleton(beanName)) {
+                    candidates.put(beanName, getBean(beanName));
+                } else {
+                    candidates.put(beanName, getType(beanName));
+                }
             }
 
             var candidateName = determinePrimaryCandidate(candidates);

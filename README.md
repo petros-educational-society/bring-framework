@@ -76,4 +76,4 @@ Bring Framework can be used as dependency. It will ensure the start of your Java
 5. [Maksym Oliinyk](https://github.com/WHALE88)
 6. [Sergiy Dorodko](https://github.com/serhiidorodko)
 
-Many thanks to our mentor [Mykola Demchenko](https://github.com/mykolad4), without whom this project would have been much worse.
+Many thanks to our mentor [Mykola Demchenko](https://github.com/mykolad4), without whom this project would have been much worse... or better:)

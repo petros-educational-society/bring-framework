@@ -44,8 +44,8 @@ public class ConstructorResolver {
         Constructor<?> ctorToUse = ctors[0];
         Class<?>[] paramToUse;
         if (explicitArgs != null && explicitArgs.length > 0) {
-            Class<?> explicitArg = (Class<?>) explicitArgs[0];
-            paramToUse = new Class<?>[]{explicitArg};
+            paramToUse = List.of(explicitArgs)
+                             .toArray(new Class<?>[explicitArgs.length]);
         } else {
             paramToUse = ctorToUse.getParameterTypes();
         }
