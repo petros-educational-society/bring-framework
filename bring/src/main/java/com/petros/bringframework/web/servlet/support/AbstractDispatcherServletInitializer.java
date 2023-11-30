@@ -6,13 +6,10 @@ import com.petros.bringframework.web.context.WebAppContext;
 import com.petros.bringframework.web.context.annotation.ServletAnnotationConfigApplicationContext;
 import com.petros.bringframework.web.servlet.BasicFrameworkServlet;
 import com.petros.bringframework.web.servlet.SimpleDispatcherServlet;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -28,6 +25,7 @@ import static java.util.Objects.isNull;
  * @author Viktor Basanets
  * @Project: bring-framework
  */
+@Log4j2
 public abstract class AbstractDispatcherServletInitializer implements WebAppInitializer {
 
     @Override
