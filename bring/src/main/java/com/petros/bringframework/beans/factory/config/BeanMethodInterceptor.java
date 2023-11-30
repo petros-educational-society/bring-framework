@@ -97,6 +97,7 @@ public class BeanMethodInterceptor {
     @SneakyThrows
     private static DefaultBeanFactory getBeanFactory(Object enhancedConfigInstance) {
         final Field field = enhancedConfigInstance.getClass().getDeclaredField("beanFactory");
+        AssertUtils.state(field != null, "Unable to find generated bean factory field");
         field.setAccessible(true);
         AssertUtils.state(field != null, "Unable to find generated bean factory field");
         Object beanFactory = field.get(enhancedConfigInstance);

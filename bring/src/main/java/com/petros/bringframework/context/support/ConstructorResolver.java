@@ -140,16 +140,6 @@ public class ConstructorResolver {
             this.preparedArguments = args;
         }
 
-        /*public int getTypeDifferenceWeight(Class<?>[] paramTypes) {
-            // If valid arguments found, determine type difference weight.
-            // Try type difference weight on both the converted arguments and
-            // the raw arguments. If the raw weight is better, use it.
-            // Decrease raw weight by 1024 to prefer it over equal converted weight.
-            int typeDiffWeight = MethodInvoker.getTypeDifferenceWeight(paramTypes, this.arguments);
-            int rawTypeDiffWeight = MethodInvoker.getTypeDifferenceWeight(paramTypes, this.rawArguments) - 1024;
-            return Math.min(rawTypeDiffWeight, typeDiffWeight);
-        }*/
-
         public int getAssignabilityWeight(Class<?>[] paramTypes) {
             for (int i = 0; i < paramTypes.length; i++) {
                 if (!ClassUtils.isAssignableValue(paramTypes[i], this.arguments[i])) {
@@ -163,18 +153,5 @@ public class ConstructorResolver {
             }
             return Integer.MAX_VALUE - 1024;
         }
-
-        /*public void storeCache(RootBeanDefinition mbd, Executable constructorOrFactoryMethod) {
-            synchronized (mbd.constructorArgumentLock) {
-                mbd.resolvedConstructorOrFactoryMethod = constructorOrFactoryMethod;
-                mbd.constructorArgumentsResolved = true;
-                if (this.resolveNecessary) {
-                    mbd.preparedConstructorArguments = this.preparedArguments;
-                }
-                else {
-                    mbd.resolvedConstructorArguments = this.arguments;
-                }
-            }
-        }*/
     }
 }
