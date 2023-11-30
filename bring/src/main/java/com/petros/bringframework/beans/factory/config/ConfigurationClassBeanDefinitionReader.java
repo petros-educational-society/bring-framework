@@ -5,17 +5,21 @@ import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.beans.support.ReflectionBeanDefinition;
 import com.petros.bringframework.context.annotation.*;
+import com.petros.bringframework.core.type.ResolvableType;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.petros.bringframework.beans.factory.config.AutowireMode.AUTOWIRE_CONSTRUCTOR;
 import static java.util.Objects.nonNull;
 
-
+@Log4j2
 public class ConfigurationClassBeanDefinitionReader {
 
     private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
@@ -61,6 +65,8 @@ public class ConfigurationClassBeanDefinitionReader {
         ConfigurationClass configClass = beanMethod.getConfigurationClass();
         MethodMetadata metadata = beanMethod.getMetadata();
         String methodName = metadata.getMethodName();
+        final Class<?> targetType = predictBeanTargetType(metadata);
+
 
         AnnotationAttributes annotationAttributes = AnnotationConfigUtils.attributesFor(metadata, Bean.class);
         if (annotationAttributes == null) {
@@ -72,12 +78,13 @@ public class ConfigurationClassBeanDefinitionReader {
 
         ConfigurationClassBeanDefinition configBeanDef = new ConfigurationClassBeanDefinition(configClass, metadata, beanName);
         if (metadata.isStatic()) {
-            //todo throw exception not supported
-            configBeanDef.setBeanClassName(configClass.getMetadata().getClassName());
+            log.error("Static @Bean method {} for class {} not supported", methodName, configClass.getMetadata().getClassName());
+            throw new UnsupportedOperationException("Static @Bean method not supported");
         } else {
             configBeanDef.setFactoryBeanName(configClass.getBeanName());
         }
         configBeanDef.setFactoryMethodName(methodName);
+        configBeanDef.setTargetType(targetType);
         configBeanDef.setAutowireMode(AUTOWIRE_CONSTRUCTOR);
         configBeanDef.setResolvedFactoryMethod(metadata.getIntrospectedMethod());
         AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
@@ -114,6 +121,10 @@ public class ConfigurationClassBeanDefinitionReader {
         }*/
 
         this.registry.registerBeanDefinition(beanName, beanDefToRegister);
+    }
+
+    private Class<?> predictBeanTargetType(MethodMetadata metadata) {
+        return Optional.ofNullable(metadata.getIntrospectedMethod()).map(Method::getReturnType).orElse(null);
     }
 
     static class ConfigurationClassBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {

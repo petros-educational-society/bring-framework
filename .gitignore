@@ -4,6 +4,7 @@ HELP.md
 */target
 */server.log
 /logs
+/bring/logs
 
 ### IntelliJ IDEA ###
 .idea

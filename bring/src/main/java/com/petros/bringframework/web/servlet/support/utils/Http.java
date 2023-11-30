@@ -35,10 +35,21 @@ public class Http {
         }
     }
 
-    public static void writeResultString(String data, HttpServletResponse response){
+    public static void writeResult(String data, HttpServletResponse response){
         try {
             ServletOutputStream out = response.getOutputStream();
             out.write(data.getBytes());
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void writeResult(byte[] bytes, HttpServletResponse response){
+        try {
+            ServletOutputStream out = response.getOutputStream();
+            out.write(bytes);
             out.flush();
             out.close();
         } catch (IOException e) {
