@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
-public class IntegrationTest {
-
-
+class IntegrationTestIT {
     @Test
     void contextShouldStarted() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("com.petros.bringframework");
