@@ -2,19 +2,19 @@ package com.petros.bringframework.util;
 
 import com.petros.bringframework.beans.exception.BeanInstantiationException;
 import com.petros.bringframework.core.AssertUtils;
-import com.petros.bringframework.web.context.WebAppContext;
+import lombok.extern.log4j.Log4j2;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import static com.petros.bringframework.core.AssertUtils.notNull;
-import static java.util.Objects.nonNull;
 
 /**
  * @author "Maksym Oliinyk"
  * @author "Viktor Basanets"
  */
+@Log4j2
 public abstract class BeanUtils {
     public static final Map<Class<?>, Object> DEFAULT_TYPE_VALUES = Map.of(
             boolean.class, false,
@@ -57,12 +57,16 @@ public abstract class BeanUtils {
             }
             return ctor.newInstance(argsWithDefaultValues);
         } catch (InstantiationException ex) {
+            log.debug("Failed to instantiate bean: Is it an abstract class? {}", ex.getMessage(), ex);
             throw new BeanInstantiationException(ctor, "Is it an abstract class?", ex);
         } catch (IllegalAccessException ex) {
+            log.debug("Failed to instantiate bean: Is the constructor accessible? {}", ex.getMessage(), ex);
             throw new BeanInstantiationException(ctor, "Is the constructor accessible?", ex);
         } catch (IllegalArgumentException ex) {
+            log.debug("Failed to instantiate bean: Illegal arguments for constructor {}", ex.getMessage(), ex);
             throw new BeanInstantiationException(ctor, "Illegal arguments for constructor", ex);
         } catch (InvocationTargetException ex) {
+            log.debug("Failed to instantiate bean: Constructor threw exception {}", ex.getMessage(), ex.getTargetException());
             throw new BeanInstantiationException(ctor, "Constructor threw exception", ex.getTargetException());
         }
     }
@@ -87,8 +91,10 @@ public abstract class BeanUtils {
         try {
             return instantiateClass(clazz.getDeclaredConstructor());
         } catch (NoSuchMethodException ex) {
+            log.debug("Failed to instantiate bean: No default constructor found {}", ex.getMessage(), ex);
             throw new BeanInstantiationException(clazz, "No default constructor found", ex);
         } catch (LinkageError err) {
+            log.debug("Failed to instantiate bean: Unresolvable class definition {}", err.getMessage(), err);
             throw new BeanInstantiationException(clazz, "Unresolvable class definition", err);
         }
     }

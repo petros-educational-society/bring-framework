@@ -1,5 +1,7 @@
 package com.petros.bringframework.web.servlet.support.utils;
 
+import lombok.extern.log4j.Log4j2;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +14,7 @@ import java.nio.charset.StandardCharsets;
  * Util class with static methods to work with HttpServlet request/response
  * @author Serhii Dorodko
  */
+@Log4j2
 public class Http {
     public static String getBodyAsString(HttpServletRequest request){
         StringBuilder stringBuilder = new StringBuilder();
@@ -22,6 +25,7 @@ public class Http {
                 stringBuilder.append(charBuffer, 0, bytesRead);
             }
         } catch (IOException e) {
+            log.debug("An exception occurred while reading the input stream: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
         return stringBuilder.toString();
@@ -31,6 +35,7 @@ public class Http {
         try {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         } catch (IOException e) {
+            log.debug("An exception occurred while sending the error response: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -42,6 +47,7 @@ public class Http {
             out.flush();
             out.close();
         } catch (IOException e) {
+            log.debug("An exception occurred while writing to the servlet output stream: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
