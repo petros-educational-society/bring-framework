@@ -5,6 +5,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+/**
+ * @author Viktor Basanets
+ * @author Vadym Vovk
+ * @author Marina Vasiuk
+ * @Project: bring-framework
+ */
 public abstract class ReflectionUtils {
     /**
      * Obtain an accessible constructor for the given class and parameters.

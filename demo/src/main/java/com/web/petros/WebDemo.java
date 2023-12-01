@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
  */
 public class WebDemo {
     public static void main(String[] args) throws LifecycleException, URISyntaxException, IOException {
-        ServletContainer.getContainer()
-                .start();
+        var servletContainer = ServletContainer.getContainer();
+        servletContainer.start();
     }
 }

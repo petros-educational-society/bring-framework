@@ -3,7 +3,6 @@ package com.web.petros.service;
 import com.google.gson.JsonObject;
 import com.petros.bringframework.beans.factory.annotation.InjectPlease;
 import com.petros.bringframework.context.annotation.Component;
-import com.web.petros.config.RetrofitClientConfig;
 import com.web.petros.data.PhotoInfo;
 import com.web.petros.http.client.MarsApiClient;
 import com.web.petros.http.client.NasaApiClient;
