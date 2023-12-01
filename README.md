@@ -241,6 +241,39 @@ public class Test {}
 public class SequentiallyBasedRecursiveMergeSort {}
 ```
 
+###### 2.2.4 Using @Scope Annotation
+
+### 2.3 Dependency injection
+**Core Concept** <br>
+
+**Dependency:** In software, a dependency is when one object (or class) relies on another to function correctly.<br>
+**Injection:** Instead of an object creating or finding its dependencies, these dependencies are "injected" into the object by an external controller (the IoC container in Spring), typically at runtime.<br>
+
+For the components to be processed as those that must be injected, it is necessary to specify the annotation `@InjectPlease` on the constructor or on the class property
+###### 2.3.1 Constructor Injection: Dependencies are provided through class constructors.
+Constructor-based DI is accomplished by the container invoking a constructor with a number of arguments, each representing a dependency.
+```java
+@Component
+public class RetrofitNasaApiService implements NasaApiService {
+
+    private final NasaApiClient nasaApiClient;
+    private final MarsApiClient marsApiClient;
+
+    @InjectPlease
+    public RetrofitNasaApiService(NasaApiClient nasaApiClient,
+                                  MarsApiClient marsApiClient) {
+        this.nasaApiClient = nasaApiClient;
+        this.marsApiClient = marsApiClient;
+    }
+
+}
+```
+If there are primitives in the constructor arguments, they will be initialized with default values.
+Only one constructor can be annotated as requiring injection, otherwise Bring cannot resolve a bean for wiring, and it will throw an exception `BeanCreationException` with message ` Multiple autowired constructors found ...`.
+###### 2.3.1 Property Injection: @InjectPlease on Properties
+
+
+
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
 
 As part of the IoS implementation of the Dispatcher Servlet, the following functionality was implemented:
