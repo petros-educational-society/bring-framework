@@ -8,6 +8,8 @@ import com.petros.bringframework.beans.exception.TypeMismatchException;
 import com.petros.bringframework.beans.factory.ConfigurableBeanFactory;
 import com.petros.bringframework.beans.factory.config.BeanDefinition;
 import com.petros.bringframework.beans.support.AbstractBeanDefinition;
+import com.petros.bringframework.beans.support.GenericBeanDefinition;
+import com.petros.bringframework.core.type.ResolvableType;
 import com.petros.bringframework.core.type.convert.ConversionService;
 import lombok.extern.log4j.Log4j2;
 
@@ -18,6 +20,22 @@ import static com.petros.bringframework.util.ClassUtils.getQualifiedName;
 import static java.util.Objects.nonNull;
 
 /**
+ * Abstract base class for {@link com.petros.bringframework.beans.factory.BeanFactory}
+ * implementations, providing the full capabilities of the
+ * {@link com.petros.bringframework.beans.factory.ConfigurableBeanFactory}.
+ *
+ * <p>This class provides a singleton cache through its base class
+ * {@link com.petros.bringframework.beans.factory.support.DefaultSingletonBeanRegistry},
+ * providing essential functionality for bean creation, retrieval, and adaptation based on bean definitions.
+ *
+ * <p>The main template methods to be implemented by subclasses are
+ * {@link DefaultBeanFactory#getBeanDefinition} and {@link AbstractAutowireCapableBeanFactory#createBean}, retrieving a bean definition
+ * for a given bean name and creating a bean instance for a given bean definition,
+ * respectively. Default implementations of those operations can be found in
+ * {@link AbstractAutowireCapableBeanFactory}.
+ *
+ * @see AbstractAutowireCapableBeanFactory#createBean
+ * @see DefaultBeanFactory#getBeanDefinition
  * @author "Maksym Oliinyk"
  */
 @Log4j2
@@ -192,14 +210,21 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
      */
     protected Class<?> resolveBeanClass(BeanDefinition mbd, String beanName) {
         Class<?> beanClass = null;
-        if (mbd instanceof AbstractBeanDefinition) {
+        if (mbd instanceof AbstractBeanDefinition && mbd.getFactoryMethodName() == null) {
             beanClass = ((AbstractBeanDefinition) mbd).getBeanClass();
         }
         if (beanClass == null) {
-            try {
-                beanClass = Class.forName(mbd.getBeanClassName());
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Couldn't return the class object associated with the bean " + beanName, e);
+            if(mbd.getBeanClassName() != null){
+                try {
+                    beanClass = Class.forName(mbd.getBeanClassName());
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Couldn't return the class object associated with the bean " + beanName, e);
+                }
+            } else if (mbd.getFactoryMethodName() != null) {
+                beanClass = Optional.of(mbd)
+                                    .filter(GenericBeanDefinition.class::isInstance).map(GenericBeanDefinition.class::cast)
+                                    .map(GenericBeanDefinition::getTargetType).map(ResolvableType::resolve)
+                                    .orElseThrow(() -> new RuntimeException("Couldn't return the class object associated with the bean " + beanName));
             }
         }
         return beanClass;

@@ -20,7 +20,7 @@ class EmbeddedTomcat implements ServletContainer {
 
     private static final String BASE_DIR_NAME = "embedded_tomcat";
 
-    static final EmbeddedTomcat CONTAINER = new EmbeddedTomcat();
+    static final ServletContainer CONTAINER = new EmbeddedTomcat();
 
     @Override
     public void start() throws LifecycleException, URISyntaxException, IOException {

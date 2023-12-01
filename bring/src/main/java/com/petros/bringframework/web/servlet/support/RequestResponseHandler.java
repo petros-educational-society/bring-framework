@@ -1,6 +1,7 @@
 package com.petros.bringframework.web.servlet.support;
 
 import com.petros.bringframework.web.servlet.support.utils.Http;
+import lombok.extern.log4j.Log4j2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,13 +14,14 @@ import java.util.Map;
  * Produced by RequestHandlerFactory and is aimed to invoke corresponding method with arguments extracted from the web request
  * @author Serhii Dorodko
  */
-public class RequestHandler {
+@Log4j2
+public class RequestResponseHandler {
     private final Object controllerBean;
     private final Method method;
     private final Object[] invocationArguments;
     private final MethodParameters parameters;
 
-    public RequestHandler(Method method, MethodParameters parameters, List<String> pathVariables, Object controllerBean) {
+    public RequestResponseHandler(Method method, MethodParameters parameters, List<String> pathVariables, Object controllerBean) {
         this.controllerBean = controllerBean;
         this.method = method;
         this.parameters = parameters;
@@ -54,12 +56,18 @@ public class RequestHandler {
         try {
             result = method.invoke(controllerBean, invocationArguments);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            log.debug("Exception occurred while invoking method: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
 
         // TODO Add support of custom classes and mapping to json/xml
-        if (result instanceof String){
-            Http.writeResultString((String)result, resp);
+        if (result instanceof String str){
+            Http.writeResult(str, resp);
+            return;
+        }
+
+        if (result instanceof byte[] bytes) {
+            Http.writeResult(bytes, resp);
         }
     }
 }

@@ -9,11 +9,20 @@ import javax.annotation.Nullable;
  */
 public interface BeanPostProcessor {
 
+    /**
+     * Apply this {@code BeanPostProcessor} to the given new bean instance <i>before</i> any bean
+     * initialization callbacks.
+     */
     @Nullable
     default Object postProcessBeforeInitialization(Object bean, String beanName) {
         return bean;
     }
 
+
+    /**
+     * Apply this {@code BeanPostProcessor} to the given new bean instance <i>after</i> any bean
+     * initialization callbacks.
+     */
     @Nullable
     default Object postProcessAfterInitialization(Object bean, String beanName) {
         return bean;

@@ -7,6 +7,14 @@ import com.petros.bringframework.core.type.ResolvableType;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The root interface for accessing a Bring container.
+ * e.g. in case of incomplete or contradictory bean metadata.
+ *
+ * @author "Viktor Basanets"
+ * @author "Vadym Vovk"
+ * @author "Oleksii Skachkov"
+ */
 public interface BeanFactory {
 
     String FACTORY_BEAN_PREFIX = "&";

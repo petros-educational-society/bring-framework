@@ -5,6 +5,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+/**
+ * @author Viktor Basanets
+ * @author Vadym Vovk
+ * @author Marina Vasiuk
+ * @Project: bring-framework
+ */
 public abstract class ReflectionUtils {
     /**
      * Obtain an accessible constructor for the given class and parameters.
@@ -39,6 +45,13 @@ public abstract class ReflectionUtils {
                 !Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
                 Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
             field.setAccessible(true);
+        }
+    }
+
+    public static void makeAccessible(Method method) {
+        if ((!Modifier.isPublic(method.getModifiers()) ||
+                !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+            method.setAccessible(true);
         }
     }
 

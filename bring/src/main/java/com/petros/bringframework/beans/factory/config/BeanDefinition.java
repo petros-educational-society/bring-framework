@@ -5,6 +5,18 @@ import com.petros.bringframework.beans.support.PropertyValue;
 import javax.annotation.Nullable;
 import java.util.List;
 
+
+/**
+ * A BeanDefinition describes a bean instance, which has property values,
+ * constructor argument values, and further information supplied by
+ * concrete implementations.
+ *
+ * <p>This is just a minimal interface: The main intention is to allow a
+ * {@link BeanFactoryPostProcessor} to introspect and modify property values
+ * and other bean metadata.
+ *
+ * @author "Maksym Oliinyk"
+ */
 public interface BeanDefinition {
 
     /**

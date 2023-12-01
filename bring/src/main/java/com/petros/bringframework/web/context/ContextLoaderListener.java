@@ -7,7 +7,7 @@ import com.petros.bringframework.core.io.ClassPathResource;
 import com.petros.bringframework.core.io.Resource;
 import com.petros.bringframework.util.BeanUtils;
 import com.petros.bringframework.util.ClassUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
@@ -31,7 +31,7 @@ import static java.util.Objects.nonNull;
  * @Project: bring-framework
  */
 //todo: remove this class on the next review
-@Slf4j
+@Log4j2
 public class ContextLoaderListener implements ServletContextListener {
 
     /**
@@ -54,6 +54,7 @@ public class ContextLoaderListener implements ServletContextListener {
             defaultStrategies = loadProperties(resource);
         }
         catch (IOException ex) {
+            log.debug("Could not load 'ContextLoader.properties': {}", ex.getMessage());
             throw new IllegalStateException("Could not load 'ContextLoader.properties': " + ex.getMessage());
         }
     }
@@ -199,6 +200,7 @@ public class ContextLoaderListener implements ServletContextListener {
                 return ClassUtils.forName(contextClassName, this.getClass().getClassLoader());
             }
             catch (ClassNotFoundException ex) {
+                log.debug("Failed to load default context class [{}]", contextClassName, ex);
                 throw new ApplicationContextException(
                         "Failed to load default context class [" + contextClassName + "]", ex);
             }

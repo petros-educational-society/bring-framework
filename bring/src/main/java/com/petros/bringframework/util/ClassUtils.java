@@ -1,5 +1,7 @@
 package com.petros.bringframework.util;
 
+import com.petros.bringframework.core.AssertUtils;
+
 import javax.annotation.Nullable;
 import java.beans.Introspector;
 import java.io.Closeable;
@@ -265,10 +267,7 @@ public abstract class ClassUtils {
      */
     public static boolean isAssignableValue(Class<?> type, @Nullable Object value) {
         notNull(type, "Type must not be null");
-        if (nonNull(value)) {
-            return isAssignableValue(type, value.getClass());
-        }
-        return !type.isPrimitive();
+        return (value != null ? isAssignable(type, value.getClass()) : !type.isPrimitive());
     }
 
     /**
@@ -486,5 +485,22 @@ public abstract class ClassUtils {
     public static String getQualifiedMethodName(Method method, @Nullable Class<?> clazz) {
         requireNonNull(method, "Method must not be null");
         return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
+    }
+
+    /**
+     * Return the user-defined class for the given class: usually simply the given
+     * class, but the original class in case of a CGLIB-generated subclass.
+     * @param clazz the class to check
+     * @return the user-defined class
+     * @see #CGLIB_CLASS_SEPARATOR
+     */
+    public static Class<?> getUserClass(Class<?> clazz) {
+        if (clazz.getName().contains(CGLIB_CLASS_SEPARATOR)) {
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass != null && superclass != Object.class) {
+                return superclass;
+            }
+        }
+        return clazz;
     }
 }

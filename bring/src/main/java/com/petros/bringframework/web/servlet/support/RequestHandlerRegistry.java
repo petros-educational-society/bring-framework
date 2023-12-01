@@ -22,7 +22,7 @@ public class RequestHandlerRegistry {
         }
     }
 
-    public Optional<RequestHandler> getHandler(RequestMethod requestMethod, String path){
+    public Optional<RequestResponseHandler> getHandler(RequestMethod requestMethod, String path){
         return factorySet.stream()
                 .filter(factory -> factory.isMatching(requestMethod, path))
                 .findFirst()

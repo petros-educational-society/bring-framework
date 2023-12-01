@@ -3,6 +3,13 @@ package com.petros.bringframework.beans.factory.config;
 import javax.annotation.Nullable;
 
 /**
+ * Interface that defines a registry for shared bean instances.
+ * Can be implemented by {@link com.petros.bringframework.beans.factory.BeanFactory}
+ * implementations in order to expose their singleton management facility
+ * in a uniform manner.
+ *
+ * <p>The {@link com.petros.bringframework.beans.factory.ConfigurableBeanFactory} interface extends this interface.
+ *
  * @author "Maksym Oliinyk"
  */
 public interface SingletonBeanRegistry {

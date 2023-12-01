@@ -11,6 +11,12 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Simple implementation of the {@link BeanDefinitionRegistry} interface.
+ * Provides registry capabilities only, with no factory capabilities built in.
+ *
+ * @author "Viktor Basanets"
+ */
 @Log4j2
 public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 

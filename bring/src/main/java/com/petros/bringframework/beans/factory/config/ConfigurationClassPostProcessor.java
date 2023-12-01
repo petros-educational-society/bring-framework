@@ -1,17 +1,23 @@
 package com.petros.bringframework.beans.factory.config;
 
+import com.petros.bringframework.beans.factory.BeanAware;
 import com.petros.bringframework.beans.factory.BeanFactory;
 import com.petros.bringframework.beans.factory.support.BeanDefinitionRegistry;
+import com.petros.bringframework.beans.support.AbstractBeanDefinition;
 import com.petros.bringframework.context.annotation.Configuration;
 import lombok.extern.log4j.Log4j2;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.modifier.Visibility;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.implementation.FieldAccessor;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatchers;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * BeanFactoryPostProcessor used for bootstrapping processing of @Configuration classes.
@@ -110,6 +116,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     @Override
     public void postProcessBeanFactory(BeanFactory beanFactory) {
         postProcessBeanDefinitionRegistry(beanFactory.getBeanDefinitionRegistry());
+        enhanceConfigurationClasses(beanFactory);
     }
 
     private boolean hasConfigurationAnnotation(BeanDefinition beanDef) {
@@ -118,5 +125,70 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
             return metadata.isAnnotated(Configuration.class.getName());
         }
         return false;
+    }
+
+    private void enhanceConfigurationClasses(BeanFactory beanFactory) {
+        Map<String, AbstractBeanDefinition> configBeanDefs = new LinkedHashMap<>();
+        BeanDefinitionRegistry registry = beanFactory.getBeanDefinitionRegistry();
+        for (String beanName : registry.getBeanDefinitionNames()) {
+            BeanDefinition bd = registry.getBeanDefinition(beanName);
+            AnnotationMetadata annotationMetadata = null;
+            MethodMetadata methodMetadata = null;
+            if (bd instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+                annotationMetadata = annotatedBeanDefinition.getMetadata();
+                methodMetadata = annotatedBeanDefinition.getFactoryMethodMetadata();
+            }
+            if (annotationMetadata.isAnnotated(Configuration.class.getName()) && methodMetadata == null) {
+                if (bd instanceof AbstractBeanDefinition abd) {
+                    configBeanDefs.put(beanName, abd);
+                }
+            }
+        }
+        if (configBeanDefs.isEmpty()) {
+            return;
+        }
+
+        for (Map.Entry<String, AbstractBeanDefinition> entry : configBeanDefs.entrySet()) {
+            AbstractBeanDefinition beanDef = entry.getValue();
+            Class<?> configClass = beanDef.getBeanClass();
+
+
+            Class<?> dynamicType = createProxy(configClass);
+            beanDef.setBeanClassName(dynamicType.getName());
+        }
+    }
+
+
+    /**
+     * Creates a dynamic proxy for a given configuration class. This method leverages the ByteBuddy library
+     * to dynamically subclass the specified class and intercept its method calls.
+     * Always register more specific method matchers last. Otherwise, any less specific method matcher that
+     * is registered afterwards might prevent rules that you defined before from being applied.
+     * <p>
+     * The proxy creation involves several key steps:
+     * - Subclassing the given configClass using ByteBuddy.
+     * - Interception of public methods not declared by the BeanAware interface.
+     * - Redirecting the intercepted method calls to a BeanMethodInterceptor.
+     * - Defining a private field 'beanFactory' of type BeanFactory in the subclass.
+     * - Implementing the BeanAware interface to allow the proxy to be aware of bean lifecycle events.
+     * - Intercepting the BeanAware interface's methods to delegate to the 'beanFactory' field.
+     * - Loading the created subclass into the same class loader as the configClass, using the default injection strategy.
+     *
+     * @param configClass The class to be proxied. This class is expected to be a configuration class.
+     * @return A dynamic proxy of the given class, enhanced with additional behavior as defined.
+     */
+    private Class<?> createProxy(Class<?> configClass) {
+        return new ByteBuddy()
+                .subclass(configClass)
+                .method(
+                        ElementMatchers.isPublic()
+                                .and(not(isDeclaredBy(BeanAware.class))
+                                        .and(not(isDeclaredBy(Object.class))))
+                ).intercept(MethodDelegation.to(BeanMethodInterceptor.class))
+                .defineField("beanFactory", BeanFactory.class, Visibility.PRIVATE)
+                .implement(BeanAware.class).intercept(FieldAccessor.ofBeanProperty())
+                .make()
+                .load(configClass.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                .getLoaded();
     }
 }

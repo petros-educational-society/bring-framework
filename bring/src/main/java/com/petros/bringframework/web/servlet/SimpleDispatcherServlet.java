@@ -1,13 +1,18 @@
 package com.petros.bringframework.web.servlet;
 
 import com.petros.bringframework.web.context.WebAppContext;
-import com.petros.bringframework.web.context.annotation.ServletAnnotationConfigApplicationContext;
 import com.petros.bringframework.web.servlet.support.common.RequestMethod;
-import com.petros.bringframework.web.servlet.support.utils.Http;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Simple implementation of a BasicFrameworkServlet and is used to override particular Http methods
+ * @author Viktor Basanets
+ * @author Serhii Dorodko
+ * @Project: bring-framework
+ */
 
 public class SimpleDispatcherServlet extends BasicFrameworkServlet {
 
@@ -34,16 +39,5 @@ public class SimpleDispatcherServlet extends BasicFrameworkServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         handleRequest(req, resp, RequestMethod.POST);
-    }
-
-    private void handleRequest(HttpServletRequest req, HttpServletResponse resp, RequestMethod requestMethod){
-        var ctx = (ServletAnnotationConfigApplicationContext) webAppContext;
-        var servletPath = req.getServletPath();
-        var controllerMethodHandler = ctx.getRequestHandlerRegistry().getHandler(requestMethod, servletPath);
-
-        controllerMethodHandler.ifPresentOrElse(
-                requestHandler -> requestHandler.invoke(req, resp),
-                () -> Http.sendBadRequest(resp)
-        );
     }
 }

@@ -4,6 +4,12 @@ import com.petros.bringframework.beans.FatalBeanException;
 
 import javax.annotation.Nullable;
 
+/**
+ * Exception thrown when a BeanFactory encounters an invalid bean definition:
+ * e.g. in case of incomplete or contradictory bean metadata.
+ *
+ * @author "Viktor Basanets"
+ */
 public class BeanDefinitionStoreException extends FatalBeanException {
 
     @Nullable

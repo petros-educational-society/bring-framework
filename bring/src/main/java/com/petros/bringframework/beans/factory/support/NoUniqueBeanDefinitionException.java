@@ -6,6 +6,12 @@ import com.petros.bringframework.util.ClassUtils;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
+/**
+ * Exception thrown when a {@code BeanFactory} is asked for a bean instance for which
+ * multiple matching candidates have been found when only one matching bean was expected.
+ *
+ * @author "Vasiuk Maryna"
+ */
 public class NoUniqueBeanDefinitionException extends BeansException {
 
     private final int numberOfBeansFound;

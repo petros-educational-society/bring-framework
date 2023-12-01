@@ -9,18 +9,25 @@ import lombok.Setter;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.petros.bringframework.beans.factory.config.AutowireMode.*;
+import static com.petros.bringframework.beans.factory.config.AutowireMode.AUTOWIRE_AUTODETECT;
+import static com.petros.bringframework.beans.factory.config.AutowireMode.AUTOWIRE_BY_TYPE;
+import static com.petros.bringframework.beans.factory.config.AutowireMode.AUTOWIRE_CONSTRUCTOR;
 
 /**
+ * Abstract implementation of the {@link BeanDefinition} interface providing basic functionality for bean definitions.
+ * This class represents a bean definition containing metadata and attributes for a bean instance.
+ *
  * @author "Maksym Oliinyk"
  */
 public abstract class AbstractBeanDefinition implements BeanDefinition {
 
     private static final String SCOPE_DEFAULT = "";
 
+    @Nullable
     private Object beanClass;
     @Nullable
     private String scope = SCOPE_DEFAULT;
@@ -39,7 +46,6 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private String[] dependsOn;
 
     @Nullable
-    @Setter
     @Getter
     private String factoryBeanName;
 
@@ -65,6 +71,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private String description;
 
     private int role = BeanDefinitionRole.ROLE_APPLICATION.getRole();
+
+    private volatile Method factoryMethodToIntrospect;
 
     //todo implement qualifiers
     //private final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
@@ -100,7 +108,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
 
     @Override
     public boolean isLazyInit() {
-        return this.lazyInit != null && this.lazyInit.booleanValue();
+        return this.lazyInit != null && this.lazyInit;
     }
 
     @Override
@@ -137,7 +145,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     /**
      * Specify constructor argument values for this bean.
      */
-    public void setConstructorArgumentValues(SimpleConstructorArgumentValues constructorArgumentValues) {
+    public void setConstructorArgumentValues(@Nullable SimpleConstructorArgumentValues constructorArgumentValues) {
         this.constructorArgumentValues = constructorArgumentValues;
     }
 
@@ -231,14 +239,14 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
 
     @Nullable
     @Override
-    //todo implement
+    //todo implement or delete
     public String getResourceDescription() {
         return null;
     }
 
     @Nullable
     @Override
-    //todo implement
+    //todo implement or delete
     public BeanDefinition getOriginatingBeanDefinition() {
         return null;
     }
@@ -251,11 +259,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      *
      * @param autowireMode the autowire mode to set.
      *                     Must be one of the constants defined in this class.
-     * @see #AUTOWIRE_NO
-     * @see #AUTOWIRE_BY_NAME
-     * @see #AUTOWIRE_BY_TYPE
-     * @see #AUTOWIRE_CONSTRUCTOR
-     * @see #AUTOWIRE_AUTODETECT
+     * @see AutowireMode#AUTOWIRE_NO
+     * @see AutowireMode#AUTOWIRE_BY_NAME
+     * @see AutowireMode#AUTOWIRE_BY_TYPE
+     * @see AutowireMode#AUTOWIRE_CONSTRUCTOR
+     * @see AutowireMode#AUTOWIRE_AUTODETECT
      */
     public void setAutowireMode(AutowireMode autowireMode) {
         this.autowireMode = autowireMode;
@@ -272,9 +280,9 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * Return the resolved autowire code,
      * (resolving AUTOWIRE_AUTODETECT to AUTOWIRE_CONSTRUCTOR or AUTOWIRE_BY_TYPE).
      *
-     * @see #AUTOWIRE_AUTODETECT
-     * @see #AUTOWIRE_CONSTRUCTOR
-     * @see #AUTOWIRE_BY_TYPE
+     * @see AutowireMode#AUTOWIRE_AUTODETECT
+     * @see AutowireMode#AUTOWIRE_CONSTRUCTOR
+     * @see AutowireMode#AUTOWIRE_BY_TYPE
      */
     public AutowireMode getResolvedAutowireMode() {
         if (this.autowireMode == AUTOWIRE_AUTODETECT) {
@@ -319,5 +327,28 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
                     "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
         }
         return introspectedClass;
+    }
+
+    @Override
+    public void setFactoryBeanName(@Nullable String factoryBeanName) {
+        this.factoryBeanName = factoryBeanName;
+    }
+
+    /**
+     * Set a resolved Java Method for the factory method on this bean definition.
+     * @param method the resolved factory method, or {@code null} to reset it
+     * @since 5.2
+     */
+    public void setResolvedFactoryMethod(@Nullable Method method) {
+        this.factoryMethodToIntrospect = method;
+    }
+
+    /**
+     * Return the resolved factory method as a Java Method object, if available.
+     * @return the factory method, or {@code null} if not found or not resolved yet
+     */
+    @Nullable
+    public Method getResolvedFactoryMethod() {
+        return this.factoryMethodToIntrospect;
     }
 }
