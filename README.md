@@ -6,9 +6,9 @@ The project was created as an educational part of the [Bobocode Ultimate 3.0](ht
 The general idea of the project is to write a personal framework that repeats the general functionality of [Spring Framework](https://spring.io/projects/spring-framework). The main features are the [IoC container](https://docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/beans.html) and the [DispatcherServlet](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet.html).
 All the work was done by our [team](#team-id).
 
-<h3 id="ioc-container-id" style="text-align: center; line-height: 4">1.1. IoC container</h3>
+<h2 id="ioc-container-id" style="text-align: center; line-height: 4">2. IoC container</h2>
 
-As part of the IoS implementation of the container, the following functionality was implemented:
+As part of the IoC implementation of the container, the following functionality was implemented:
 - application context
 - scanning all classes marked as [@Component](#dictionary-id) and [@Configuration](#dictionary-id) to create [BeanDefinitions](#dictionary-id)
 - creation [Beans](#dictionary-id) from BeanDefinitions, including autowired Beans
@@ -16,9 +16,74 @@ As part of the IoS implementation of the container, the following functionality 
 - covered by tests
 - implemented a lot of annotations: [@DestroyPlease](#dictionary-id), [@InitPlease](#dictionary-id), [@InjectPlease](#dictionary-id), [@Value](#dictionary-id), [@Bean](#dictionary-id), [@Component](#dictionary-id), [@ComponentScan](#dictionary-id), [@Configuration](#dictionary-id), [@DependsOn](#dictionary-id), [@Description](#dictionary-id), [@Primary](#dictionary-id), [@Role](#dictionary-id), [@Scope](#dictionary-id)
 
+<h3 id="ioc-container-id" style="text-align: left; line-height: 4">2.1. IoC container</h3>
 
+#### What Is Inversion of Control?
+Inversion of Control (IoC), also known as Dependency Injection (DI), s a principle in software engineering where objects 
+specify what other objects they need to function (their dependencies) in various ways. These dependencies can be provided 
+through constructors, factory method parameters, or by setting properties on the object after it's made or obtained from 
+a factory method. Instead of the object itself creating or finding these needed objects, the IoC container takes on this 
+responsibility and supplies the necessary dependencies when it creates the object (or bean).
+This approach is called "Inversion of Control" because it flips the traditional method where objects themselves manage their dependencies.
 
-<h3 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">1.2. Dispatcher Servlet</h3>
+The advantages of this architecture are:
+
+* decoupling the execution of a task from its implementation
+* making it easier to switch between different implementations
+* greater modularity of a program
+* greater ease in testing a program by isolating a component or mocking its dependencies, and allowing components to communicate through contracts
+
+#### What Is a Bean?
+In summary, a bean is an object that is instantiated, assembled, and otherwise managed  by an IoC container, which simplifies many aspects of application development,
+including resource management, dependency resolution, and lifecycle management.
+
+#### Container overview
+The `com.petros.bringframework.context.ApplicationContext` interface acts as the IoC (Inversion of Control) container. 
+Its main roles include creating, setting up, and putting together the beans mentioned earlier. 
+This container figures out which objects it needs to create, how to set them up, and how to assemble them by interpreting 
+configuration metadata. This metadata, which provides the necessary instructions, can be expressed through Java annotations or directly in Java code.
+
+The `AnnotationConfigApplicationContext` serves as the main implementation of the `ApplicationContext` interface.
+
+#### Instantiating the container by using AnnotationConfigApplicationContext
+To create the non-web application context, use `AnnotationConfigApplicationContext` which is tailored for Java-based configuration using annotations. 
+This implementation is capable of accepting only [@Configuration] classes.
+These [@Configuration] classes contain methods annotated with [@Bean], which provide the definitions for the creation of beans.
+
+###### **You can use [@Configuration] classes as input when instantiating an AnnotationConfigApplicationContext**
+```java
+public static void main(String[] args) {
+        final var annotationConfigApplicationContext
+                = new AnnotationConfigApplicationContext(JavaConfig.class);
+
+        var ms = annotationConfigApplicationContext.getBean(Test.class);
+        ms.test();
+}
+```
+###### Building the Container Programmatically by Using register(Class<?>… configs)
+1. Start by creating a new instance of `AnnotationConfigApplicationContext` with the default constructor. At this point, the context is created but not yet fully configured with bean definitions.
+```java
+public static void main(String[] args) {
+        final var annotationConfigApplicationContext
+                = new AnnotationConfigApplicationContext();
+}
+```
+2. Use the `register` method to add one or more classes annotated with `@Configuration` to the context. 
+The register method is flexible, allowing you to dynamically choose which configurations include in your context. 
+This method mandatory, if you want to use the `AnnotationConfigApplicationContext` constructor without parameters. 
+```java
+        var.register(JavaConfig.class, Config.class);
+```
+3. Manually Refresh the Context. After registering all necessary configurations and beans, manually call the refresh method. 
+This step is crucial as it triggers the context to initialize the beans, perform dependency injection, and execute any other lifecycle processes.
+The refresh operation is only needed once, after all registrations are done, to finalize the context setup.
+```java
+        var.refresh();
+        var ms = annotationConfigApplicationContext.getBean(Test.class);
+        ms.test();
+}
+```
+<h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
 
 As part of the IoS implementation of the Dispatcher Servlet, the following functionality was implemented:
 - application use embedded [Tomcat](https://tomcat.apache.org/)
@@ -29,7 +94,7 @@ As part of the IoS implementation of the Dispatcher Servlet, the following funct
 
 
 
-<h2 id="opportunities-id" style="text-align: center; line-height: 4">2. Opportunities</h2>
+<h2 id="opportunities-id" style="text-align: center; line-height: 4">4. Opportunities</h2>
 
 Bring Framework can be used as dependency. It will ensure the start of your Java application based on Tomcat and provide the ability to send and receive HTTP requests.
 
@@ -42,7 +107,7 @@ Bring Framework can be used as dependency. It will ensure the start of your Java
 
 3.3. Create you own application
 
-<h2 id="dictionary-id" style="text-align: center; line-height: 4" >4. Dictionary</h2>
+<h2 id="dictionary-id" style="text-align: center; line-height: 4" >5. Dictionary</h2>
 
 - @Component - Indicates that an annotated class is a "component". Such classes are considered as candidates for auto-detection when using annotation-based configuration and classpath scanning.
 - @Configuration - Indicating that an object is a source of bean definitions.
