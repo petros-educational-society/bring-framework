@@ -301,6 +301,39 @@ public class MyService {
 
 }
 ```
+### 2.4 Init and destroy lifecycle mechanisms
+The `InitDestroyAnnotationBeanPostProcessor` is a component in the Bring Framework that plays a key role in the bean lifecycle management, 
+specifically in the initialization and destruction phases of beans. It's responsible for processing Bring's `@InitPlease` and `@DestroyPlease` annotations.
+`@InitPlease` and `@DestroyPlease` annotations are used on methods to control beans lifecycle.
+<br>Initialization and Destruction Callbacks:
+
+`@InitPlease`: This annotation marks a method to be called after a bean has been constructed and its properties set by the container, 
+but before the bean is put into service. It is often used for initialization logic. <br>
+`@DestroyPlease`: This annotation marks a method to be called just before a bean is removed from the container or the container is shut down. It's typically used for cleanup activities.
+
+`InitDestroyAnnotationBeanPostProcessor` Role: <br>
+`InitDestroyAnnotationBeanPostProcessor` implements the `BeanPostProcessor` interface, which allows it to hook into the bean lifecycle and invoke methods annotated with `@InitPlease` and `@DestroyPlease`.
+As a post-processor, it has the opportunity to interact with beans both before their initialization (i.e., post-construction and dependency injection) and before their destruction.
+
+In a non-web application environment, you don't need to worry about the registration of the shutdown hook, 
+cause we registered it for you. This hook ensures a graceful shutdown and calls the relevant destroy methods on your 
+singleton beans so that all resources are released. Of course, you must still configure and implement these destroy callbacks correctly.
+
+```java
+@Component
+public class MyService {
+
+    @InitPlease
+    public void init() {
+        // Initialization logic here
+    }
+
+    @DestroyPlease
+    public void destroy() {
+        // Cleanup logic here
+    }
+}
+```
 
 
 
