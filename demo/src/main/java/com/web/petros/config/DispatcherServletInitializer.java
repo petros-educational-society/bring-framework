@@ -12,7 +12,7 @@ public class DispatcherServletInitializer extends AbstractDispatcherServletIniti
     @Nullable
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[] {DefaultAppConfig.class, RetrofitClientConfig.class};
+        return new Class[] {DefaultAppConfig.class, RetrofitClientConfig.class, ObjectMapperConfig.class};
     }
 
     @Override
