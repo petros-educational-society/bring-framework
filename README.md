@@ -225,7 +225,21 @@ initialized before attempting an initialization of the current bean.
 public class Test {}
 ```
 In case of missing dependency, context throws a `NoSuchBeanDefinitionException`. <br>
+```java
+@Component
+@DependsOn({"not exist"})
+public class Test {}
+```
 In case of circular dependency, it throws `BeanCreationException` and highlights that the beans have a circular dependency <br>
+```java
+@Component
+@DependsOn({"sequentiallyBasedRecursiveMergeSort"})
+public class Test {}
+
+@Component
+@DependsOn({"test"})
+public class SequentiallyBasedRecursiveMergeSort {}
+```
 
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
 
