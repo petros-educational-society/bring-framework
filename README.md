@@ -18,7 +18,7 @@ As part of the IoC implementation of the container, the following functionality 
 
 <h3 id="ioc-container-id" style="text-align: left; line-height: 4">2.1. IoC container</h3>
 
-#### What Is Inversion of Control?
+#### 2.1.1 What Is Inversion of Control?
 Inversion of Control (IoC), also known as Dependency Injection (DI), s a principle in software engineering where objects 
 specify what other objects they need to function (their dependencies) in various ways. These dependencies can be provided 
 through constructors, factory method parameters, or by setting properties on the object after it's made or obtained from 
@@ -33,11 +33,11 @@ The advantages of this architecture are:
 * greater modularity of a program
 * greater ease in testing a program by isolating a component or mocking its dependencies, and allowing components to communicate through contracts
 
-#### What Is a Bean?
+#### 2.1.2 What Is a Bean?
 In summary, a bean is an object that is instantiated, assembled, and otherwise managed  by an IoC container, which simplifies many aspects of application development,
 including resource management, dependency resolution, and lifecycle management.
 
-#### Container overview
+#### 2.1.3 Container overview
 The `com.petros.bringframework.context.ApplicationContext` interface acts as the IoC (Inversion of Control) container. 
 Its main roles include creating, setting up, and putting together the beans mentioned earlier. 
 This container figures out which objects it needs to create, how to set them up, and how to assemble them by interpreting 
@@ -45,7 +45,7 @@ configuration metadata. This metadata, which provides the necessary instructions
 
 The `AnnotationConfigApplicationContext` serves as the main implementation of the `ApplicationContext` interface.
 
-#### Instantiating the container by using AnnotationConfigApplicationContext
+#### 2.1.4 Instantiating the container by using AnnotationConfigApplicationContext
 To create the non-web application context, use `AnnotationConfigApplicationContext` which is tailored for Java-based configuration using annotations. 
 This implementation is capable of accepting only [@Configuration] classes.
 These [@Configuration] classes contain methods annotated with [@Bean], which provide the definitions for the creation of beans.
@@ -83,6 +83,40 @@ The refresh operation is only needed once, after all registrations are done, to 
         ms.test();
 }
 ```
+###### Don't forget about component scanning
+To enable component scanning, you must annotate your `@Configuration` class with `@ComponentScan`.
+We knew that IoC container needed some classes. That's why for the detection and registration of beans in your application's classpath, 
+don't forget about `@ComponentScan` annotation with the appropriate path to your packages ;)
+```java
+@Configuration
+@ComponentScan(basePackages = "com.petros") 
+public class JavaConfig  {
+
+}
+```
+
+###### Building the Container Programmatically by Using scan(String… basePackages)
+The `AnnotationConfigApplicationContext(String... basePackages)` constructor is a convenient way to initialize your application context. 
+It allows you to specify one or more base packages for component scanning, enabling context to automatically detect and register beans.
+
+To use this constructor, simply provide the base package names as arguments. Bring will then scan these packages for classes annotated with `@Component`, `@RestController`, or other stereotypes and register them as beans in the application context.
+```java
+       final var annotationConfigApplicationContext = new AnnotationConfigApplicationContext( "com.petros");
+
+        var ms = annotationConfigApplicationContext.getBean(Test.class);
+```
+
+#### 2.1.5 Using the container
+Once you have an instance of the `ApplicationContext`, you can use it to retrieve your beans.
+The `ApplicationContext` is the interface for an advanced factory capable of maintaining a registry of different beans and their dependencies. 
+Using the method `<T> T getBean(Class<T> requiredType)` you can retrieve instances of your beans.
+
+The ApplicationContext enables you to read bean and access them as follows:
+```java
+        var ms = annotationConfigApplicationContext.getBean(Test.class);
+        ms.test();
+```
+
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
 
 As part of the IoS implementation of the Dispatcher Servlet, the following functionality was implemented:
