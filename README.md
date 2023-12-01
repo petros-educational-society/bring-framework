@@ -22,10 +22,13 @@ As part of the IoS implementation of the container, the following functionality 
 
 As part of the IoS implementation of the Dispatcher Servlet, the following functionality was implemented:
 - application use embedded [Tomcat](https://tomcat.apache.org/)
-- application can can receive and process [POST](https://en.wikipedia.org/wiki/HTTP#Request_methods) and [GET](https://en.wikipedia.org/wiki/HTTP#Request_methods) requests
+- application can can receive and process [HEAD](https://en.wikipedia.org/wiki/HTTP#Request_methods) and [GET](https://en.wikipedia.org/wiki/HTTP#Request_methods) requests
 - exception handling
 - covered by tests
 - implemented a lot of annotations: [@PathVariable](#dictionary-id), [@RequestBody](#dictionary-id), [@RequestHeader](#dictionary-id), [@RequestMapping](#dictionary-id), [@RequestParam](#dictionary-id), [@ResponseBody](#dictionary-id), [@RestController](#dictionary-id)
+
+<h3 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">1.3. Embedded Tomcat</h3>
+There is an option to run Bring IoC inside a Tomcat servlet container and for that, you need to go to the 'demo' module and inside that module, there is a WebDemo class with a main method. You just need to run it and in your browser go to the correct URL like http://localhost:8080/api/nasa/photos/the-larges?sol=15, and you will get the largest photo.
 
 
 
