@@ -270,8 +270,21 @@ public class RetrofitNasaApiService implements NasaApiService {
 ```
 If there are primitives in the constructor arguments, they will be initialized with default values.
 Only one constructor can be annotated as requiring injection, otherwise Bring cannot resolve a bean for wiring, and it will throw an exception `BeanCreationException` with message ` Multiple autowired constructors found ...`.
-###### 2.3.1 Property Injection: @InjectPlease on Properties
+This will happen at the stage of `BeanFactoryPostProcessor` processing. 
 
+Class `SimpleBeanFactoryPostProcessor` responsible for modification of `BeanDefinition` with the appropriate constructors metadata
+###### 2.3.1 Property Injection: @InjectPlease on Properties
+Property-based DI is accomplished by the container setting a property's value through a field directly.
+The main class that handles autowiring of fields annotated with `@InjectPlease` and injects
+autowired candidates into these fields is `AutowiredAnnotationBeanPostProcessor`.
+Currently, it is not yet allowed to use this mechanism to resolve circular dependencies.
+Currently container detects this circular reference at runtime, and throws a `BeanCurrentlyInCreationException`.
+```java
+public class MyService {
+    @InjectPlease
+    private MyRepository repository;
+}
+```
 
 
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
