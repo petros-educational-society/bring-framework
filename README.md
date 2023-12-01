@@ -128,13 +128,13 @@ Bean definition contains the information called configuration metadata, which is
 * Bean's lifecycle details
 * Bean's dependencies
 
-###### Instantiating Beans Using Annotations
-Beans can be instantiated and managed by the IoC container using the following annotations: @Bean, @Component, and @RestController. 
+###### 2.2.1 Instantiating Beans Using Annotations
+Beans can be instantiated and managed by the IoC container using the following annotations: `@Bean`, `@Component`, and `@RestController`. 
 Understanding how to use these annotations is crucial for effective application development.
 
-Using @Bean <br>
-Context: Primarily used in @Configuration annotated classes.<br>
-Purpose: Defines a method as a bean producer. Each method annotated with @Bean produces a bean to be managed by the container.<br>
+Using `@Bean` <br>
+Context: Primarily used in `@Configuration` annotated classes.<br>
+Purpose: Defines a method as a bean producer. Each method annotated with `@Bean` produces a bean to be managed by the container.<br>
 Customization: Allows custom logic for bean instantiation, making it suitable for more complex bean setup.
 
 ```java
@@ -148,9 +148,9 @@ public class AppConfig {
 ```
 In this example, myService() method defines a bean of type MyService.<br>
 
-Using @Component<br>
+Using `@Component`<br>
 Context: Used on class level for automatic detection and registration of beans.<br>
-Purpose: Marks a class as a component. When you use component scanning, context automatically detects and instantiates @Component annotated classes.<br>
+Purpose: Marks a class as a component. When you use component scanning, context automatically detects and instantiates `@Component` annotated classes.<br>
 
 ```java
 @Component
@@ -158,9 +158,9 @@ public class MyComponent {
 // Class body
 }
 ```
-Here, MyComponent is automatically detected and instantiated by container.
+Here, `MyComponent` is automatically detected and instantiated by container.
 
-Using @RestController<br>
+Using `@RestController`<br>
 Context: bean used for building RESTful web services.<br>
 Usage: Ideal for creating RESTful web controllers.<br>
 
@@ -172,8 +172,48 @@ public class MyRestController {
     }
 }
 ```
-In this example, MyRestController is a REST controller bean handling HTTP GET requests.
+In this example, `MyRestController` is a REST controller bean handling HTTP GET requests.
 
+###### 2.2.2 Instantiating Multiple Beans of the Same Class
+Bring framework allow to create multiple beans of the same class. But it will work for now only if one of the beans is marked as `@Primary`.
+The simplest and easiest way to create multiple beans of the same class using java configuration
+```java 
+@Configuration
+public class JavaConfig {
+    @Bean
+    @Primary
+    public MergeSort personOne() {
+        return new SequentiallyBasedRecursiveMergeSort();
+    }
+
+    @Bean
+    public MergeSort personTwo() {
+        return new ForkJoinPoolBasedRecursiveMergeSort();
+    }
+}
+```
+Here, `@Bean` instantiates two beans with ids the same as the method names, and registers them within the BeanFactory.
+The `@Primary` annotation is used to indicate that a specific bean should be given preference when multiple candidates are qualified to autowire a single property.
+Without `@Primary`, if there are multiple beans of the same type in the container, context doesn't know which one to inject or retrieve and will throw a `NoUniqueBeanDefinitionException`.
+
+Another approach to create multiple beans, use the `@Component` annotation. You need create multiple subclasses that extend the superclass.
+```java 
+@Component
+public class ForkJoinPoolBasedRecursiveMergeSort extends MergeSort {
+
+    public ForkJoinPoolBasedRecursiveMergeSort() {
+        super();
+    }
+}
+
+@Component
+public class SequentiallyBasedRecursiveMergeSort extends MergeSort {
+
+    public SequentiallyBasedRecursiveMergeSort() {
+        super();
+    }
+}
+```
 
 
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
