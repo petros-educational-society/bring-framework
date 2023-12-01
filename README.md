@@ -285,6 +285,23 @@ public class MyService {
     private MyRepository repository;
 }
 ```
+###### 2.3.2 Value Injection: 
+Bring allows you to inject values into your beans from a property file.
+For now, this file should be named `application.properties` and not other way.
+Our team is working 24/7 so you can set any name for this file. 
+`@Value` annotation should be used for injecting values into fields in context-managed beans. 
+Currently it can be applied only at field 
+
+```java
+@Component
+public class MyService {
+
+    @Value("${my.service.name}")
+    private String name;
+
+}
+```
+
 
 
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
