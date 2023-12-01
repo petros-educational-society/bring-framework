@@ -8,11 +8,9 @@ import com.petros.bringframework.beans.factory.support.AbstractAutowireCapableBe
 import com.petros.bringframework.beans.factory.support.BeanWrapper;
 import com.petros.bringframework.beans.support.GenericBeanDefinition;
 import com.petros.bringframework.util.BeanUtils;
-import com.petros.bringframework.util.ClassUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -34,7 +32,7 @@ public class ConstructorResolver {
                                            Object[] explicitArgs) {
         if (ctors == null || ctors.length == 0) {
             throw new BeanCreationException(beanName,
-                    "Could not resolve matching constructor on bean class[" + mbd.getBeanClassName() + "]");
+                    "Could not resolve matching constructor on bean class [" + mbd.getBeanClassName() + "]");
 
         } else if (ctors.length > 1) {
             throw new BeanCreationException(beanName,
@@ -77,81 +75,20 @@ public class ConstructorResolver {
     }
 
     public BeanWrapper instantiateUsingFactoryMethod(String beanName, GenericBeanDefinition mbd, Object[] explicitArgs) {
-        Object factoryBean;
-        Class<?> factoryClass;
-        boolean isStatic;
-
+        Object factoryBean = null;
         String factoryBeanName = mbd.getFactoryBeanName();
         if (factoryBeanName != null) {
             if (factoryBeanName.equals(beanName)) {
                 throw new BeanDefinitionStoreException(mbd.getResourceDescription(), beanName,
                         "factory-bean reference points back to the same bean definition");
             }
-
             factoryBean = this.beanFactory.getBean(factoryBeanName);  //should return config proxy
-
             if (mbd.isSingleton() && this.beanFactory.containsSingleton(beanName)) {
                 throw new ImplicitlyAppearedSingletonException();
             }
-
             this.beanFactory.registerDependentBean(factoryBeanName, beanName);
-            factoryClass = factoryBean.getClass();
-            isStatic = false;
-        } else {
-            factoryBean = null;
-            factoryClass = mbd.getBeanClass();
         }
-
-        Method factoryMethodToUse = null;
-        ArgumentsHolder argsHolderToUse = null;
-        Object[] argsToUse = null;
-
-        if (explicitArgs != null) {
-            argsToUse = explicitArgs;
-        }
-
-        factoryClass = ClassUtils.getUserClass(factoryClass);
-        List<Method> candidates = null;
-
-        factoryMethodToUse = mbd.getResolvedFactoryMethod();
-
-        return beanFactory.instantiateBean(mbd, beanName, this.beanFactory, factoryBean, factoryMethodToUse, explicitArgs);
+        return beanFactory.instantiateBean(mbd, beanName, this.beanFactory, factoryBean, mbd.getResolvedFactoryMethod(), explicitArgs);
     }
 
-    private static class ArgumentsHolder {
-
-        public final Object[] rawArguments;
-
-        public final Object[] arguments;
-
-        public final Object[] preparedArguments;
-
-        public boolean resolveNecessary = false;
-
-        public ArgumentsHolder(int size) {
-            this.rawArguments = new Object[size];
-            this.arguments = new Object[size];
-            this.preparedArguments = new Object[size];
-        }
-
-        public ArgumentsHolder(Object[] args) {
-            this.rawArguments = args;
-            this.arguments = args;
-            this.preparedArguments = args;
-        }
-
-        public int getAssignabilityWeight(Class<?>[] paramTypes) {
-            for (int i = 0; i < paramTypes.length; i++) {
-                if (!ClassUtils.isAssignableValue(paramTypes[i], this.arguments[i])) {
-                    return Integer.MAX_VALUE;
-                }
-            }
-            for (int i = 0; i < paramTypes.length; i++) {
-                if (!ClassUtils.isAssignableValue(paramTypes[i], this.rawArguments[i])) {
-                    return Integer.MAX_VALUE - 512;
-                }
-            }
-            return Integer.MAX_VALUE - 1024;
-        }
-    }
 }
