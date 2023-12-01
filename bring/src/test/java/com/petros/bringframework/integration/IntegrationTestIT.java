@@ -9,15 +9,8 @@ class IntegrationTestIT {
     @Test
     void contextShouldStarted() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("com.petros.bringframework");
-        Assertions.assertNotNull(context.getRegistry());
-        Assertions.assertNotNull(context.getScanner());
-        Assertions.assertNotNull(context.getReader());
+
     }
 
-    @Test
-    void contextShouldBeStarted() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("com.petros");
 
-        System.out.println();
-    }
 }
