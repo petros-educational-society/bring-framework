@@ -8,7 +8,7 @@ All the work was done by our [team](#team-id).
 
 <h3 id="ioc-container-id" style="text-align: center; line-height: 4">1.1. IoC container</h3>
 
-As part of the IoS implementation of the container, the following functionality was implemented:
+As part of the IoC implementation of the container, the following functionality was implemented:
 - application context
 - scanning all classes marked as [@Component](#dictionary-id) and [@Configuration](#dictionary-id) to create [BeanDefinitions](#dictionary-id)
 - creation [Beans](#dictionary-id) from BeanDefinitions, including autowired Beans
