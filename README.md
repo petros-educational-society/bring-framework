@@ -214,7 +214,18 @@ public class SequentiallyBasedRecursiveMergeSort extends MergeSort {
     }
 }
 ```
-
+###### 2.2.3 Controlling Bean Creation Order with @DependsOn Annotation
+Bring, by default, manages beans’ lifecycle and arranges their initialization order.
+But, we can still customize it based on our needs using `@DependsOn` annotation. 
+We should use this annotation for specifying bean dependencies. Bring guarantees that the defined beans will be 
+initialized before attempting an initialization of the current bean.
+```java
+@Component
+@DependsOn({"sequentiallyBasedRecursiveMergeSort"})
+public class Test {}
+```
+In case of missing dependency, context throws a `NoSuchBeanDefinitionException`. <br>
+In case of circular dependency, it throws `BeanCreationException` and highlights that the beans have a circular dependency <br>
 
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
 
