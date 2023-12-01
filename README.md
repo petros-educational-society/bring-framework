@@ -117,6 +117,65 @@ The ApplicationContext enables you to read bean and access them as follows:
         ms.test();
 ```
 
+### 2.2  Bean overview
+The objects that form the backbone of your application and that are managed by the IoC container are called beans. 
+A bean is an object that is instantiated, assembled, and otherwise managed by a IoC container. 
+These beans are created with the configuration metadata that you supply to the container.
+For each bean, Bring will create a bean definition to hold the bean's configuration metadata.
+
+Bean definition contains the information called configuration metadata, which is needed for the container to know the following:
+* How to create a bean
+* Bean's lifecycle details
+* Bean's dependencies
+
+###### Instantiating Beans Using Annotations
+Beans can be instantiated and managed by the IoC container using the following annotations: @Bean, @Component, and @RestController. 
+Understanding how to use these annotations is crucial for effective application development.
+
+Using @Bean <br>
+Context: Primarily used in @Configuration annotated classes.<br>
+Purpose: Defines a method as a bean producer. Each method annotated with @Bean produces a bean to be managed by the container.<br>
+Customization: Allows custom logic for bean instantiation, making it suitable for more complex bean setup.
+
+```java
+@Configuration
+public class AppConfig {
+    @Bean
+    public MyService myService() {
+        return new MyServiceImpl();
+    }
+}
+```
+In this example, myService() method defines a bean of type MyService.<br>
+
+Using @Component<br>
+Context: Used on class level for automatic detection and registration of beans.<br>
+Purpose: Marks a class as a component. When you use component scanning, context automatically detects and instantiates @Component annotated classes.<br>
+
+```java
+@Component
+public class MyComponent {
+// Class body
+}
+```
+Here, MyComponent is automatically detected and instantiated by container.
+
+Using @RestController<br>
+Context: bean used for building RESTful web services.<br>
+Usage: Ideal for creating RESTful web controllers.<br>
+
+```java
+@RestController("/hello")
+public class MyRestController {
+    public String hello() { 
+        return "Hello World";
+    }
+}
+```
+In this example, MyRestController is a REST controller bean handling HTTP GET requests.
+
+
+
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
 
 As part of the IoS implementation of the Dispatcher Servlet, the following functionality was implemented:
