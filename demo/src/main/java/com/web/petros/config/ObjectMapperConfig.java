@@ -4,6 +4,7 @@ import com.petros.bringframework.context.annotation.Bean;
 import com.petros.bringframework.context.annotation.Configuration;
 import com.petros.bringframework.context.annotation.Primary;
 import com.petros.bringframework.web.servlet.support.mapper.DataMapper;
+import com.web.petros.mapper.CustomJsonMapper;
 
 /**
  * @author Serhii Dorodko
