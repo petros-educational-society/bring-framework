@@ -6,6 +6,8 @@ import com.petros.bringframework.web.context.annotation.RequestHeader;
 import com.petros.bringframework.web.context.annotation.RequestMapping;
 import com.petros.bringframework.web.context.annotation.RequestParam;
 import com.petros.bringframework.web.servlet.support.common.RequestMethod;
+import com.petros.bringframework.web.servlet.support.exception.UnsupportedRequestBodyTypeException;
+import com.petros.bringframework.web.servlet.support.mapper.DataMapper;
 import com.petros.bringframework.web.servlet.support.utils.RequestMappingParser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a method within the Controller that processes a particular RequestMapping
+ *
  * @author Serhii Dorodko
  */
 public class RequestHandlerFactory {
@@ -27,11 +30,6 @@ public class RequestHandlerFactory {
     private final String requestMapping;
     private final Pattern pattern;
     private final MethodParameters methodParameters = new MethodParameters();
-
-    public boolean isMatching(RequestMethod requestMethod, String path){
-        Matcher matcher = pattern.matcher(path);
-        return requestMethod == this.requestMethod && matcher.matches();
-    }
 
     public RequestHandlerFactory(Method controllerMethod, Object controllerBean) {
         if (!controllerMethod.isAnnotationPresent(RequestMapping.class)) throw new IllegalArgumentException();
@@ -51,28 +49,54 @@ public class RequestHandlerFactory {
                 methodParameters.addRequestHeader(param.getAnnotation(RequestHeader.class).name(), position);
             else if (param.isAnnotationPresent(RequestParam.class))
                 methodParameters.addRequestParam(param.getAnnotation(RequestParam.class).name(), position);
-            else if (param.isAnnotationPresent(PathVariable.class)){
+            else if (param.isAnnotationPresent(PathVariable.class)) {
                 String requestVarName = param.getAnnotation(PathVariable.class).name();
-                var placeHolderOrder = placeHolders.get(requestVarName); // TODO validate that place-holders and declared parameters as @PathVariable DO match
+                var placeHolderOrder = placeHolders.get(requestVarName);// TODO validate that place-holders and declared parameters as @PathVariable DO match
                 methodParameters.addPathVariableMapping(placeHolderOrder, position);
-            }
-            else if (param.isAnnotationPresent(RequestBody.class))
+            } else if (param.isAnnotationPresent(RequestBody.class)) {
+                if (param.getType().isPrimitive()) throw new UnsupportedRequestBodyTypeException();
                 this.methodParameters.setRequestBodyParamPosition(position);
-            else if (param.getType().equals(HttpServletRequest.class))
+            } else if (param.getType().equals(HttpServletRequest.class))
                 this.methodParameters.setServletRequestPosition(position);
             else if (param.getType().equals(HttpServletResponse.class))
                 this.methodParameters.setServletResponsePosition(position);
-            else continue; // TODO insert the default value for unAnnotated primitive parameters
-            // TODO consider adding request & response params
+            else continue;
+            // TODO consider adding responseBody params(low priority due to having returning the response body through the method return value)
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    public RequestResponseHandler getHandler(String path) {
-        return new RequestResponseHandler(controllerMethod, methodParameters, extractPathVariables(path), controllerBean);
+        RequestHandlerFactory that = (RequestHandlerFactory) o;
+
+        if (requestMethod != that.requestMethod) return false;
+        return getRequestMapping().equals(that.getRequestMapping());
     }
 
-    private List<String> extractPathVariables(String path){
+    @Override
+    public int hashCode() {
+        int result = requestMethod.hashCode();
+        result = 31 * result + getRequestMapping().hashCode();
+        return result;
+    }
+
+    public boolean isMatching(RequestMethod requestMethod, String path) {
+        Matcher matcher = pattern.matcher(path);
+        return requestMethod == this.requestMethod && matcher.matches();
+    }
+
+    public RequestResponseHandler getHandler(String path, DataMapper mapper) {
+        return new RequestResponseHandler(controllerMethod, methodParameters, extractPathVariables(path), controllerBean, mapper);
+    }
+
+    public String getRequestMapping() {
+        return requestMapping;
+    }
+
+    private List<String> extractPathVariables(String path) {
         Matcher matcher = pattern.matcher(path);
         List<String> pathVariables = new ArrayList<>();
         if (matcher.find()) {
@@ -81,9 +105,5 @@ public class RequestHandlerFactory {
             }
         }
         return pathVariables;
-    }
-
-    public String getRequestMapping() {
-        return requestMapping;
     }
 }

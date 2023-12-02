@@ -32,8 +32,27 @@ public class Http {
     }
 
     public static void sendBadRequest(HttpServletResponse response){
+        if (response.isCommitted()) return;
         try {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (IOException e) {
+            log.debug("An exception occurred while sending the error response: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void sendNotFound(HttpServletResponse response){
+        try {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } catch (IOException e) {
+            log.debug("An exception occurred while sending the error response: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void sendBadRequest(HttpServletResponse response, String message){
+        try {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
         } catch (IOException e) {
             log.debug("An exception occurred while sending the error response: {}", e.getMessage(), e);
             throw new RuntimeException(e);
