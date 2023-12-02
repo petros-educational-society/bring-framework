@@ -599,6 +599,46 @@ public class NasaPictureController {
 
 ```
 
+Object mapping for controller return value and @RequestBody annotated parameter is also supported. Here is example of
+using the feature
+```java
+@RestController
+@Component
+public class TeammateController {
+
+    private final Map<Integer, Teammate> team = new HashMap<>();
+    private final AtomicInteger counter = new AtomicInteger();
+
+    @RequestMapping(path = "/teammate/{id}", method = RequestMethod.GET)
+    public Teammate getTeammate(@PathVariable(name = "id") String id) {
+            return team.get(Integer.valueOf(id));
+    }
+
+    @RequestMapping(path = "/teammate", method = RequestMethod.POST)
+    public void createTeammate(@RequestBody Teammate teammate, HttpServletResponse response) {
+        int id = counter.getAndIncrement();
+        team.put(id, teammate);
+        response.setHeader("location", "/teammate/" + id);
+    }
+
+}
+```
+
+You can customize object mapper withing the configuration class providing corresponding bean that implements DataMapper interface
+```java
+@Configuration
+public class ObjectMapperConfig {
+
+    @Bean
+    @Primary
+    public DataMapper getCustomJsonMapper(){
+        return new CustomJsonMapper();
+    }
+}
+```
+
+Default object 
+
 <h2 id="opportunities-id" style="text-align: center; line-height: 4">4. Opportunities</h2>
 
 Bring Framework can be used as dependency. It will ensure the start of your Java application based on Tomcat and provide the ability to send and receive HTTP requests.
