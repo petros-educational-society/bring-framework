@@ -382,12 +382,222 @@ running Java 17 and later versions. Learn more: https://bytebuddy.net/#/tutorial
 
 As part of the IoS implementation of the Dispatcher Servlet, the following functionality was implemented:
 - application use embedded [Tomcat](https://tomcat.apache.org/)
-- application can can receive and process [POST](https://en.wikipedia.org/wiki/HTTP#Request_methods) and [GET](https://en.wikipedia.org/wiki/HTTP#Request_methods) requests
+- application can can receive and process [HEAD](https://en.wikipedia.org/wiki/HTTP#Request_methods) and [GET](https://en.wikipedia.org/wiki/HTTP#Request_methods) requests
 - exception handling
 - covered by tests
 - implemented a lot of annotations: [@PathVariable](#dictionary-id), [@RequestBody](#dictionary-id), [@RequestHeader](#dictionary-id), [@RequestMapping](#dictionary-id), [@RequestParam](#dictionary-id), [@ResponseBody](#dictionary-id), [@RestController](#dictionary-id)
 
+<h3 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">1.3. Embedded Tomcat</h3>
 
+There is an option to run Bring IoC inside a Tomcat servlet container. For this, Bring has created the WebAppInitializer
+interface.
+```java
+public interface WebAppInitializer {
+    void onStartup(ServletContext ctx) throws ServletException;
+}
+```
+This interface will be implemented in Servlet environments to programmatically configure the ServletContext.
+Implementations of this SPI will automatically detect the BringServletContainerInitializer, which is automatically
+loaded by any Servlet container as it implements of ServletContainerInitializer.
+```java
+
+@HandlesTypes(WebAppInitializer.class)
+public class BringServletContainerInitializer implements ServletContainerInitializer {
+    // implementation ...
+}
+```
+As you can see, the BringServletContainerInitializer class is annotated with @HandlesTypes(WebAppInitializer.class)
+with our interface as a parameter, and this annotation is used to declare an array of application classes that are
+passed to the ServletContainerInitializer implementation. BringServletContainerInitializer implements the onStartup
+method of the ServletContainerInitializer interface:
+
+```java
+package javax.servlet;
+
+import java.util.Set;
+
+public interface ServletContainerInitializer {
+    void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException;
+}
+```
+
+```java
+//...
+public class BringServletContainerInitializer implements ServletContainerInitializer {
+    @Override
+    public void onStartup(@Nullable Set<Class<?>> initializerClasses, ServletContext ctx) throws ServletException {
+        //...
+        if (nonNull(initializerClasses)) {
+            //...
+            for (var initializerClass : initializerClasses) {
+                if (isThisWebAppInitializerImplementation(initializerClass)) {
+                    try {
+                        initializers.add((WebAppInitializer) ReflectionUtils.accessibleConstructor(initializerClass).newInstance());
+                    } //...
+                }
+            }
+        }
+        // ...
+        for (var initializer : initializers) {
+            initializer.onStartup(ctx);
+        }
+    }
+    // implementation ...
+}
+```
+
+All work on creation and initialization of the Bring context is performed by DispatcherServletInitializer, which extends
+AbstractDispatcherServletInitializer, which in turn implements WebAppInitializer:
+
+```java
+public abstract class AbstractDispatcherServletInitializer implements WebAppInitializer {
+
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
+        registerDispatcherServlet(servletContext);
+    }
+    
+    @Nullable
+    protected abstract Class<?>[] getRootConfigClasses();
+    
+    protected WebAppContext createServletApplicationContext() {
+        return Optional.ofNullable(getRootConfigClasses())
+                .map(ServletAnnotationConfigApplicationContext::new)
+                .orElse(null);
+    }
+    
+    protected void registerDispatcherServlet(ServletContext servletContext) {
+        //...
+        var servletAppContext = createServletApplicationContext();
+        //...
+        var dispatcherServlet = createDispatcherServlet(servletAppContext);
+        //...
+        var registration = servletContext.addServlet(servletName, dispatcherServlet);
+        //...
+    }
+    //...
+    protected BasicFrameworkServlet createDispatcherServlet(WebAppContext servletAppContext) {
+        return new SimpleDispatcherServlet(servletAppContext);
+    }
+    protected abstract String[] getServletMappings();
+    //...
+    private EnumSet<DispatcherType> getDispatcherTypes() {
+        //...
+    }
+    //...
+}
+```
+As you can see in
+```java
+protected void registerDispatcherServlet(ServletContext servletContext)
+```
+method we create ServletAnnotationConfigApplicationContext and SimpleDispatcherServlet and register it in ServletContext
+```java
+public class DispatcherServletInitializer extends AbstractDispatcherServletInitializer {
+    @Nullable
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class[] {DefaultAppConfig.class, RetrofitClientConfig.class};
+    }
+
+    @Override
+    protected String[] getServletMappings() {
+        return new String[] {"/"};
+    }
+}
+```
+Above also shows how we create configuration classes and mappings.
+
+In the "demo" module, the WebDemo class was created specifically to demonstrate the work of Tomcat based on Bring.
+To see it in action, you just need to run the main method and navigate to the correct URL in your browser,
+for example http://localhost:8080/api/nasa/photos/the-larges?sol=15, and you get the biggest photo.
+```java
+package com.web.petros;
+
+// imports ...
+
+public class WebDemo {
+    public static void main(String[] args) throws LifecycleException, URISyntaxException, IOException {
+        var servletContainer = ServletContainer.getContainer();
+        servletContainer.start();
+    }
+}
+
+```
+
+To demonstrate how the servlet container works, the following configuration classes were created:
+```java
+package com.web.petros.config;
+
+import com.petros.bringframework.context.annotation.ComponentScan;
+import com.petros.bringframework.context.annotation.Configuration;
+
+@ComponentScan(basePackages = {"com.web.petros", "com.petros"})
+@Configuration
+public class DefaultAppConfig {
+}
+```
+
+```java
+package com.web.petros.config;
+// imports ...
+@Configuration
+public class RetrofitClientConfig {
+
+    @Bean
+    public NasaApiClient nasaApiClient() {
+        return new Retrofit.Builder()
+                .baseUrl("https://api.nasa.gov")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(createClient(120))
+                .build()
+                .create(NasaApiClient.class);
+    }
+
+    @Bean
+    public MarsApiClient marsApiClient() {
+        return new Retrofit.Builder()
+                .baseUrl("http://mars.jpl.nasa.gov")
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().setLenient().create()))
+                .client(createClient(240))
+                .build()
+                .create(MarsApiClient.class);
+    }
+
+    private static OkHttpClient createClient(int timeout) {
+        //implementation ...
+    }
+
+}
+```
+In the last configuration class, two http clients are created based on the retrofit and okhttp libraries, which can be
+replaced by any other open libraries.
+
+A custom controller was also added to work with the nasa api, and which can retrieve the largest size photo from
+the Mars at the specified URL:
+
+```java
+package com.web.petros.controller;
+//imports ...
+@Component
+@RestController
+public class NasaPictureController {
+
+    @InjectPlease
+    private NasaApiService service;
+    
+    @Value(value = "api.key")
+    private String apiKey;
+
+    @RequestMapping(path = "/api/nasa/photos/the-largest", method = RequestMethod.GET)
+    public byte[] getLargestPhoto(@RequestParam(name = "sol") String sol) throws IOException {
+        var response = service.getLargestPicture(Integer.parseInt(sol), apiKey);
+        return response.bytes();
+    }
+}
+
+```
 
 <h2 id="opportunities-id" style="text-align: center; line-height: 4">4. Opportunities</h2>
 
