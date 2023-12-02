@@ -66,7 +66,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     @Override
     public Object getSingleton(String beanName) {
         Object singletonObject = this.singletonObjects.get(beanName);
-        //todo test this method and find ways of solving null reference
         if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
             synchronized (this.singletonObjects) {
                 return this.singletonObjects.get(beanName);

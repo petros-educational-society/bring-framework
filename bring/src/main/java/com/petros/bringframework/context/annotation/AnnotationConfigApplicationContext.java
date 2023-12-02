@@ -10,15 +10,25 @@ import com.petros.bringframework.context.support.AbstractApplicationContext;
 import com.petros.bringframework.core.AssertUtils;
 
 /**
- * Standalone application context allows for registering classes one by one using {@link #register(Class...)}
- * as well as for classpath scanning using {@link #scan(String...)} and automatically refreshing the context.
+ * {@code AnnotationConfigApplicationContext} is a concrete implementation of
+ * {@link AbstractApplicationContext}, providing an application context that can
+ * be configured using annotation-based configuration.
  *
- * @see #register
- * @see #scan
+ * <p>This context allows for standalone usage where classes can be registered
+ * one by one using {@link #register(Class...)} as well as classpath scanning using
+ * {@link #scan(String...)}, facilitating the automatic registration and initialization
+ * of beans.
+ *
+ * <p>It can be used for programmatically configuring the context, including but
+ * not limited to, registering component classes and scanning packages for bean definitions.
+ *
+ * @see #register(Class...)
+ * @see #scan(String...)
  * @see BeanDefinitionRegistry
  * @see DefaultBeanFactory
  * @see AnnotatedBeanDefinitionReader
  * @see SimpleClassPathBeanDefinitionScanner
+ *
  * @author "Viktor Basanets"
  * @author "Maksym Oliinyk"
  * @author "Oleksii Skachkov"
@@ -39,6 +49,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         this.reader = new AnnotatedBeanDefinitionReader(registry);
         this.scanner = new SimpleClassPathBeanDefinitionScanner(registry);
         this.beanFactory = new DefaultBeanFactory(registry);
+        registerShutdownHook();
     }
 
     /**
@@ -50,7 +61,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      */
     public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
         this();
-        registerShutdownHook();
         register(componentClasses);
         refresh();
     }
@@ -64,7 +74,6 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      */
     public AnnotationConfigApplicationContext(String... basePackages) {
         this();
-        registerShutdownHook();
         scan(basePackages);
         refresh();
     }
@@ -97,7 +106,7 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
      * to fully process the new classes.
      *
      * @param componentClasses one or more component classes &mdash; for example,
-     *                         {@link Configuration @Configuration} classes
+     *                         {@link Configuration} classes
      * @see #scan(String...)
      * @see #refresh()
      */
@@ -106,6 +115,13 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
         this.reader.register(componentClasses);
     }
 
+
+    /**
+     * Scans the specified packages for component classes, registering bean definitions
+     * for discovered components.
+     *
+     * @param packages the packages to scan for component classes
+     */
     public void scan(String... packages) {
         AssertUtils.notEmpty(packages, "At least one package must be specified");
         this.scanner.scan(packages);

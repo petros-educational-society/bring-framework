@@ -3,6 +3,7 @@ package com.petros;
 import com.petros.bringframework.context.annotation.AnnotationConfigApplicationContext;
 import com.petros.config.JavaConfig;
 import com.petros.services.HelloWorld2;
+import com.petros.services.PrototypeTest;
 import com.petros.services.SayHello;
 import com.petros.services.Test;
 import com.petros.services.configtest.UserService;
@@ -38,5 +39,9 @@ public class BringDemo {
         //should be converted to test
         UserService userService = annotationConfigApplicationContext.getBean(UserService.class);
         userService.processUser("Maksym");
+
+        var prototype1 = annotationConfigApplicationContext.getBean(PrototypeTest.class);
+        var prototype2 = annotationConfigApplicationContext.getBean(PrototypeTest.class);
+        log.info("PrototypeTest: {}", prototype1.equals(prototype2));
     }
 }
