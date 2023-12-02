@@ -56,6 +56,34 @@ public abstract class AnnotationConfigUtils {
 
     }
 
+    /**
+     * Processes the scope metadata for a bean definition based on its annotation metadata.
+     * This method is responsible for extracting scope-related attributes from the provided
+     * annotation metadata and updating the given ScopeMetadata instance accordingly.
+     *
+     * The method specifically looks for the Scope annotation on the bean definition. If the
+     * annotation is present, it performs the following actions:
+     * - Retrieves the 'value' attribute from the Scope annotation and sets the scope name in
+     *   the ScopeMetadata object.
+     * - Retrieves the 'proxyMode' attribute from the Scope annotation and sets the scoped
+     *   proxy mode in the ScopeMetadata object.
+     *
+     * If the Scope annotation is not present or if it doesn't have the necessary attributes,
+     * the ScopeMetadata is left unmodified.
+     *
+     * @param scopeMetadata The ScopeMetadata instance to be updated with the scope information.
+     * @param annotationMetadata The metadata of the annotations present on the bean definition, used to
+     *                           extract the scope information.
+     */
+    public static void processScopeMetadata(ScopeMetadata scopeMetadata, AnnotationMetadata annotationMetadata) {
+        var attributes = annotationMetadata.getAnnotationAttributes(Scope.class.getName());
+
+        if (attributes != null && !attributes.isEmpty()) {
+            scopeMetadata.setScopeName(getRequiredAttribute("value", attributes.get("value"), String.class));
+            scopeMetadata.setScopedProxyMode(getRequiredAttribute("proxyMode", attributes.get("proxyMode"), ScopedProxyMode.class));
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private static <T> T getRequiredAttribute(String attributeName, Object value, Class<T> expectedType) {
         AssertUtils.notBlank(attributeName, "'attributeName' must not be null or empty");

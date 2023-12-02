@@ -65,7 +65,10 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
         if (isNull(value)) {
             var bean = super.getBean(name);
             if (nonNull(bean)) {
-                beanCacheByName.put(name, bean);
+                final BeanDefinition beanDefinition = registry.getBeanDefinition(name);
+                if(beanDefinition != null && beanDefinition.isSingleton()) {
+                    beanCacheByName.put(name, bean);
+                }
                 return bean;
             }
         }
@@ -330,7 +333,7 @@ public class DefaultBeanFactory extends AbstractAutowireCapableBeanFactory imple
             final String beanName = beanDefinitionEntry.getKey();
             final BeanDefinition beanDefinition = beanDefinitionEntry.getValue();
             boolean matchFound = false;
-            if (beanDefinition.isSingleton()) {
+            if (beanDefinition.isSingleton() || (beanDefinition.isPrototype() && allowEagerInit)) {
                 matchFound = isTypeMatch(beanName, beanDefinition, resolvableType);
             }
             if (matchFound) {

@@ -62,7 +62,7 @@ public class SimpleClassPathBeanDefinitionScanner {
         for (var beanDef : candidates) {
             final var beanName = nameGenerator.generateBeanName(beanDef, registry);
             var scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(beanDef);
-            beanDef.setScope(scopeMetadata.scopeName());
+            beanDef.setScope(scopeMetadata.getScopeName());
             if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
                 AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedBeanDefinition);
             }
