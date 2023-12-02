@@ -334,8 +334,48 @@ public class MyService {
     }
 }
 ```
+### 2.5 Configuration
+The `@Configuration` annotation indicates that a class declares one or more `@Bean` methods and may be processed by the 
+Bring container to generate bean definitions and service requests for those beans at runtime.
+To ensure the proper handling of bean lifecycle and dependencies, particularly in the context of bean method calls, 
+Bring enhance proxy under bean annotated with `@Configuration`. This is done to intercept calls to methods annotated with `@Bean`.
+The proxy ensures that the semantics of bean creation and dependency management are correctly followed, especially regarding the singleton behavior and inter-bean dependencies.
 
+By default, beans defined in a `@Configuration` class are singletons. When a `@Bean` annotated method is called directly, 
+it should return the same instance each time for a singleton bean. The proxy intercepts calls to `@Bean` methods. 
+If the bean is already created and stored in the context, the proxy returns the existing instance instead of creating a new one. 
+This enforces the singleton pattern.
 
+##### 2.5.1 Handling Inter-Bean Dependencies
+ * Method Calls Within `@Configuration`: Consider a configuration class with multiple `@Bean` methods, where one bean method calls another. To handle dependencies correctly, the creation of these beans needs to be intercepted and managed by container.
+ * Interception by Proxy: The proxy ensures that such method calls go through the container, allowing it to manage the dependencies between beans correctly.
+This is crucial for respecting dependency injection and lifecycle management.
+```java
+@Configuration
+public class AppConfig {
+    @Bean
+    public MyService myService() {
+        return new MyServiceImpl(myRepository()); // <-- Notice the method call. Retrieve bean from context 
+    }
+
+    @Bean("myRepository")
+    public MyRepository myRepository() {
+        return new MyRepositoryImpl();
+    }
+}
+```
+We utilize ByteBuddy for bytecode generation and manipulation instead of cglib. This decision is primarily driven by compatibility issues 
+encountered with cglib in Java 17 and newer versions.
+
+With Java 17, we observed that cglib fails to function correctly as it generates bytecode 
+that attempts to invoke protected methods (InaccessibleObjectException –> Unable to make protected final java.lang.Class java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int,java.security.ProtectionDomain)). Such calls are not permissible by the JVM
+in newer JDK versions, resulting in runtime exceptions. This issue is particularly
+problematic due to the enhanced enforcement of access restrictions in JDK 17 and beyond.
+
+ByteBuddy, on the other hand, is fully compatible with Java 17, adhering to its stricter
+access control mechanisms. It offers a robust and efficient alternative for bytecode
+manipulation, ensuring smooth operation and stability of our application in environments
+running Java 17 and later versions. Learn more: https://bytebuddy.net/#/tutorial
 
 <h2 id="dispatcher-servlet-id" style="text-align: center; line-height: 4">3. Dispatcher Servlet</h2>
 
