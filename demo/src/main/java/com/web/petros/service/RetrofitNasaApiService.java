@@ -6,6 +6,7 @@ import com.petros.bringframework.context.annotation.Component;
 import com.web.petros.data.PhotoInfo;
 import com.web.petros.http.client.MarsApiClient;
 import com.web.petros.http.client.NasaApiClient;
+import lombok.extern.log4j.Log4j2;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.HttpException;
@@ -22,6 +23,7 @@ import static java.util.Objects.nonNull;
  * @author Viktor Basanets
  * @Project: bring-framework
  */
+@Log4j2
 @Component
 public class RetrofitNasaApiService implements NasaApiService {
 
@@ -64,7 +66,7 @@ public class RetrofitNasaApiService implements NasaApiService {
 
         if (contentLengthStr != null) {
             var info = new PhotoInfo(url, Long.parseLong(contentLengthStr));
-            System.out.println(info);
+            log.debug("Received {}", info);
             return info;
         }
 
