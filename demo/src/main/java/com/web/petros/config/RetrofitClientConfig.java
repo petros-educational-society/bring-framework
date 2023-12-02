@@ -33,7 +33,6 @@ public class RetrofitClientConfig {
 
     @Bean
     public MarsApiClient marsApiClient() {
-        var srt = "http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/00015/opgs/edr/fcam/FLA_398830957EDR_S0030008FHAZ00102M_.JPG";
         return new Retrofit.Builder()
                 .baseUrl("http://mars.jpl.nasa.gov")
                 .addConverterFactory(ScalarsConverterFactory.create())
@@ -52,5 +51,4 @@ public class RetrofitClientConfig {
                         .proceed(chain.request()))
                 .build();
     }
-
 }
