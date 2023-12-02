@@ -422,36 +422,27 @@ public interface ServletContainerInitializer {
 ```
 
 ```java
-@HandlesTypes(WebAppInitializer.class)
+//...
 public class BringServletContainerInitializer implements ServletContainerInitializer {
     @Override
     public void onStartup(@Nullable Set<Class<?>> initializerClasses, ServletContext ctx) throws ServletException {
-        List<WebAppInitializer> initializers = Collections.emptyList();
+        //...
         if (nonNull(initializerClasses)) {
-            initializers = new ArrayList<>(initializerClasses.size());
+            //...
             for (var initializerClass : initializerClasses) {
                 if (isThisWebAppInitializerImplementation(initializerClass)) {
                     try {
                         initializers.add((WebAppInitializer) ReflectionUtils.accessibleConstructor(initializerClass).newInstance());
-                    }
-                    catch (Throwable ex) {
-                        throw new ServletException("Failed to instantiate WebAppInitializer class", ex);
-                    }
+                    } //...
                 }
             }
         }
-
         // ...
-
-        ctx.log(initializers.size() + " Bring WebAppInitializers detected on classpath");
         for (var initializer : initializers) {
             initializer.onStartup(ctx);
         }
     }
-
-    private boolean isThisWebAppInitializerImplementation(Class<?> initializerClass) {
-        /// implementation ...
-    }
+    // implementation ...
 }
 ```
 
@@ -478,50 +469,21 @@ public abstract class AbstractDispatcherServletInitializer implements WebAppInit
     protected void registerDispatcherServlet(ServletContext servletContext) {
         //...
         var servletAppContext = createServletApplicationContext();
-        notNull(servletAppContext, "createServletAppContext() must not return null");
-
+        //...
         var dispatcherServlet = createDispatcherServlet(servletAppContext);
-        notNull(dispatcherServlet, "createDispatcherServlet(WebAppContext) must not return null");
-
+        //...
         var registration = servletContext.addServlet(servletName, dispatcherServlet);
         //...
     }
-
     //...
-    
     protected BasicFrameworkServlet createDispatcherServlet(WebAppContext servletAppContext) {
         return new SimpleDispatcherServlet(servletAppContext);
     }
-    
     protected abstract String[] getServletMappings();
-    
     //...
-    
-    protected FilterRegistration.Dynamic registerServletFilter(ServletContext servletContext, Filter filter) {
-        var filterName = Conventions.getVariableName(filter);
-        var registration = servletContext.addFilter(filterName, filter);
-
-        if (registration == null) {
-            int counter = 0;
-            while (registration == null) {
-                if (counter == 100) {
-                    throw new IllegalStateException("Failed to register filter with name '" + filterName + "'. " +
-                            "Check if there is another filter registered under the same name.");
-                }
-                registration = servletContext.addFilter(filterName + "#" + counter, filter);
-                counter++;
-            }
-        }
-
-        registration.setAsyncSupported(isAsyncSupported());
-        registration.addMappingForServletNames(getDispatcherTypes(), false, getServletName());
-        return registration;
-    }
-
     private EnumSet<DispatcherType> getDispatcherTypes() {
         //...
     }
-    
     //...
 }
 ```
@@ -552,11 +514,7 @@ for example http://localhost:8080/api/nasa/photos/the-larges?sol=15, and you get
 ```java
 package com.web.petros;
 
-import com.web.petros.server.ServletContainer;
-import org.apache.catalina.LifecycleException;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
+// imports ...
 
 public class WebDemo {
     public static void main(String[] args) throws LifecycleException, URISyntaxException, IOException {
@@ -582,25 +540,7 @@ public class DefaultAppConfig {
 
 ```java
 package com.web.petros.config;
-
-import com.google.gson.GsonBuilder;
-import com.petros.bringframework.context.annotation.Bean;
-import com.petros.bringframework.context.annotation.Configuration;
-import com.web.petros.http.client.MarsApiClient;
-import com.web.petros.http.client.NasaApiClient;
-import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
-
-import java.util.concurrent.TimeUnit;
-
-import static com.web.petros.http.OkHttpConnectionPool.CONNECTION_POOL;
-
-/**
- * @author Viktor Basanets
- * @Project: bring-framework
- */
+// imports ...
 @Configuration
 public class RetrofitClientConfig {
 
@@ -626,13 +566,7 @@ public class RetrofitClientConfig {
     }
 
     private static OkHttpClient createClient(int timeout) {
-        return new OkHttpClient.Builder()
-                .connectionPool(CONNECTION_POOL)
-                .addInterceptor(chain -> chain.withConnectTimeout(timeout, TimeUnit.SECONDS)
-                        .withWriteTimeout(timeout, TimeUnit.SECONDS)
-                        .withReadTimeout(timeout, TimeUnit.SECONDS)
-                        .proceed(chain.request()))
-                .build();
+        //implementation ...
     }
 
 }
@@ -645,11 +579,7 @@ the Mars at the specified URL:
 
 ```java
 package com.web.petros.controller;
-
 //imports ...
-
-import java.io.IOException;
-
 @Component
 @RestController
 public class NasaPictureController {
