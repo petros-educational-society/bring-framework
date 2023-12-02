@@ -3,6 +3,7 @@ package com.petros.bringframework.web.servlet;
 import com.petros.bringframework.web.context.WebAppContext;
 import com.petros.bringframework.web.context.annotation.ServletAnnotationConfigApplicationContext;
 import com.petros.bringframework.web.servlet.support.common.RequestMethod;
+import com.petros.bringframework.web.servlet.support.mapper.DataMapper;
 import com.petros.bringframework.web.servlet.support.utils.Http;
 
 import javax.annotation.Nullable;
@@ -33,8 +34,10 @@ public abstract class BasicFrameworkServlet extends HttpServlet {
     protected void handleRequest(HttpServletRequest req, HttpServletResponse resp, RequestMethod method){
         var ctx = (ServletAnnotationConfigApplicationContext) webAppContext;
         var servletPath = req.getServletPath();
-        var methodHandler = ctx.getRequestHandlerRegistry().getHandler(method, servletPath);
+        var handlerRegistry = ctx.getRequestHandlerRegistry();
+        handlerRegistry.setMapper(ctx.getBean(DataMapper.class));
+        var methodHandler = handlerRegistry.getHandler(method, servletPath);
 
-        methodHandler.ifPresentOrElse(handler -> handler.invoke(req, resp), () -> Http.sendBadRequest(resp));
+        methodHandler.ifPresentOrElse(handler -> handler.invoke(req, resp), () -> Http.sendNotFound(resp));
     }
 }

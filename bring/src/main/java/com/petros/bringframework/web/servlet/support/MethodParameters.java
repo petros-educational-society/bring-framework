@@ -26,11 +26,11 @@ public class MethodParameters {
         this.requestParamsToPosition.put(name, position);
     }
 
-    public void addPathVariableMapping(int mappingPosition, int parameterPosition) {
+    public void addPathVariableMapping(Integer mappingPosition, int parameterPosition) {
         this.pathVariablesMapping.put(mappingPosition, parameterPosition);
     }
 
-    public int getPathVariableParamPosition(int mappingPosition){
+    public Integer getPathVariableParamPosition(int mappingPosition){
         return pathVariablesMapping.get(mappingPosition);
     }
 
