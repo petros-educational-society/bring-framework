@@ -27,7 +27,8 @@ public class RequestHandlerRegistry {
 
     public void registerHandlerList(List<Method> methodList, Object controllerBean) {
         for (Method method : methodList) {
-            factorySet.add(new RequestHandlerFactory(method, controllerBean));
+            if (!factorySet.add(new RequestHandlerFactory(method, controllerBean)))
+                throw new DuplicatedMappingException();
         }
     }
 

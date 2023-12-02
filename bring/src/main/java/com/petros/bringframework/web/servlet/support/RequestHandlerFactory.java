@@ -65,6 +65,24 @@ public class RequestHandlerFactory {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RequestHandlerFactory that = (RequestHandlerFactory) o;
+
+        if (requestMethod != that.requestMethod) return false;
+        return getRequestMapping().equals(that.getRequestMapping());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = requestMethod.hashCode();
+        result = 31 * result + getRequestMapping().hashCode();
+        return result;
+    }
+
     public boolean isMatching(RequestMethod requestMethod, String path) {
         Matcher matcher = pattern.matcher(path);
         return requestMethod == this.requestMethod && matcher.matches();
