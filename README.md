@@ -177,6 +177,7 @@ In this example, `MyRestController` is a REST controller bean handling HTTP GET 
 ###### 2.2.2 Instantiating Multiple Beans of the Same Class
 Bring framework allow to create multiple beans of the same class. But it will work for now only if one of the beans is marked as `@Primary`.
 The simplest and easiest way to create multiple beans of the same class using java configuration
+
 ```java 
 @Configuration
 public class JavaConfig {
@@ -296,7 +297,7 @@ Currently it can be applied only at field
 @Component
 public class MyService {
 
-    @Value("${my.service.name}")
+    @Value(value = "my.service.name")
     private String name;
 
 }
